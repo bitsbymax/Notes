@@ -92,6 +92,7 @@
         }
     - В _NgModule_ в _declarations_ додати SomeBasicDirective
     - В потрібний елемент DOM додати атрибут _someName_, назва якого має відповідати тій, що у властивості selector нашої директиви - таким чином ми задамо колір нашому елементу
+  
         ---- Цей спосіб(звернення до елемента напряму) не є найкращим варіантом його модифікації, так як Angular може рендерити темплейти без DOM дерева і тоді властивість, наприклад, style, буде недоступною.
     - Тому краще викор. другий варіант з **Renderer2**:
           import { **Renderer2** } from '@angular/core'
@@ -283,7 +284,7 @@
           resolve: { server: ServerResolver }, server - довільна назва, ServerResolver - написанй нами СЕРВІС
         }
 
-10.   _Observables_------------------------------------------------------------------------------------
+1.    _Observables_------------------------------------------------------------------------------------
 
       **Observable** --> Various Data Sources(User Input, Events, Http Requests, Triggered in Code)
       **Observer** --> You write the code which gets executed(Handle Data, Handle Error, Handle Completion)
