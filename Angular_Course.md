@@ -36,7 +36,7 @@
             <p*ngSwitchDefault>Value is Default</p>
           </div>
 
-4.1 _ng-container_ 
+4.1 _ng-container_
     
   Працює як **Fragment** в React, тобто його можна викор. коли ми хочемо додати обгортку для якогось HTML елемента, але не хочемо додавати лишній HTML елемент на сторінку. На _ng-container_ також можна додавати структурні директиви.
 
