@@ -293,8 +293,8 @@
       _Operators_-------------
       
       Такі собі посередники, які можна застосовувати до даних, які ми отримуємо від Observable перед тим, як ці дані будуть передані як Subscription до Observer для подальшої робити з ними.
-      Їх можна застосовувати до будь-яких _Observable_ викликаючи метод **pipe()** з rxjs, який є у кожного _Observable_. Цей метод якраз і використовує чи приймає один з операторів, наприклад map(), filter(), select(), merge(), of(), from(), shareReplay(), tap(), mergeMap(), swichMap(), concatMap(), exhaustMap():
-      _pipe(map(() => {}))_ Кількість операторів, які можна передати - необмежена, вказуються через кому
+      Їх можна застосовувати до будь-яких _Observable_ викликаючи метод **pipe()** з rxjs, який є у кожного _Observable_. Цей метод якраз і використовує чи приймає один з операторів, наприклад map(), filter(), select(), merge(), of(), from(), shareReplay(), tap() - дає можливість виконати якийсь код не чіпаючи при цьому дані, які приходять нам в subscribe() , mergeMap(), swichMap(), concatMap(), exhaustMap():
+      _pipe(map(() => {}),)_ Кількість операторів, які можна передати - необмежена, вказуються через кому
 
       _Subjects_--------------also _BehaviorSubjects_, _ReplaySubjects_, _AsyncSubjects_
 
