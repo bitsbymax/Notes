@@ -1,1 +1,2 @@
 Password for VSC label: ATBBBAjrMXmvHNAFMFwELh7ZptZTE2785FCC
+fingerprint: SHA256:kysxvG7XnPx/uRaHfI/T5yeQhsKK2WdpEPGaRjpgdEw rocketjet@dev-pc
