@@ -432,3 +432,31 @@
     Суть полягає в тому, щоб завантажувати певні модулі(і весь їх вміст) лише тоді, коли ми переходитимо по певним маршрутам, які відповідатимуть цим модулям. Тобто при використанні цього підходу ми на початку завантажуватимемо лише модуль кореневого, тобто початкового маршруту.
     Приклад імплементації є в app-routing.module.ts 
     Також там є приклад використання _preloadingStrategy_ - інструмент, класу _RouterModule_  який дає можливість передзавантаження lazy-loaded коду для того, щоб прибрати можливу затримку, яка може виникнути при його завантаженні(цього коду).
+
+
+19. _Standalone Components_-----------------------------------------------------------------------------------------------
+    
+    Standalone components are regular Angular components with one important twist: They don't require a **@NgModule** as a wrapper.
+    Instead, you can use them, well, "standalone". They define their own dependencies and can be imported and used anywhere.
+    It's also not just "standalone components", but also "*standalone directives*" and "*standalone pipes*".
+    Також самостійні компоненти можна використовувати разом із стандартним підходом з декоратором @NgModule
+
+    @Component({
+      standalone: true, //ця властивість зі значенням true говорить Ангуляру про те, що це самостійний компонент. Його не потрібно передавати в _declarations[]_ модулю
+      selector: 'app-test',
+      templateUrl: './test.component.html',
+      styleUrls: ['./test.component.css'],
+    })
+
+    Якщо ми хочемо використовувати такий компонент в інших компонентах якогось модуля, потрібно передати його в _imports[]_ цього модуля
+
+    Стосовно директив, якщо ми хочемо викор. директиву в самостійному компоненті, є два підхода. Перший, зробити директиву теж standalone і передати її в _imports[]_. Другий, проміжний, в нашому компоненті в _imports[]_ додати модуль, де додана потрібна нам директива.
+
+    Якщо ми хочемо зробити самостійним наш кореневий компонент, потрібно в main.ts викор. **bootstrapApplication(AppComponent);** де AppComponent - кореневий компонент.
+
+    **Services and Standalone Components**
+    По дефолту, щоб сервіс був доступний всюди, викор. @Injectable({ providedIn: 'root' }). Це вирішує всі проблеми.
+    Також, можна передати сервіс в **bootstrapApplication(AppComponent, {providers: SomeService});**. В обох випадках використовуватиметься єдиний екземпляр класу цього сервісу.
+    Можна додати сервіс напряму в standalone компонент в _providers[]_. тоді у цьому компоненті буде власний екземпляр класу цього сервіса.
+
+    Реалізацію Routing і lazy loading для самостійних компонентів можна глянути в standalone-components додатку.
