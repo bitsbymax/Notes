@@ -485,4 +485,6 @@
 
 21. _Angular Elements_
 
-    
+    Ця фіча дає можливість перетворити звичайний angular component в нативний web component (custom html element so to say), які є частиною DOM і які можна викор. в JS чи інших фреймворках.
+    Реалізація описана в ng-elements застосунку.
+    npm install @angular/elements -  для інсталяції пакета
