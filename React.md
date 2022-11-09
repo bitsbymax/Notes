@@ -1,3 +1,7 @@
+JavaScript frameworks were created to make this kind of work a lot easier — they exist to provide a better developer experience. They don't bring brand-new powers to JavaScript; they give you easier access to JavaScript's powers so you can build for today's web.
+
+_tree-shaking_ (removal of any code that isn't actually used in the app during the build process)
+
 * npx - the npm tool that allow you to download npm package and execute it
 * Хуки не можна використовувати в умовах чи циклах
 * Чому не можна мутувати state? Тому що в процесі діффінгу, Реакт не заходить в об'єкти і не порівнює їх властивості, він порівнює лише посилання на ці об'єкти. І якщо воно не змінилось, то Реакт вважатиме, що state не змінився
