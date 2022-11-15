@@ -13,6 +13,20 @@ There are a few things you need to consider when building modern applications. S
 
 JavaScript frameworks were created to make this kind of work a lot easier — they exist to provide a better developer experience. They don't bring brand-new powers to JavaScript; they give you easier access to JavaScript's powers so you can build for today's web.
 
+## Steps to be done to move an application from development to production. 
+ * *compile*
+    Compiling refers to the process of taking code in one language and outputting it in another language or another version of that language
+ * *minify*
+    Minification is the process of removing unnecessary code formatting and comments without changing the code’s functionality. The goal is to improve the application’s performance by decreasing file sizes
+ * *bundle*
+    Bundling is the process of resolving the web of dependencies and merging (or ‘packaging’) the files (or modules) into optimized bundles for the browser, with the goal of reducing the number of requests for files when a user visits a web page
+ * *code split*
+    Developers usually split their applications into multiple pages that can be accessed from different URLs. Each of these pages becomes a unique entry point into the application.
+    Code-splitting is the process of splitting the application’s bundle into smaller chunks required by each entry point. The goal is to improve the application's initial load time by only loading the code required to run that page.
+  
+**Build time** (or build step) is the name given to a series of steps that prepare your application code for production.
+**Runtime** (or request time) refers to the period of time when your application runs in response to a user’s request, after your application has been built and deployed.
+
 _tree-shaking_ (removal of any code that isn't actually used in the app during the build process)
 
 * npx - the npm tool that allow you to download npm package and execute it
@@ -29,7 +43,8 @@ _tree-shaking_ (removal of any code that isn't actually used in the app during t
 
     const App = () => <AppH1><TranslatedText text='hello' /></AppH1> 
   ```
-  Таким чином ми передаємо в компонент AppH1 інший компонент TranslatedText, до якого буде доступ через props.children
+  Таким чином ми передаємо в компонент AppH1 інший компонент TranslatedText, до якого буде доступ через props.children. Це називається *Components Composition*
+
 * Component Lifecycle
   # Class based                          Functional
   Initialization                         -
@@ -46,3 +61,13 @@ _tree-shaking_ (removal of any code that isn't actually used in the app during t
   Data is the single source of truth. Separating VIEW and DATA is super important!
   Declarative over Imperative. You write what you want to get, but not a way how to get it
   Based on components
+
+* При використанні *useState()* в компоненті, який перевикористовується, стан буде незалежний для кожного виклику цього компоненту. Так само це працюватиме і для використання декількох станів в одному компоненті.
+
+## Lifting state up pattern
+  Як передавати дані з дочірнього компонента в батьківський?
+  Є компонент А і дочірній В. В компоненті В є дані, які потрібні нам в компоненті А, наприклад inputData. Для цього ми в компоненті А створюємо handlerFunction, яка як аргумент прийматиме дані, які ми передаватимемо з компонента В. Далі в компонент В ми передаватимемо props onSomething={handlerFunction}. І вже в компоненті B ми викликатимемо цю функцію, яку ми передали через props і передаватимемо туди наші дані з компонета В -> props.onSomething(inputData); 
+  
+  Також за допомогою цього паттерна ми можемо ділитися даними між компонентами, які мають спільний батьківський компонент. Тобто якщо є спільний батьківський компонент А і два дочірніх В і С, і дані з С нам потрібні в Б, ми ці дані "піднімаємо" з С в А і далі передаємо в В.
+
+* Компоненти в React діляться на Stateful components і Presentational components, Smart or Dumb. Також компоненти можуть буть Controlled і Uncontrolled   
