@@ -70,4 +70,19 @@ _tree-shaking_ (removal of any code that isn't actually used in the app during t
   
   Також за допомогою цього паттерна ми можемо ділитися даними між компонентами, які мають спільний батьківський компонент. Тобто якщо є спільний батьківський компонент А і два дочірніх В і С, і дані з С нам потрібні в Б, ми ці дані "піднімаємо" з С в А і далі передаємо в В.
 
-* Компоненти в React діляться на Stateful components і Presentational components, Smart or Dumb. Також компоненти можуть буть Controlled і Uncontrolled   
+* Компоненти в React діляться на Stateful components і Presentational components, Smart or Dumb. Також компоненти можуть буть Controlled і Uncontrolled (часто таку характеристику можна побачити і для форм). Форма, чи інпут, для контролю якого викор. *Two-way binding* через прив'язку значення input'a до змінної з useState() до атрибуту *value* вважається контрольованою. Інпут, значення якого отримується через _ref_ вважається неконтрольованим, так як React напряму ніяк не контролює і не модифікує значення цього input'a, а лише читає.
+
+* Компонент обгортка (_Wrapper_)- дає можливість замінити необов'язковий <div> у випадках, коли цей <div> нам потрібен лише для того, щоб відмалювати більше одного кореневого елемента.
+  ```js
+  const Wrapper = props => props.children;
+  ``` 
+  Також можна використати _Fragment_ <></>
+
+*React Portals* - дає зручний спосіб рендерингу компонентів поза межами їх батьківського компонента, хоча при цьому в структурі компонентів, визначених в React нічого не міняється. Розташування розмітки, яку цей компонент повертає, зміниться вже в реальній DOM.
+```js
+ReactDOM.createPortal(child, container)
+```
+Цей інструмент зазвичай викор. для Modal dialog boxes, Tooltips, Hovercards, Loaders
+## Re-render in React
+  There are four reasons why a component would re-render itself: state changes, parent (or children) re-renders, context changes, and hooks changes.
+  It always goes “down” the tree: the re-render of a child doesn’t trigger the re-render of a parent.
