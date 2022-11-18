@@ -86,3 +86,23 @@ ReactDOM.createPortal(child, container)
 ## Re-render in React
   There are four reasons why a component would re-render itself: state changes, parent (or children) re-renders, context changes, and hooks changes.
   It always goes “down” the tree: the re-render of a child doesn’t trigger the re-render of a parent.
+
+
+## React hooks
+
+  **useEffect**(() => {}, [dependencies]) - хук для виконання так званих _Side effects_(http запити, работа з таймера, localStorage і в той же час, наприклад, перевірка і оновлення стану валідності форми після кожного нового введеного символу це теж side effect), який спрацьовуватиме за певних обставин, в залежності від того, як його використовувати.
+
+  For someone who really not understand the useEffect hook.
+  1. useEffect hook without mentioning any dependency array like - useEffect(someCallbackFuction) runs for every render of the functional component in which its included AFTER component is rendered.
+  2. useEffect hook with an empty dependency array like this - useEffect(callbackFunc, []) is executed only for the the initial render of the component. And then it will not run in the further renders of the same functional Component until page will refresh in browser.
+  3. useEffect hook with some dependencies inside the dependency array like this - useEffect(callbackFunc , [dependency]) will run for the initial render as well as when the render happen due to change in dependencies mentioned in the dependency array.
+  
+  useEffect(() => {
+    ...
+    return () => {} <--- _CLEAN UP FUNCTION_. Ця фу-ція викликатиметься перед тим, як викликатиметься callback, всередині якого знаходиться ця clean up функція, але за виключенням першого рендерингу. І також перед тим, як компонент буде розмонтовано, тобто видалено з DOM.
+  }, [])
+
+  **useReducer()** --> _const [state, dispatchFn] = useReducer(reducerFn, initialState, initFn)_ - хук, який виступає заміною useState(), якщо нам треба більше потужний state management. Наприклад, коли нам потрібно оновити стан, який залежить від іншого стану. Для таких випадків useState() не дуже підходить, так як це порушує правило функціонального оновлення стану на основі попереднього стану.
+  * _state_ - містить у собі знімок останнього стану, тобто інфо-цію про те, яким він є на момент, коли ми викликатимемо функцію для його оновлення
+  * _dispatchFn_ - функція, яка оновлює стан. Але працює вона таким чином, що вона не просто встановлює нове значення стану, а відправляє чи посилає(*dispatch*) якусь дію(*action*), яка автоматично попадатиме у *reducerFn*
+  *  _reducerFn_ - (prevState, action) => newState - функція, яку Реакт автоматично викликатиме кожного разу, коли викликатиметься *dispatchFn* і яка автоматично отримує актуальний на момент виклику стан(*state*) і дію(*action*), яку ми передали в *dispatchFn*. І повертає оновлений стан.
