@@ -30,7 +30,6 @@ JavaScript frameworks were created to make this kind of work a lot easier — th
 _tree-shaking_ (removal of any code that isn't actually used in the app during the build process)
 
 * npx - the npm tool that allow you to download npm package and execute it
-* Хуки не можна використовувати в умовах чи циклах
 * Чому не можна мутувати state? Тому що в процесі діффінгу, Реакт не заходить в об'єкти і не порівнює їх властивості, він порівнює лише посилання на ці об'єкти. І якщо воно не змінилось, то Реакт вважатиме, що state не змінився
 * Simpler way to pass single component:
   ```javascript
@@ -89,6 +88,10 @@ ReactDOM.createPortal(child, container)
 
 
 ## React hooks
+
+  _Правила використання хуків_:
+  - Викор. їх тільки в реакт компонентах або в кастомних хуках
+  - Викликати їх потрібно лише на верхньому рівні. Тобто всередині умов чи циклів чи вкладених функцій це робити заборонено.
 
   **useEffect**(() => {}, [dependencies]) - хук для виконання так званих _Side effects_(http запити, работа з таймера, localStorage і в той же час, наприклад, перевірка і оновлення стану валідності форми після кожного нового введеного символу це теж side effect), який спрацьовуватиме за певних обставин, в залежності від того, як його використовувати.
 
