@@ -61,8 +61,6 @@ _tree-shaking_ (removal of any code that isn't actually used in the app during t
   Declarative over Imperative. You write what you want to get, but not a way how to get it
   Based on components
 
-* При використанні *useState()* в компоненті, який перевикористовується, стан буде незалежний для кожного виклику цього компоненту. Так само це працюватиме і для використання декількох станів в одному компоненті.
-
 ## Lifting state up pattern
   Як передавати дані з дочірнього компонента в батьківський?
   Є компонент А і дочірній В. В компоненті В є дані, які потрібні нам в компоненті А, наприклад inputData. Для цього ми в компоненті А створюємо handlerFunction, яка як аргумент прийматиме дані, які ми передаватимемо з компонента В. Далі в компонент В ми передаватимемо props onSomething={handlerFunction}. І вже в компоненті B ми викликатимемо цю функцію, яку ми передали через props і передаватимемо туди наші дані з компонета В -> props.onSomething(inputData); 
@@ -92,8 +90,37 @@ ReactDOM.createPortal(child, container)
   _Правила використання хуків_:
   - Викор. їх тільки в реакт компонентах або в кастомних хуках
   - Викликати їх потрібно лише на верхньому рівні. Тобто всередині умов чи циклів чи вкладених функцій це робити заборонено.
+  
+  **useState** ---> _const [value, setValue] = useState(defaultValue)_ - хук для роботи зі станом, який приймає дефолтне значення для змінної value і повертає масив з встановленим value і метод, який це value змінює. І на кожну таку зміну Реакту буде перемальовувати компонент.
+  При використанні *useState()* в компоненті, який перевикористовується, стан буде незалежний для кожного виклику цього компоненту. Так само це працюватиме і для використання декількох станів в одному компоненті.
+  Дефолтне значення для value буде встановлено при першій ініціалізації компонента і після його зміни, повертатиметься вже нове значення.
+  У випадках, коли ми використовуємо цей хук для відслідковування і оновлення стану полів форми, можна викор. два підхода:
+    ```js
+    INITIATING STATE
+    const [enteredTitle, setEnteredTitle] = useState(''); // підхід зі створенням стейту для кожного поля
+    const [enteredAmount, setEnteredAmount] = useState('');
+    const [enteredDate, setEnteredDate] = useState('');
+    // const [userInput, setUserInput] = useState({ // підхід зі створенням об'єкту зі всіма полями
+    //   enteredTitle: '',
+    //   enteredAmount: '',
+    //   enteredDate: '',
+    // });
 
-  **useEffect**(() => {}, [dependencies]) - хук для виконання так званих _Side effects_(http запити, работа з таймера, localStorage і в той же час, наприклад, перевірка і оновлення стану валідності форми після кожного нового введеного символу це теж side effect), який спрацьовуватиме за певних обставин, в залежності від того, як його використовувати.
+    STATE UPDATING
+    setEnteredTitle(event.target.value); //оновлення стану конкретного поля через відповідний метод
+      'STATE UPDATING' при використанні підходу з об_єктом зі всіма полями
+      ВАРІАНТ 1
+      //  setUserInput({
+      //   ...userInput,
+      //   enteredTitle: event.target.value,
+      // });
+      ВАРІАНТ 2 - більш коректний підхід з використанням попереднього стану. Так як Реакт оновлює стан не одразу, а в порядку черги, у випадку використання ВАРІАНТУ 1, якщо буде заплановано багато оновлень стану одночасно, можуть виникати ситуації, коли ми отримуватимемо як попередній, некоректний або застарілий стан. ВАРІАНТ 2 цьому запобігає.
+      // setUserInput((prevState) => {
+      //   return { ...prevState, enteredTitle: event.target.value };
+      // });
+    ```
+
+  **useEffect**(() => {}, [dependencies]) - хук для виконання так званих _Side effects_(http запити, работа з таймера, localStorage і в той же час, наприклад, перевірка і оновлення стану валідності форми після кожного нового введеного символу це теж side effect, який спрацьовуватиме за певних обставин, в залежності від того, як його використовувати.
 
   For someone who really not understand the useEffect hook.
   1. useEffect hook without mentioning any dependency array like - useEffect(someCallbackFuction) runs for every render of the functional component in which its included AFTER component is rendered.
@@ -105,7 +132,84 @@ ReactDOM.createPortal(child, container)
     return () => {} <--- _CLEAN UP FUNCTION_. Ця фу-ція викликатиметься перед тим, як викликатиметься callback, всередині якого знаходиться ця clean up функція, але за виключенням першого рендерингу. І також перед тим, як компонент буде розмонтовано, тобто видалено з DOM.
   }, [])
 
+  * Що передавати в [dependencies] а що ні:
+    - You DON'T need to add state updating functions (as we did in the last lecture with setFormIsValid): React guarantees that those functions never change, hence you don't need to add them as dependencies (you could though)
+    - You also DON'T need to add "built-in" APIs or functions like fetch(), localStorage etc (functions and features built-into the browser and hence available globally): These browser APIs / global functions are not related to the React component render cycle and they also never change
+    - You also DON'T need to add variables or functions you might've defined OUTSIDE of your components (e.g. if you create a new helper function in a separate file): Such functions or variables also are not created inside of a component function and hence changing them won't affect your components (components won't be re-evaluated if such variables or functions change and vice-versa)
+
+  * So long story short: You must add all "things" you use in your effect function if those "things" could change because your component (or some parent component) re-rendered. That's why variables or state defined in component functions, props or functions defined in component functions have to be added as dependencies!
+
+  * Також, коли нам потрібно передати в хук useEffect() в [dependencies] дані з якогось об'єкту, ми завжди передаємо лише якусь конкретну проперті, а не весь об'єкт 
+
   **useReducer()** --> _const [state, dispatchFn] = useReducer(reducerFn, initialState, initFn)_ - хук, який виступає заміною useState(), якщо нам треба більше потужний state management. Наприклад, коли нам потрібно оновити стан, який залежить від іншого стану. Для таких випадків useState() не дуже підходить, так як це порушує правило функціонального оновлення стану на основі попереднього стану.
   * _state_ - містить у собі знімок останнього стану, тобто інфо-цію про те, яким він є на момент, коли ми викликатимемо функцію для його оновлення
-  * _dispatchFn_ - функція, яка оновлює стан. Але працює вона таким чином, що вона не просто встановлює нове значення стану, а відправляє чи посилає(*dispatch*) якусь дію(*action*), яка автоматично попадатиме у *reducerFn*
+  * _dispatchFn_ - функція, яка оновлює стан. Але працює вона таким чином, що вона не просто встановлює нове значення стану, а відправляє чи посилає(*dispatch*) якусь дію(*action*), яка автоматично попадатиме у *reducerFn*. Як правило це об'єкт з двома ключами {type: 'someType', payload: 'someData'}
   *  _reducerFn_ - (prevState, action) => newState - функція, яку Реакт автоматично викликатиме кожного разу, коли викликатиметься *dispatchFn* і яка автоматично отримує актуальний на момент виклику стан(*state*) і дію(*action*), яку ми передали в *dispatchFn*. І повертає оновлений стан.
+
+
+## React Context API
+
+  _React Context_ - component-wide, "behind the scenes" State Storage.
+  Цей API вирішує проблему передачі даних між компонентами, які не мають прямого зв'язку, а піднімати (передавати) їх догори по дереву компонентів до найближчого спільного компонента незручно.
+  А з _React Context_ в нас є можливість цей стан зберігати і змінювати централізовано в одному місці і при потребі його використовувати в тих компонентах, де це потрібно.
+
+  Створюється окремий файл, в якому ми ініціюємо створення об'єкту контексту.
+  ```js
+  const AuthContext = React.createContext({
+    isLoggedIn: false //_defaultValue_ 
+  });
+
+  export default AuthContext;
+  ```
+  Code above creates a _Context_ object. When React renders a component that subscribes to this Context object it will read the current context value from the closest matching _Provider_ above it in the tree.
+  The _defaultValue_ argument is only used when a component does not have a matching _Provider_ above it in the tree. This default value can be helpful for testing components in isolation without wrapping them. Note: passing undefined as a Provider value does not cause consuming components to use defaultValue.
+
+  Далі, для того, щоб передати або надати доступ потрібним нам компонентам до контексту, їх потрібно огорнути в цей контекст як в тег. Всі дочірні компоненти цих обгорнутих компонентів теж отримають доступ до нього.
+  ```js
+    <AuthContext.Provider>
+      <MainHeader />
+      <Footer />
+    </AuthContext.Provider>
+  ```
+  Далі наші компоненти мають якось підписатися на дані з контексту. Є два способи:
+  ```js
+  <AuthContext.Consumer></AuthContext.Consumer> та використання хуку
+  useContext(AuthContext);
+  ```
+  ----------Перший спосіб--->
+
+  Дані, доступ до яких ми хочемо мати всюди, де ми використовуватимемо контекст, передаються через спец. атрибут Provider ==> value
+  ```js
+    <AuthContext.Provider
+      value={{
+        isLoggedIn: isLoggedIn, //тут ми повинні прив'язуватися до вже існуючої змінної, при змінні якої, Provider повідомить всіх своїх Consumers
+      }}
+    >
+  ```
+  І в потрібному нам компоненті ми на ці дані підписуємось через огортання jsx в <AuthContext.Consumer></AuthContext.Consumer>
+  і повернення (jsx) всередині стрілкової функції
+  ```js
+    <AuthContext.Consumer>
+      {(ctx) => { //ми автоматично отримуємо об'єкт контексту як аргумент
+        return (
+          <ul>
+            {ctx.isLoggedIn && (//і далі беремо з нього потрібні нам дані для умовного рендерингу
+              <li>
+                <a href="/">Users</a>
+              </li>
+            )}
+          </ul>
+        );
+      }}
+    </AuthContext.Consumer>
+  ```
+  Також, якщо ми викор. _defaultValue_, передане в createContext(), ми можемо не викор. <AuthContext.Provider>
+-----------Другий спосіб----->
+Замість використання <AuthContext.Consumer></AuthContext.Consumer> ми просто використовуємо хуй useContext(AuthContext), куди передаємо створений раніше об'єкт контексту.
+```js
+const ctx = useContext(AuthContext);
+```
+Далі ми можемо його використовувати точно так же як і в коді вище, але прибравши AuthContext.Consumer тег і функцію стрілку.
+
+* Хороший приклад пояснення коли викор. контекст а коли props це кнопка розлогіну з акаунта. Так як ця кнопка завжди робитиме одну і ту ж дію, доречно викор. контекст щоб передати в неї функцію, яка обробляє цю дію, але описана в іншому місці.
+* Якщо ж наша кнопка буде робити різні дії в залежності від того, які дані вона отримуватиме на вхід, доречно викор. props.
