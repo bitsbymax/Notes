@@ -75,11 +75,28 @@ _tree-shaking_ (removal of any code that isn't actually used in the app during t
   ``` 
   Також можна використати _Fragment_ <></>
 
-*React Portals* - дає зручний спосіб рендерингу компонентів поза межами їх батьківського компонента, хоча при цьому в структурі компонентів, визначених в React нічого не міняється. Розташування розмітки, яку цей компонент повертає, зміниться вже в реальній DOM.
-```js
-ReactDOM.createPortal(child, container)
-```
-Цей інструмент зазвичай викор. для Modal dialog boxes, Tooltips, Hovercards, Loaders
+## React Portals
+  React Portals - дає зручний спосіб рендерингу компонентів поза межами їх батьківського компонента, хоча при цьому в структурі компонентів, визначених в React, нічого не міняється. Розташування розмітки, яку цей компонент повертає, зміниться вже в реальній DOM.
+  ```js
+  ReactDOM.createPortal(child, container)
+  ```
+  Тобто ми в потрібному нам місці створюємо контейнер, задаємо йому id, і потім в компоненті React ми повертатимемо jsx з викликом метода createPortal() і переданими в нього компонентом і контейнером.
+  ```js
+  const portalElement = document.getElementById('overlays');
+
+  const Modal = (props) => {
+    return (
+      <>
+        {ReactDOM.createPortal(<Backdrop />, portalElement)}
+        {ReactDOM.createPortal(
+          <ModalOverlay>{props.children}</ModalOverlay>,
+          portalElement
+        )}
+      </>
+    );
+  };
+  ```
+  Цей інструмент зазвичай викор. для Modal dialog boxes, Tooltips, Hovercards, Loaders
 ## Re-render in React
   There are four reasons why a component would re-render itself: state changes, parent (or children) re-renders, context changes, and hooks changes.
   It always goes “down” the tree: the re-render of a child doesn’t trigger the re-render of a parent.
@@ -141,10 +158,11 @@ ReactDOM.createPortal(child, container)
 
   * Також, коли нам потрібно передати в хук useEffect() в [dependencies] дані з якогось об'єкту, ми завжди передаємо лише якусь конкретну проперті, а не весь об'єкт 
 
-  **useReducer()** --> _const [state, dispatchFn] = useReducer(reducerFn, initialState, initFn)_ - хук, який виступає заміною useState(), якщо нам треба більше потужний state management. Наприклад, коли нам потрібно оновити стан, який залежить від іншого стану. Для таких випадків useState() не дуже підходить, так як це порушує правило функціонального оновлення стану на основі попереднього стану.
+  **useReducer()** --> _const [state, dispatchFn] = useReducer(reducerFn, initialState, ?initFn)_ - хук, який виступає заміною useState(), якщо нам треба більше потужний state management. Наприклад, коли нам потрібно оновити стан, який залежить від іншого стану. Для таких випадків useState() не дуже підходить, так як це порушує правило функціонального оновлення стану на основі попереднього стану.
   * _state_ - містить у собі знімок останнього стану, тобто інфо-цію про те, яким він є на момент, коли ми викликатимемо функцію для його оновлення
   * _dispatchFn_ - функція, яка оновлює стан. Але працює вона таким чином, що вона не просто встановлює нове значення стану, а відправляє чи посилає(*dispatch*) якусь дію(*action*), яка автоматично попадатиме у *reducerFn*. Як правило це об'єкт з двома ключами {type: 'someType', payload: 'someData'}
   *  _reducerFn_ - (prevState, action) => newState - функція, яку Реакт автоматично викликатиме кожного разу, коли викликатиметься *dispatchFn* і яка автоматично отримує актуальний на момент виклику стан(*state*) і дію(*action*), яку ми передали в *dispatchFn*. І повертає оновлений стан.
+  *  optional _initFn_: The initializer function that specifies how the initial state is calculated. If it’s not specified, the initial state is set to _initialState_. Otherwise, the initial state is set to the result of calling _initFn_(_initialState_).
 
 
 ## React Context API
@@ -163,6 +181,7 @@ ReactDOM.createPortal(child, container)
   ```
   Code above creates a _Context_ object. When React renders a component that subscribes to this Context object it will read the current context value from the closest matching _Provider_ above it in the tree.
   The _defaultValue_ argument is only used when a component does not have a matching _Provider_ above it in the tree. This default value can be helpful for testing components in isolation without wrapping them. Note: passing undefined as a Provider value does not cause consuming components to use defaultValue.
+  Також додавати дефолтне значення для контексту ж сенс тому, що тоді у VSCode буде праюцвати автодоповнення, коли ми звертатимемось до об'єкта контексту. 
 
   Далі, для того, щоб передати або надати доступ потрібним нам компонентам до контексту, їх потрібно огорнути в цей контекст як в тег. Всі дочірні компоненти цих обгорнутих компонентів теж отримають доступ до нього.
   ```js
@@ -204,30 +223,32 @@ ReactDOM.createPortal(child, container)
     </AuthContext.Consumer>
   ```
   Також, якщо ми викор. _defaultValue_, передане в createContext(), ми можемо не викор. <AuthContext.Provider>
------------Другий спосіб----->
-Замість використання <AuthContext.Consumer></AuthContext.Consumer> ми просто використовуємо хуй useContext(AuthContext), куди передаємо створений раніше об'єкт контексту.
-```js
-const ctx = useContext(AuthContext);
-```
-Далі ми можемо його використовувати точно так же як і в коді вище, але прибравши AuthContext.Consumer тег і функцію стрілку.
 
-* Хороший приклад пояснення коли викор. контекст а коли props це кнопка розлогіну з акаунта. Так як ця кнопка завжди робитиме одну і ту ж дію, доречно викор. контекст щоб передати в неї функцію, яка обробляє цю дію, але описана в іншому місці.
-Якщо ж наша кнопка буде робити різні дії в залежності від того, які дані вона отримуватиме на вхід, доречно викор. props.
-* Props for configuration, Context for state management across components or possibly across the entire app.
-* Також хорошою практикою є створювати окремий компонет для контексту, в якому ми якби централізовано описуємо якусь логіку, наприклад логіку авторизації, і огортаємо цим компонентом весь застосунок. З такого компоненту нам потрібно повернути ось такий код:
-```js
-return (
-    <AuthContext.Provider
-      value={{ //дані контексту, де ми ассайнимо дані зі стейту і обробники дій як value, а до key ми потім звертаємось в потрібних нам компонентах для доступу до цих value
-        isLoggedIn: isLoggedIn,
-        onLogout: logoutHandler,
-        onLogin: loginHandler,
-      }}
-    >
-      {props.children}
-    </AuthContext.Provider>
-  );
-``` 
-І кожного разу коли дані в цьому об'єкті контексту змінююється, компоненту, які їх використовують, знамитуть про це.
+  -----------Другий спосіб----->
 
-* React Context is NOT optimized for high frequency changes! Це означає, що його краще не використовувати коли оновлення даних відбувається кожну секунду або ще частіше. От для авторизації чи зміни теми чи локалізації це хороший варіант.
+  Замість використання <AuthContext.Consumer></AuthContext.Consumer> ми просто використовуємо хук useContext(AuthContext), куди передаємо створений раніше об'єкт контексту.
+  ```js
+  const ctx = useContext(AuthContext);
+  ```
+  Далі ми можемо його використовувати точно так же як і в коді вище, але прибравши AuthContext.Consumer тег і функцію стрілку.
+
+  * Хороший приклад пояснення коли викор. контекст а коли props це кнопка розлогіну з акаунта. Так як ця кнопка завжди робитиме одну і ту ж дію, доречно викор. контекст щоб передати в неї функцію, яка обробляє цю дію, але описана в іншому місці.
+  Якщо ж наша кнопка буде робити різні дії в залежності від того, які дані вона отримуватиме на вхід, доречно викор. props.
+  * Props for configuration, Context for state management across components or possibly across the entire app.
+  * Також хорошою практикою є створювати окремий компонет для контексту, в якому ми якби централізовано описуємо якусь логіку, наприклад логіку авторизації, і огортаємо цим компонентом весь застосунок. З такого компоненту нам потрібно повернути ось такий код:
+  ```js
+  return (
+      <AuthContext.Provider
+        value={{ //дані контексту, де ми ассайнимо дані зі стейту і обробники дій як value, а до key ми потім звертаємось в потрібних нам компонентах для доступу до цих value
+          isLoggedIn: isLoggedIn,
+          onLogout: logoutHandler,
+          onLogin: loginHandler,
+        }}
+      >
+        {props.children}
+      </AuthContext.Provider>
+    );
+  ``` 
+  І кожного разу коли дані в цьому об'єкті контексту змінююється, компоненту, які їх використовують, знамитуть про це.
+
+  * React Context is NOT optimized for high frequency changes! Це означає, що його краще не використовувати коли оновлення даних відбувається кожну секунду або ще частіше. От для авторизації чи зміни теми чи локалізації це хороший варіант.
