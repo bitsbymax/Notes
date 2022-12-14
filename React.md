@@ -137,7 +137,7 @@ _tree-shaking_ (removal of any code that isn't actually used in the app during t
       // });
     ```
 
-  **useEffect**(() => {}, [dependencies]) - хук для виконання так званих _Side effects_(http запити, работа з таймера, localStorage і в той же час, наприклад, перевірка і оновлення стану валідності форми після кожного нового введеного символу це теж side effect, який спрацьовуватиме за певних обставин, в залежності від того, як його використовувати.
+  **useEffect**(() => {}, [dependencies]) - хук для виконання так званих _Side effects_(http запити, работа з таймерами, localStorage і в той же час, наприклад, перевірка і оновлення стану валідності форми після кожного нового введеного символу, це теж side effect, який спрацьовуватиме за певних обставин, в залежності від того, як його використовувати.
 
   For someone who really not understand the useEffect hook.
   1. useEffect hook without mentioning any dependency array like - useEffect(someCallbackFuction) runs for every render of the functional component in which its included AFTER component is rendered.
