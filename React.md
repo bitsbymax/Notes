@@ -112,7 +112,7 @@ _tree-shaking_ (removal of any code that isn't actually used in the app during t
   
   *React rendering optimization*-----------------------
 
-  Якщо ми хочемо, щоб компонент не викликався повторно, якщо в ньому не змінилися _props_, але відбувся виклик батьківського компонента, викор. _React.memo()_.
+  Якщо ми хочемо, щоб компонент не викликався повторно, коли відбувся виклик батьківського компонента але при цьому в ньому не змінилися _props_, викор. _React.memo()_.
   ```js
         export default React.memo(SomeCompName);
   ```
@@ -185,7 +185,7 @@ _tree-shaking_ (removal of any code that isn't actually used in the app during t
 
   For someone who really not understand the useEffect hook.
   1. useEffect hook without mentioning any dependency array like - useEffect(someCallbackFuction) runs for every render of the functional component in which its included AFTER component is rendered.
-  2. useEffect hook with an empty dependency array like this - useEffect(callbackFunc, []) is executed only for the the initial render of the component. And then it will not run in the further renders of the same functional Component until page will refresh in browser.
+  2. useEffect hook with an empty dependency array like this - useEffect(callbackFunc, []) is executed only for the initial render of the component. And then it will not run in the further renders of the same functional Component until page will refresh in browser.
   3. useEffect hook with some dependencies inside the dependency array like this - useEffect(callbackFunc , [dependency]) will run for the initial render as well as when the render happen due to change in dependencies mentioned in the dependency array.
   
   useEffect(() => {
@@ -208,6 +208,10 @@ _tree-shaking_ (removal of any code that isn't actually used in the app during t
   *  _reducerFn_ - (prevState, action) => newState - функція, яку Реакт автоматично викликатиме кожного разу, коли викликатиметься *dispatchFn* і яка автоматично отримує актуальний на момент виклику стан(*state*) і дію(*action*), яку ми передали в *dispatchFn*. І повертає оновлений стан.
   *  optional _initFn_: The initializer function that specifies how the initial state is calculated. If it’s not specified, the initial state is set to _initialState_. Otherwise, the initial state is set to the result of calling _initFn_(_initialState_).
 
+## React Custom Hooks
+    
+  Кастомні хуки це механізм, за допомогою якого ми можемо виокремлювати якусь логіку і перевикористовувати її в потрібних нам компонентах, як звичайні функції, але всередині кастомних хуків ми також можемо використовувати звичайні хуки.
+  
 
 ## React Context API
 
