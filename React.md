@@ -187,7 +187,7 @@ _tree-shaking_ (removal of any code that isn't actually used in the app during t
   **useEffect**(() => {}, [dependencies]) - хук для виконання так званих _Side effects_(http запити, работа з таймерами, localStorage і в той же час, наприклад, перевірка і оновлення стану валідності форми після кожного нового введеного символу, це теж side effect, який спрацьовуватиме за певних обставин, в залежності від того, як його використовувати.
 
   For someone who really not understand the useEffect hook.
-  1. useEffect hook without mentioning any dependency array like - useEffect(someCallbackFuction) runs for every render of the functional component in which its included AFTER component is rendered.
+  1. useEffect hook without mentioning any dependency array like - useEffect(someCallbackFuction) runs for every render of the functional component in which its included **AFTER** component is rendered.
   2. useEffect hook with an empty dependency array like this - useEffect(callbackFunc, []) is executed only for the initial render of the component. And then it will not run in the further renders of the same functional Component until page will refresh in browser.
   3. useEffect hook with some dependencies inside the dependency array like this - useEffect(callbackFunc , [dependency]) will run for the initial render as well as when the render happen due to change in dependencies mentioned in the dependency array.
   
@@ -203,7 +203,18 @@ _tree-shaking_ (removal of any code that isn't actually used in the app during t
 
   * So long story short: You must add all "things" you use in your effect function if those "things" could change because your component (or some parent component) re-rendered. That's why variables or state defined in component functions, props or functions defined in component functions have to be added as dependencies!
 
-  * Також, коли нам потрібно передати в хук useEffect() в [dependencies] дані з якогось об'єкту, ми завжди передаємо лише якусь конкретну проперті, а не весь об'єкт 
+  * Також, коли нам потрібно передати в хук useEffect() в [dependencies] дані з якогось об'єкту, ми завжди передаємо лише якусь конкретну проперті, а не весь об'єкт
+  
+  ----!!! _The key concepts of using effects_ !!!----
+  - You must have a thorough understanding of when components (re-)render because effects run after every render cycle.
+  - Effects are always executed after render, but you have options to opt out from this behavior.
+  - To opt out or skip effects, you have to understand basic JavaScript concepts about values. An effect is only rerun if at least one of the values specified as part of the effect’s dependencies has changed since the last render cycle.
+  - You should ensure that components are not re-rendered unnecessarily. This constitutes another strategy to skip unnecessary reruns of effects.
+  - You have to understand that functions defined in the body of your function component get recreated on every render cycle. This has an impact if you use it inside of your effect. There are strategies to cope with it (hoist them outside of the component, define them inside of the effect, use useCallback).
+  - You have to understand basic JavaScript concepts such as stale closures, otherwise you might have trouble tackling problems with outdated props or state values inside of your effect. There are strategies to solve this, e.g., with an effect’s dependency array or with the useRef Hook.
+  - You should not ignore suggestions from the React Hooks ESLint plugin. Do not blindly remove dependencies (and rashly ignore ESLint warnings) or carelessly use ESLint’s disable comments; you most likely have introduced a bug. You may still lack understanding of some important concept.
+  - Do not mimic the lifecycle methods of class-based components. This way of thinking does more harm than good. Instead, think more in terms of data flow and state associated with effects because you run effects based on state changes across render cycles.
+  - The question is not ‘when does this effect run,’ the question is ‘with which state does this effect synchronize with’?
 
   **useReducer()** --> _const [state, dispatchFn] = useReducer(reducerFn, initialState, ?initFn)_ - хук, який виступає заміною useState(), якщо нам треба більше потужний state management. Наприклад, коли нам потрібно оновити стан, який залежить від іншого стану. Для таких випадків useState() не дуже підходить, так як це порушує правило функціонального оновлення стану на основі попереднього стану.
   * _state_ - містить у собі знімок останнього стану, тобто інфо-цію про те, яким він є на момент, коли ми викликатимемо функцію для його оновлення
@@ -215,7 +226,7 @@ _tree-shaking_ (removal of any code that isn't actually used in the app during t
     
   Кастомні хуки це механізм, за допомогою якого ми можемо виокремлювати якусь логіку і перевикористовувати її в потрібних нам компонентах, як звичайні функції, але всередині кастомних хуків ми також можемо використовувати звичайні хуки, тобто додавати якийсь стан чи виконувати якісь побічні дії. При цьому, якщо в кастомному хуці викор. хук, який додає стан, і цей кастомний хук викликається в декількох компонентах, цей стан буде для кожного компонента свій.
 
-  Назва кастомного хука повинна починасти з use --> useSomething, щоб react розумів, що це кастомний хук і застосовував відповідні правила до нього в плані використання. 
+  Назва кастомного хука повинна починатися з use --> useSomething, щоб react розумів, що це кастомний хук і застосовував відповідні правила до нього в плані використання.
   
 ## React Context API
 
@@ -304,3 +315,14 @@ _tree-shaking_ (removal of any code that isn't actually used in the app during t
   І кожного разу коли дані в цьому об'єкті контексту змінююється, компоненту, які їх використовують, знамитуть про це.
 
   * React Context is NOT optimized for high frequency changes! Це означає, що його краще не використовувати коли оновлення даних відбувається кожну секунду або ще частіше. От для авторизації чи зміни теми чи локалізації це хороший варіант.
+
+## React forms handling
+
+  Існуючі підходи до валідації форм:
+  - Після відправки форми - onSubmit()
+  - Після втрити фокусу інпутом - onBlur()
+  - На кожен введений символ - onChange()
+
+* Якщо нам потрібно значення інпута одразу, як тільки в нього введено якісь дані, використовуємо _useState()_, атрибут _value_ на інпуті з прив'язкою до value зі state і метод інпута _onChange()_, який на кожну зміну викликатиме якийсь хендлер, який ми йому передемо --> _onChange={nameInputChangeHandler}_. В цьому хендлері ми з об'єкта _event_ братимемо _target.value_ і передаватимемо в метод зі state.
+* Якщо значення інпута нам достатньо мати на момент відправки форми, простіше використовувати хук _useRef()_ --> _const nameInputRef = useRef()_; Додаємо на інпут атрибут _ref_ зі значенням зі змінної nameInputRef --> _ref={nameInputRef}_. Далі на _onSubmit()_ форми ми зможемо отримати значення інпута через доступ до _nameInputRef.current.value_.
+    
