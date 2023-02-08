@@ -177,7 +177,7 @@ _tree-shaking_ (removal of any code that isn't actually used in the app during t
   **`useState`** ---> `const [value, setValue] = useState(defaultValue)` - хук для роботи зі станом, який приймає дефолтне значення для змінної `value` і повертає масив з встановленим `value` і `function`, яка це `value` змінює. І на кожну таку зміну, Реакт буде перемальовувати компонент.
 
   При використанні `useState()` в компоненті, який перевикористовується, стан буде незалежний для кожного виклику цього компоненту. Так само це працюватиме і для використання декількох станів в одному компоненті.
-  Дефолтне значення для `value` буде встановлено при першій ініціалізації компонента, і після його зміни повертатиметься вже нове значення.
+  Дефолтне значення для `value` буде встановлено при першій ініціалізації(first render) компонента, і після його зміни повертатиметься вже нове значення.
   У випадках, коли ми використовуємо цей хук для відслідковування і оновлення стану полів форми, можна викор. два підхода:
   ```js
     <!-- //INITIATING STATE -->
@@ -210,6 +210,8 @@ _tree-shaking_ (removal of any code that isn't actually used in the app during t
 ---------------------------
   `useEffect(() => {}, [deps])` - хук для виконання так званих _`Side effects`_(http запити, работа з таймерами, localStorage і в той же час, наприклад, перевірка і оновлення стану валідності форми після кожного нового введеного символу, це теж side effect, який спрацьовуватиме за певних обставин, в залежності від того, як його використовувати.
 
+  This may sound strange at first, but effects defined with `useEffect` are invoked **AFTER** render. To be more specific, it runs both after the first render and after every update. In contrast to lifecycle methods, ***effects don’t block the UI because they run asynchronously***.
+
   **_The key concepts of using effects_**
   - You must have a thorough understanding of when components (re-)render because effects run after every render cycle.
   - Effects are always executed after render, but you have options to opt out from this behavior.
@@ -225,6 +227,8 @@ _tree-shaking_ (removal of any code that isn't actually used in the app during t
   1. useEffect hook without mentioning any dependency array like - _`useEffect(someCallbackFuction)`_ runs for every render of the functional component in which its included **AFTER** component is rendered.
   2. useEffect hook with an empty dependency array like this - _`useEffect(callbackFunc, [])`_ is executed only for the initial render of the component. And then it will not run in the further renders of the same functional Component until page will refresh in browser.
   3. useEffect hook with some dependencies inside the dependency array like this - _`useEffect(callbackFunc , [dependency])`_ will run for the initial render as well as when the render happen due to change in dependencies mentioned in the dependency array.
+   
+  ***CLEAN UP function***
   ```js
   useEffect(() => {
     ...
