@@ -1,4 +1,4 @@
-## Building Blocks of a Web Application
+# Building Blocks of a Web Application
 
 There are a few things you need to consider when building modern applications. Such as:
 
@@ -14,7 +14,7 @@ There are a few things you need to consider when building modern applications. S
 
 JavaScript frameworks were created to make this kind of work a lot easier — they exist to provide a better developer experience. They don't bring brand-new powers to JavaScript; they give you easier access to JavaScript's powers so you can build for today's web.
 
-## Steps to be done to move an application from development to production.
+## Steps to be done to move an application from development to production
 
 - **compile**
 
@@ -72,7 +72,7 @@ _tree-shaking_ (removal of any code that isn't actually used in the app during t
 | ComponentDidCatch     |                 -                 |
 | ComponentWillUnmount  | useEffect(()=>{return ()=>{}},[]) |
 
-## Three pillars of React:
+## Three pillars of React
 
 - View is derivative of your data. To change the VIEW - change the DATA
 - Data is the single source of truth. Separating VIEW and DATA is super important!
@@ -91,9 +91,11 @@ _tree-shaking_ (removal of any code that isn't actually used in the app during t
 - Компоненти в React діляться на **Stateful** components і **Presentational** components, **Smart** or **Dumb**. Також компоненти можуть буть **Controlled** і **Uncontrolled** (часто таку характеристику можна побачити і для форм). Форма, чи інпут, для контролю якого викор. _Two-way binding_ через прив'язку значення input'a до змінної з useState() до атрибуту _value_ вважається контрольованою. Інпут, значення якого отримується через _ref_ вважається неконтрольованим, так як React напряму ніяк не контролює і не модифікує значення цього input'a, а лише читає.
 
 - Компонент обгортка **_Wrapper_** - дає можливість замінити необов'язковий `<div>` у випадках, коли цей `<div>` нам потрібен лише для того, щоб відмалювати більше одного кореневого елемента.
-  ```js
+  
+```js
   const Wrapper = (props) => props.children;
-  ```
+```
+
   Також можна використати _Fragment_ <></>
 
 ## React Portals
@@ -143,11 +145,11 @@ There are **four - 4** reasons why a component would re-evaluate itself
 
 Загалом є 3 умовних етапи життя компонентів -> **Mounting, Updating, Unmounting** і 2 фази, які присутні на кожному з етапів.
 
-**Render phase**
+## Render phase
 
 - Pure and has no side effects. May be paused, aborted or restarted by React
 
-**Commit phase**
+## Commit phase
 
 - Can work with DOM, run side effects, schedule updates
 
