@@ -290,7 +290,7 @@ useEffect(() => {
 **`useReducer()`** --> `const [state, dispatchFn] = useReducer(reducerFn, initialState, ?initFn)` - хук, який виступає заміною `useState()`, якщо нам треба більше потужний `state management`. Наприклад, коли нам потрібно оновити стан, який залежить від іншого стану. Для таких випадків `useState()` не дуже підходить, так як це порушує правило функціонального оновлення стану на основі попереднього стану.
 
 - _`state`_ - містить у собі знімок останнього стану, тобто інфо-цію про те, яким він є на момент, коли ми викликатимемо функцію для його оновлення
-- _`dispatchFn`_ - функція, яка оновлює стан. Але працює вона таким чином, що вона не просто встановлює нове значення стану, а відправляє чи посилає(_`dispatch`_) якусь дію(_`action`_), яка автоматично попадатиме у _`reducerFn`_. Як правило це об'єкт з двома ключами {type`: 'someType', payload: 'someData'}`
+- _`dispatchFn`_ - функція, яка оновлює стан. Але працює вона таким чином, що вона не просто встановлює нове значення стану, а відправляє чи посилає(_`dispatch`_) якусь дію(_`action`_), яка автоматично попадатиме у _`reducerFn`_. Як правило це об'єкт з двома ключами `{type: 'someType', payload: 'someData'}`
 - _`reducerFn`_ - `(prevState, action) => newState` - функція, яку Реакт автоматично викликатиме кожного разу, коли викликатиметься _`dispatchFn`_ і яка автоматично отримує актуальний на момент виклику стан(_`state`_) і дію(_`action`_), яку ми передали в _`dispatchFn`_. І повертає оновлений стан.
 - optional _`initFn`_: The initializer function that specifies how the initial state is calculated. If it’s not specified, the initial state is set to _`initialState`_. Otherwise, the initial state is set to the result of calling _`initFn(initialState)`_.
 
