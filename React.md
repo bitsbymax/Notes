@@ -135,7 +135,7 @@ There are **four - 4** reasons why a component would re-evaluate itself
 3. context changes
 4. hooks changes
 
-- Але врешті-решт повторний виклик компонента (`re-evaluating`) і, якщо потрібно, `re-rendering` відбуваються через зміну стану, так як і `Context` і `props` так само залежать від даних і, так би мовити, підписуються на їх зміну.
+- Але врешті-решт повторний виклик компонента - (`re-evaluating`) і, якщо потрібно, `re-rendering` відбуваються через зміну стану, так як і `Context` і `props` так само залежать від даних і, так би мовити, підписуються на їх зміну.
 
 - It always goes “down” the tree: the re-render of a child doesn’t trigger the re-render of a parent. При цьому re-rendering батьківського компоненту завжди по ланцюгу вниз тригерить re-evaluating або виклик дочірніх компонентів.
 
