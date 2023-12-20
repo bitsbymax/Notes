@@ -246,7 +246,7 @@ _Правила використання хуків_:
 
 ---
 
-`useEffect(() => {}, [deps])` - хук для виконання так званих _`Side effects`_(http запити, работа з таймерами, localStorage і в той же час, наприклад, перевірка і оновлення стану валідності форми після кожного нового введеного символу, це теж side effect, який спрацьовуватиме за певних обставин, в залежності від того, як його використовувати.
+`useEffect(() => {}, [deps])` - хук для виконання так званих _`Side effects`_http запити, работа з таймерами, localStorage і в той же час, наприклад, перевірка і оновлення стану валідності форми після кожного нового введеного символу, це теж side effect, який спрацьовуватиме за певних обставин, в залежності від того, як його використовувати.
 
 This may sound strange at first, but effects defined with `useEffect` are invoked **AFTER** render. To be more specific, it runs both after the first render and after every update. In contrast to lifecycle methods, **_effects don’t block the UI because they run asynchronously_**.
 
