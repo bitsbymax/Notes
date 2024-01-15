@@ -20,10 +20,10 @@ zeebe_client_secret: 8h_g6Bxg2iIQ3koQCV0muZg2MS6zb-254i3m4kEWGhm~ioNj~aQK7UUW8tk
 start_form_c7: start
 start_form_c8: startC8
 
-Camunda REST connector password : i4pfuxzrcm6dwhkv2z6kfk2hluqaunlkzkmgsrb4in7vzaeyqvta
+Camunda REST connector password : 6lzucvsun4orwz7mq64mun25r5hrqzaimooywshqlamry3bl2z2a
 
 Angular Library password:
-j6rhonhr5lgydzcbldi7zpiks4drrzrmne5n2avyninzvu3wpeja
+o2ke6jmqxeturkialpd6hsu7hwmypaq37n5nokdni6e7g2ziruja
 
 TS Library paswword:
 iueteuxthm3wjfm2xz7pmkl565di2rib3uscdbsx6623iy573soa
