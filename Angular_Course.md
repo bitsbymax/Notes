@@ -396,7 +396,7 @@
         <app-alert *ngIf="error"></app-alert> <----------------Динамічно використовуємо компонент
         <form
           #authForm="ngForm"
-          (ngSubmit)="onSubmit(authForm)" 
+          (ngSubmit)="onSubmit(authForm)"
           *ngIf="!isLoading;
           else loadingSpinner"
         >  
