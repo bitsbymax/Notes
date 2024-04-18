@@ -1,4 +1,4 @@
-# How an Angular App gets Loaded and Started
+****# How an Angular App gets Loaded and Started
   Спочатку відкривається index.html в якому після збірки angular cli додає свої скрипти, які завантажуються першими і серед яких буде бандл з main.ts, код якого і виконається спочатку.
   В ньому і стартує наш веб-застосунок в момент виклику platformBrowserDynamic().bootstrapModule(AppModule) з головним модулем AppModule, в якому в свою чергу вказано початковий компонент з селектором 'app-root',
   який і вказаний в body файлу index.html
@@ -9,7 +9,7 @@
       - <p [innerText]="allowNewServer"></p>
   //також інколи можна замість Property binding, коли як значення встановлюються дані типу string, викор. інтерполяцію {{}} 
 
-2. _Event binding_------------------------------------------------------------------
+2. _Event **binding**_------------------------------------------------------------------
 
       - (input)="onUpdateServerName($event)"
 
