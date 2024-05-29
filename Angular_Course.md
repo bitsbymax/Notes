@@ -31,6 +31,8 @@
 })
 ```
 
+---
+
 ## Interpolation
 
 `{{ someValue }}` where `someValue` is a property of the component
@@ -38,6 +40,8 @@
 ```javascript
 <h1>Welcome to the {{ hotelName }}</h1>
 ```
+
+---
 
 ## Property binding (One-way binding)
 
@@ -48,6 +52,8 @@
 
 Тобто таким чином ми можемо для будь-якої властивості елемента встановити значення, яке ми створили в нашому компоненті
 
+---
+
 ## Event binding
 
 ```html
@@ -56,11 +62,15 @@
 
 Прив'язати можна всі доступні в JS для конкретного елемента методи. Береться назва метода без частинки **on**.
 
+---
+
 ## Two-way data binding
 
 ```JavaScript
 [(ngModel)]="serverName"
 ```
+
+---
 
 ## Directives
 
@@ -207,13 +217,45 @@ class Test {
 [ngClass]="even ? 'even' : 'odd'"
 ```
 
+---
+
 ## Decorators types
 
 > Communication between components
 
-- **`@Input()`** - дає можливість компоненту приймати і використовувати дані інших компонентів
-- **`@Output()`** - дає можливість компоненту передавати дані наверх іншим компонентам
-- **`@ViewChild()`** - працює схожим чином з Local Reference через атрибут _#someMeaningfullName_ але дані в метод ми не передаємо для їх отримання в компоненті, вони доступні одразу за посиланням: _someMeaningfullName.nativeElement.value_, посилання зберігатиме об'єкт _ElementRef{nativeElement: htmlEl.className}_
+- **`@Input()`** - дає можливість компоненту приймати і використовувати дані батьківського компонента
+- **`@Output()`** - дає можливість компоненту передавати дані наверх батьківському компоненту
+- **`@ViewChild()`** - працює схожим чином з _Local Reference_ через атрибут _#someMeaningfullName_ але дані в метод ми не передаємо для їх отримання в компоненті, вони доступні одразу за посиланням: `someMeaningfullName.nativeElement.value`, посилання зберігатиме об'єкт `ElementRef{nativeElement: htmlEl.className}`.
+Якщо ми використовуватимемо цей декоратор для рендерингу одного компонента всередині іншого, ми зможемо отримати властивості цього компонента через використання _lifecycle hook_ `ngAfterViewInit`
+
+```javascript
+export class RoomsComponent implements AfterViewInit {
+  @ViewChild(HeaderComponent) header!: HeaderComponent;
+
+  ngAfterViewInit(): void {
+      console.log(this.header);//матимемо доступ до властивостей
+    }
+}
+```
+
+  Якщо ж нам потрібно отримати дані цього вкладеного компонента в _ngOnInit_, ми маємо вказати про це декоратору через спеціальну властивість _static_.
+  По дефолту це значення _false_, щоб попередити можливі баги чи затримки у випадку, наприклад, коли у нашому вкладеному компоненті є асинхронні операції, які блокуватимуть _execution flow_ і відповідно ініціалізацію нашого батьківського компонента.
+
+```javascript
+export class RoomsComponent implements OnInit, AfterViewInit {
+  @ViewChild(HeaderComponent, { static: true }) header!: HeaderComponent;
+
+  ngOnInit(): void {
+    console.log(this.header);//також матимемо доступ до властивостей компонента HeaderComponent
+  }
+
+  ngAfterViewInit(): void {
+      console.log(this.header);//матимемо доступ до властивостей компонента HeaderComponent
+    }
+}
+```
+
+
 - **`@ContentChild()`** - дає доступ до елементів з атрибутом #someName в темплейті, але тих, що додані через `<ng-content></ng-content>`
 - **`HostListener('any supported event')`** - дає можливість слухати будь-яку подію, яка підтримується JS і виконувати потрібну нам функцію, яка приймає eventData в момент спрацювання події. Приклад:
   @HostListener('mouseenter') mouseover(eventData: Event) {
@@ -232,12 +274,12 @@ class Test {
 > - Component instance has lifecycle hooks which can help you to hook into different events on Components
 > - Lifecycle ends when component is destroyed
 
-- **ngOnChanges** - викликається на початку, коли компонент створено і кожного разу, коли властивості з декораторами, наприклад _@Input()_ чи _Output()_, змінюються
-- **ngOnInit** - хук, який викликатиметься першим після виклику _constructor()_, який ініціалізує компонент. В цьому хуці як правило відбуваються підписки і робляться запити на отримання даних з бекенду.
-- **ngDoCheck** - викликається при кожній перевірці системою **change detection** змін властивостей компонента
+- **ngOnChanges** - викликається лише при наявності властивості з декоратором, наприклад _@Input()_. Перший раз при ініціалізації компонента перед _ngOnInit_, і кожного разу, коли властивість з декоратором зміниться.
+- **ngOnInit** - хук, який викликатиметься лише один раз після ініціалізації компонента. Викликається він наступним після _ngOnChanges_, якщо останній використовується, інакше першим. В цьому хуці як правило відбуваються підписки і робляться запити на отримання даних з бекенду.
+- **ngDoCheck** - викликається при кожному спрацюванні системи _change detection_ в скоупі всього застосунку. Тому майже не використовується, бо може спричиняти просадку продуктивності через дуже часте спрацювання, та і по суті дублює собою хук _ngOnChanges_.
 - **ngAfterContentInit** - викликається **1 раз** після метода _ngDoCheck()_ після додавання коду html через `<ng-content></ng-content>`
-- _ngAfterContentChecked_ - викликається кожного разу, коли контент, доданий через `<ng-content></ng-content>` перевірено системою **change detection**
-- **ngAfterViewInit** - викликається Angular після ініціалізації уявлення компонента, а також уявлень дочірніх компонентів. Викликається лише один раз одразу після першого виклику методу _ngAfterContentChecked()_
+- **ngAfterContentChecked** - викликається кожного разу, коли контент, доданий через `<ng-content></ng-content>` перевірено системою **change detection**
+- **ngAfterViewInit** - викликається Angular після ініціалізації уявлення компонента, тобто темплейта, а також уявлень дочірніх компонентів. Викликається лише один раз одразу після першого виклику методу _ngAfterContentChecked()_
 - **ngAfterViewChecked** - викликається Angular після перевірки змін у поданні компонента, і також після перевірки представлення дочірніх компонентів. Викликається після першого виклику методу _ngAfterViewInit()_ та після кожного наступного виклику _ngAfterContentChecked()_
 - **ngOnDestroy** - викликається перед тим, як компонент буде прибрано з DOM дерева.
 
