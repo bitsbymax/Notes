@@ -150,21 +150,6 @@ class Test {
 }
 ```
 
-#### `ng-content`
-
-`<ng-content></ng-content>` - директива, яка рендерить розмітку, яку ми вставляємо поміж тегів селектора компонента в тому місці, де ми цю директиву пропишемо:
-
-```html
-<app-server-element>
-  <p>
-    <strong>{{ serverElement.content }}</strong>
-    <em> {{ serverElement.content }} </em>
-  </p>
-</app-server-element>
-```
-
-Потім верстку, яка поміж `<app-server-element></>` ми можемо вставити всередину темплейта того компонента, у якого відповідно селектор _"app-server-element"_ додавши туди `<ng-content></ng-content>`
-
 #### `*ngSwitch`
 
 `[ngSwitch]` - дає можливість умовного рендерингу через switch case.
@@ -194,6 +179,23 @@ class Test {
     }
 }
 ```
+
+#### `ng-content`
+
+`<ng-content></ng-content>` - директива, яка рендерить розмітку, яку ми вставляємо поміж тегів селектора компонента в тому місці, де ми цю директиву пропишемо:
+
+```html
+<app-server-element>
+  <p>
+    <strong>{{ serverElement.content }}</strong>
+    <em> {{ serverElement.content }} </em>
+  </p>
+</app-server-element>
+```
+
+Потім верстку, яка поміж `<app-server-element></>` ми можемо вставити всередину темплейта того компонента, у якого відповідно селектор _"app-server-element"_ додавши туди `<ng-content></ng-content>`
+
+#### `ng-template`
 
 #### `ng-container`
 
@@ -279,8 +281,8 @@ export class RoomsComponent implements OnInit, AfterViewInit {
 - **ngDoCheck** - викликається при кожному спрацюванні системи _change detection_ в скоупі всього застосунку. Тому майже не використовується, бо може спричиняти просадку продуктивності через дуже часте спрацювання, та і по суті дублює собою хук _ngOnChanges_.
 - **ngAfterContentInit** - викликається **1 раз** після метода _ngDoCheck()_ після додавання коду html через `<ng-content></ng-content>`
 - **ngAfterContentChecked** - викликається кожного разу, коли контент, доданий через `<ng-content></ng-content>` перевірено системою **change detection**
-- **ngAfterViewInit** - викликається Angular після ініціалізації уявлення компонента, тобто темплейта, а також уявлень дочірніх компонентів. Викликається лише один раз одразу після першого виклику методу _ngAfterContentChecked()_
-- **ngAfterViewChecked** - викликається Angular після перевірки змін у поданні компонента, і також після перевірки представлення дочірніх компонентів. Викликається після першого виклику методу _ngAfterViewInit()_ та після кожного наступного виклику _ngAfterContentChecked()_
+- **ngAfterViewInit** - викликається Angular після ініціалізації уявлення (темплейта) компонента. Викликається лише один раз одразу після першого виклику методу _ngAfterContentChecked()_
+- **ngAfterViewChecked** - викликається Angular після того, як стандартний детектор змін закінчив один повний цикл перевірки . Викликається після першого виклику методу _ngAfterViewInit()_ та після кожного наступного виклику _ngAfterContentChecked()_
 - **ngOnDestroy** - викликається перед тим, як компонент буде прибрано з DOM дерева.
 
 ## Custom Attribute Directive
