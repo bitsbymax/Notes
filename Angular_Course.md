@@ -202,7 +202,7 @@ class Test {
 
 #### `ng-container`
 
-Працює як **Fragment** в React, тобто його можна викор. коли ми хочемо додати обгортку для якогось HTML елемента, але не хочемо додавати лишній HTML елемент на сторінку. На _`ng-container`_ також можна додавати структурні директиви.
+Працює як **Fragment** в React, тобто його можна використовувати коли ми хочемо додати обгортку для якогось HTML елемента, але не хочемо додавати лишній HTML елемент на сторінку. На _`ng-container`_ також можна додавати структурні директиви.
 
 ### Attribute directives
 
@@ -232,7 +232,7 @@ class Test {
 - **`@Output()`** - дає можливість компоненту передавати дані наверх батьківському компоненту
 - **`@ViewChild()`** - працює схожим чином з _`Local Reference`_ через атрибут _`#someMeaningfulName`_ але дані в метод ми не передаємо для їх отримання в компоненті, вони доступні одразу за посиланням: _`someMeaningfulName.nativeElement.value`_, посилання зберігатиме об'єкт `ElementRef{nativeElement: htmlEl.className}`.
 
-Якщо нам потрібно отримати доступ до дочірнього компонента який рендериться всередині нашого темплейта ось так:
+Якщо нам потрібно отримати доступ до дочірнього компонента який рендериться всередині нашого темплейта таким чином:
 
 ```html
 <h1>Welcome to the {{ hotelName }}</h1>
@@ -241,7 +241,7 @@ class Test {
 {{ rooms.availableRooms ?? "No rooms available" }}
 ```
 
-ми можемо отримати властивості цього компонента за допомогою _`@ViewChild()`_ через використання _lifecycle hook_ _`ngAfterViewInit`_ або _`ngAfterViewChecked`_
+це можна зробити за допомогою _`@ViewChild()`_ через використання _lifecycle hook_ _`ngAfterViewInit`_ або _`ngAfterViewChecked`_
 
 ```javascript
 export class RoomsComponent implements AfterViewInit, AfterViewChecked {
@@ -273,18 +273,28 @@ export class RoomsComponent implements OnInit, AfterViewInit, AfterViewChecked {
 }
 ```
 
+- Також ми можемо динамічно рендерити компонент всередині нашого темплейта за допомогою цього декоратора.
+Додамо в наш темплейт тег з _`template reference`_
+
+```html
+<ng-template #bookRoom></ng-template>
+```
+
+Далі через _`@ViewChild()`_ ми в нашому класі вже можемо екземпляр потрібного компонента отримати і вставити в наш темплейт:
+
 - **`@ContentChild()`** - дає доступ до елементів з атрибутом #someName в темплейті, але тих, що додані через `<ng-content></ng-content>`
 - **`HostListener('any supported event')`** - дає можливість слухати будь-яку подію, яка підтримується JS і виконувати потрібну нам функцію, яка приймає eventData в момент спрацювання події. Приклад:
   @HostListener('mouseenter') mouseover(eventData: Event) {
   do something
   }
-- **`HostBinding('property.sub_property')`** - в прикладі нижче ми говоримо Angular на елементі, де викор. ця директива, звернутися до властивості style підвластивості backgroundColor і встановити значення 'red'. Пізніше через this.backgroundColor можна встановити інше значення
+- **`HostBinding('property.sub_property')`** - в прикладі нижче ми говоримо Angular на елементі, де використання ця директива, звернутися до властивості style під властивості backgroundColor і встановити значення 'red'. Пізніше через this.backgroundColor можна встановити інше значення
   @HostBinding('style.backgroundColor') backgroundColor: string = 'red';
 
-## Local Reference
+## Template Reference
 
-- **#someMeaningfulName** - it will hold a reference to the HTML element on which it was applied with all its properties. Can be used _ONLY_ in the template as attribute, not in the Typescript code
-- Щоб отримати доступ до елементу в коді, цей атрибут потрібно передати в метод, який викликається, наприклад на клік.
+**`#someMeaningfulName`** - is often a reference to a DOM element within a template. It can also be a reference to an Angular component or directive or a web component.
+
+- Щоб отримати доступ до елементу в коді, цей атрибут потрібно передати в метод, який викликається, наприклад на клік, або ж це можна зробити через _`@ViewChild()`_
 
 ## Lifecycle Hooks
 
@@ -544,13 +554,13 @@ _Template-Driven Approach_
 - Спочатку в imports[] додаємо _FormsModule_
 - Для того, або Angular контролював форму, потрібно додати як трибути **ngModel**
 - Для відправки даних з форми потрібно додати на тег _form_ атрибут _(ngSubmit)_="someMethod()" і передати в нього метод, яким ми будемо виконувати потрібну нам логіку
-- Для того, щоб отримати структуру _форми_ як {}, потрібно додати в тег _form_ local reference **#f="ngForm"**, передати його в метод ось так (ngSubmit)="someMethod(f)" і в компоненті, у цьому методі отримати форму someMethod(form: NgForm) {}. Але при даному варіанті ми отримуємо доступ лише при сабміті форми.
+- Для того, щоб отримати структуру _форми_ як {}, потрібно додати в тег _form_ template reference **#f="ngForm"**, передати його в метод ось так (ngSubmit)="someMethod(f)" і в компоненті, у цьому методі отримати форму someMethod(form: NgForm) {}. Але при даному варіанті ми отримуємо доступ лише при сабміті форми.
 - Щоб отримати доступ до форми без сабміта, можна викор. @ViewChild('localRefName') propName: **NgForm**;
   Передавати в метод нічого не потрібно при цьому: (ngSubmit)="onSubmit()"
-- Для того, щоб отримати структуру конкретного _інпута_ як {}, достатньо додати local reference ось так: #someName=**"ngModel"**
+- Для того, щоб отримати структуру конкретного _інпута_ як {}, достатньо додати template reference ось так: #someName=**"ngModel"**
 - Для встановлення дефолтного значення поля форми, створюємо властивість з потрібним значенням в компоненті, і далі робимо _Property binding_ на самому інпуті: [ngModel]="propName"
 - Для того, щоб одразу значення, яке ми вводимо в інпуті, можна було використовувати, потірбно викор. _Two-way data binding_. Додаємо властивість в компонент з потрібним значенням і робимо прив'язку: [(ngModel)]="propName"
-- Також можна згрупувати декілька інпутів в одну групу, тобто вони будуть додані всередину окремої властивісті в середині властивості value. Робиться це через атрибут **ngModelGroup**="anyName". Якщо потрібно отримати доступ до значень інпутів і інших властивостей, викор. local reference ось так: #anyName="ngModelGroup"
+- Також можна згрупувати декілька інпутів в одну групу, тобто вони будуть додані всередину окремої властивісті в середині властивості value. Робиться це через атрибут **ngModelGroup**="anyName". Якщо потрібно отримати доступ до значень інпутів і інших властивостей, викор. template reference ось так: #anyName="ngModelGroup"
 - Для того, або, наприклад, по кліку на кнопку перезаписати всі дані форми або лише деякі, викор методи _patchValue()_ і _setValue()_ Вони доступні лише на формі, яка обгорнута в ngForm. Приклади в коді forms-td
 - Для очистки полів форми і також всі вбудовані властивості форми, як от valid, touched і так далі можна використовувати метод _reset()_. В нього також можна передати {} в якому вказати конкретно, які поля форми ми хочемо очистити.
 
@@ -563,7 +573,7 @@ _Reactive Approach_
 - Для того, щоб сказати Angular, що ми хочемо використовувати власну конфігурації форми, потрібно в темплейті на тег _form_ додати через _Property binding_ атрибут _formGroup_ і передати як аргумент нашу властивість з типом **FormGroup**: <form [formGroup]="propName">
 - Далі для інпутів, які ми хочемо контролювати. додаємо атрибут _formControlName_, в який передаємо як рядок назву створеної нами властивості всередині new FormGroup({}), наприклад formControlName="username". Також тут можна викор. _Property binding_ з таким синтаксисом: [formControlName]="'username'"
 - Для відправки даних з форми потрібно додати на тег _form_ атрибут _(ngSubmit)_="someMethod()" і передати в нього метод, яким ми будемо виконувати потрібну нам логіку
-- Використовувати local reference нам вже непотрібно для доступу до форми як {}
+- Використовувати template reference нам вже непотрібно для доступу до форми як {}
 - Валідація полів форми додається через вбудований клас **Validators**, з якого береться потрібна властивість і передається в new **FormControl**(), якщо їх декілька, можна передати [] ->
   "username" : new FormControl(null, Validators.required),
   "email" : new FormControl(null, [Validators.required, Validators.email])
