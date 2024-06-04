@@ -230,33 +230,46 @@ class Test {
 
 - **`@Input()`** - дає можливість компоненту приймати і використовувати дані батьківського компонента
 - **`@Output()`** - дає можливість компоненту передавати дані наверх батьківському компоненту
-- **`@ViewChild()`** - працює схожим чином з _`Local Reference`_ через атрибут _`#someMeaningfullName`_ але дані в метод ми не передаємо для їх отримання в компоненті, вони доступні одразу за посиланням: _`someMeaningfullName.nativeElement.value`_, посилання зберігатиме об'єкт `ElementRef{nativeElement: htmlEl.className}`.
-  Якщо ми використовуватимемо цей декоратор для рендерингу одного компонента всередині іншого, ми зможемо отримати властивості цього компонента через використання _lifecycle hook_ _`ngAfterViewInit`_
+- **`@ViewChild()`** - працює схожим чином з _`Local Reference`_ через атрибут _`#someMeaningfulName`_ але дані в метод ми не передаємо для їх отримання в компоненті, вони доступні одразу за посиланням: _`someMeaningfulName.nativeElement.value`_, посилання зберігатиме об'єкт `ElementRef{nativeElement: htmlEl.className}`.
+
+Якщо нам потрібно отримати доступ до дочірнього компонента який рендериться всередині нашого темплейта ось так:
+
+```html
+<h1>Welcome to the {{ hotelName }}</h1>
+<app-header></app-header> --> Дочірній компонент
+<p>Available rooms</p>
+{{ rooms.availableRooms ?? "No rooms available" }}
+```
+
+ми можемо отримати властивості цього компонента за допомогою _`@ViewChild()`_ через використання _lifecycle hook_ _`ngAfterViewInit`_ або _`ngAfterViewChecked`_
 
 ```javascript
-export class RoomsComponent implements AfterViewInit {
+export class RoomsComponent implements AfterViewInit, AfterViewChecked {
   @ViewChild(HeaderComponent) header!: HeaderComponent;
 
   ngAfterViewInit(): void {
-      console.log(this.header.title);//матимемо доступ до властивостей HeaderComponent
-    }
+    this.header.title = 'Hotel inventory'; //- тут це значення зміниться лише на наступному циклі change детектора
+  }
+  //або
+  ngAfterViewChecked(): void {
+    this.header.title = 'Hotel inventory'; //- тут це значення зміниться лише на наступному циклі change детектора
+  }
 }
 ```
 
-Якщо ж нам потрібно отримати дані цього вкладеного компонента в _`ngOnInit`_, ми маємо вказати про це декоратору через спеціальну властивість _`static`_.
+Якщо ж нам потрібно отримати дані цього дочірнього компонента в _`ngOnInit`_, ми маємо вказати про це декоратору через спеціальну властивість _`static`_.
 По дефолту це значення _`false`_, щоб попередити можливі баги чи затримки у випадку, наприклад, коли у нашому вкладеному компоненті є асинхронні операції, які блокуватимуть _`execution flow`_ і відповідно ініціалізацію нашого батьківського компонента.
 
 ```javascript
-export class RoomsComponent implements OnInit, AfterViewInit {
+export class RoomsComponent implements OnInit, AfterViewInit, AfterViewChecked {
   @ViewChild(HeaderComponent, { static: true }) header!: HeaderComponent;
 
   ngOnInit(): void {
-    console.log(this.header);//також матимемо доступ до властивостей компонента HeaderComponent
+    this.header.title = 'Hotel inventory';// - ми можемо змінити значення властивості title компонента HeaderComponent з середини RoomsComponent в ngOnInit лише якщо вказано { static: true }.
   }
-
-  ngAfterViewInit(): void {
-      console.log(this.header);//матимемо доступ до властивостей компонента HeaderComponent
-    }
+  ngAfterViewInit(): void {}
+  // або
+  ngAfterViewChecked(): void {}
 }
 ```
 
