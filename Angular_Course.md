@@ -2,12 +2,14 @@
 
 ## How an Angular App gets Loaded and Started
 
-- Спочатку відкривається index.html в якому після збірки angular cli додає свої скрипти, які завантажуються першими і серед яких буде бандл з main.ts, код якого і виконається спочатку.
-- В ньому і стартує наш веб-застосунок в момент виклику `platformBrowserDynamic().bootstrapModule(AppModule)` з головним модулем _AppModule_, в якому в свою чергу вказано початковий компонент з селектором **'app-root'**, який і вказаний в body файлу index.html
+- Entry point це файл `index.html` в якому після збірки angular cli додав свої скрипти, які завантажуються першими і серед яких буде бандл з файлом `main.ts`, код якого і виконається спочатку.
+- В ньому і стартує наш веб-застосунок в момент виклику `platformBrowserDynamic().bootstrapModule(AppModule)` з головним модулем _AppModule_, в якому в свою чергу вказано початковий компонент з селектором `<app-root></app-root>`, який і вказаний в `body` файлу `index.html`.
 
 ## Decorators
 
 > - Декоратори модифікують поведінку класів в Angular
+
+Приклад декораторів:
 
 ```javascript
 @NgModule({
@@ -35,10 +37,11 @@
 
 ## Interpolation
 
-`{{ someValue }}` where `someValue` is a property of the component
+`{{ someValue }}` where `someValue` is an expression which evaluates to **string**
 
 ```javascript
 <h1>Welcome to the {{ hotelName }}</h1>
+<p>Here will be some string: {{ returnString() }}</p>
 ```
 
 ---
@@ -50,7 +53,7 @@
 <p [innerText]="allowNewServer"></p>
 ```
 
-Тобто таким чином ми можемо для будь-якої властивості елемента встановити значення, яке ми створили в нашому компоненті
+Через таку прив'язку ми можемо для будь-якої властивості елемента, через його атрибут, встановити значення будь-якої властивості нашого компонента
 
 ---
 
@@ -80,7 +83,7 @@
 
 ### Structural directive
 
-!!!> На одному і тому ж елементі можна мати лише одну **Structural directive**
+!!!> На одному і тому ж елементі можна мати лише одну **structural directive**
 
 > - Notice that we don't have to import the @if, @for, @switch directives from @angular/common into our component templates anymore.
 > - This is because the @if, @for, @switch syntax is part of the template engine itself, and it is not a directive.
@@ -98,7 +101,7 @@
 @Component({
   template: `
     @if (showHello) {
-      <h2>Hello</h2>
+    <h2>Hello</h2>
     }
   `,
 })
@@ -109,9 +112,9 @@ class Test {
 @Component({
   template: `
     @if (showHello) {
-      <h2>Hello</h2>
+    <h2>Hello</h2>
     } @else {
-      <h2>Goodbye</h2>
+    <h2>Goodbye</h2>
     }
   `,
 })
@@ -122,11 +125,11 @@ class Test {
 @Component({
   template: `
     @if (showHello) {
-      <h2>Hello</h2>
+    <h2>Hello</h2>
     } @else if (showGoodbye) {
-      <h2>Goodbye</h2>
+    <h2>Goodbye</h2>
     } @else {
-      <h2>See you later</h2>
+    <h2>See you later</h2>
     }
   `,
 })
@@ -152,7 +155,7 @@ class Test {
 
 #### `*ngSwitch`
 
-`[ngSwitch]` - дає можливість умовного рендерингу через switch case.
+`[ngSwitch]` - дає можливість умовного рендерингу через `switch case`.
 
 ```html
 <div [ngSwitch]="value">
@@ -199,11 +202,11 @@ class Test {
 
 #### `ng-container`
 
-Працює як **Fragment** в React, тобто його можна викор. коли ми хочемо додати обгортку для якогось HTML елемента, але не хочемо додавати лишній HTML елемент на сторінку. На _ng-container_ також можна додавати структурні директиви.
+Працює як **Fragment** в React, тобто його можна викор. коли ми хочемо додати обгортку для якогось HTML елемента, але не хочемо додавати лишній HTML елемент на сторінку. На _`ng-container`_ також можна додавати структурні директиви.
 
 ### Attribute directives
 
-!!!> Unlike structural directives, attribute directives don't add or remove elements. They only change the element they were placed on\*\*
+!!!> Unlike structural directives, attribute directives don't add or remove elements. They only change the element they were placed on
 
 `[ngStyle]`
 
@@ -227,21 +230,21 @@ class Test {
 
 - **`@Input()`** - дає можливість компоненту приймати і використовувати дані батьківського компонента
 - **`@Output()`** - дає можливість компоненту передавати дані наверх батьківському компоненту
-- **`@ViewChild()`** - працює схожим чином з _Local Reference_ через атрибут _#someMeaningfullName_ але дані в метод ми не передаємо для їх отримання в компоненті, вони доступні одразу за посиланням: `someMeaningfullName.nativeElement.value`, посилання зберігатиме об'єкт `ElementRef{nativeElement: htmlEl.className}`.
-Якщо ми використовуватимемо цей декоратор для рендерингу одного компонента всередині іншого, ми зможемо отримати властивості цього компонента через використання _lifecycle hook_ `ngAfterViewInit`
+- **`@ViewChild()`** - працює схожим чином з _`Local Reference`_ через атрибут _`#someMeaningfullName`_ але дані в метод ми не передаємо для їх отримання в компоненті, вони доступні одразу за посиланням: _`someMeaningfullName.nativeElement.value`_, посилання зберігатиме об'єкт `ElementRef{nativeElement: htmlEl.className}`.
+  Якщо ми використовуватимемо цей декоратор для рендерингу одного компонента всередині іншого, ми зможемо отримати властивості цього компонента через використання _lifecycle hook_ _`ngAfterViewInit`_
 
 ```javascript
 export class RoomsComponent implements AfterViewInit {
   @ViewChild(HeaderComponent) header!: HeaderComponent;
 
   ngAfterViewInit(): void {
-      console.log(this.header);//матимемо доступ до властивостей
+      console.log(this.header.title);//матимемо доступ до властивостей HeaderComponent
     }
 }
 ```
 
-  Якщо ж нам потрібно отримати дані цього вкладеного компонента в _ngOnInit_, ми маємо вказати про це декоратору через спеціальну властивість _static_.
-  По дефолту це значення _false_, щоб попередити можливі баги чи затримки у випадку, наприклад, коли у нашому вкладеному компоненті є асинхронні операції, які блокуватимуть _execution flow_ і відповідно ініціалізацію нашого батьківського компонента.
+Якщо ж нам потрібно отримати дані цього вкладеного компонента в _`ngOnInit`_, ми маємо вказати про це декоратору через спеціальну властивість _`static`_.
+По дефолту це значення _`false`_, щоб попередити можливі баги чи затримки у випадку, наприклад, коли у нашому вкладеному компоненті є асинхронні операції, які блокуватимуть _`execution flow`_ і відповідно ініціалізацію нашого батьківського компонента.
 
 ```javascript
 export class RoomsComponent implements OnInit, AfterViewInit {
@@ -256,7 +259,6 @@ export class RoomsComponent implements OnInit, AfterViewInit {
     }
 }
 ```
-
 
 - **`@ContentChild()`** - дає доступ до елементів з атрибутом #someName в темплейті, але тих, що додані через `<ng-content></ng-content>`
 - **`HostListener('any supported event')`** - дає можливість слухати будь-яку подію, яка підтримується JS і виконувати потрібну нам функцію, яка приймає eventData в момент спрацювання події. Приклад:
@@ -276,13 +278,13 @@ export class RoomsComponent implements OnInit, AfterViewInit {
 > - Component instance has lifecycle hooks which can help you to hook into different events on Components
 > - Lifecycle ends when component is destroyed
 
-- **ngOnChanges** - викликається лише при наявності властивості з декоратором, наприклад _@Input()_. Перший раз при ініціалізації компонента перед _ngOnInit_, і кожного разу, коли властивість з декоратором зміниться.
-- **ngOnInit** - хук, який викликатиметься лише один раз після ініціалізації компонента. Викликається він наступним після _ngOnChanges_, якщо останній використовується, інакше першим. В цьому хуці як правило відбуваються підписки і робляться запити на отримання даних з бекенду.
-- **ngDoCheck** - викликається при кожному спрацюванні системи _change detection_ в скоупі всього застосунку. Тому майже не використовується, бо може спричиняти просадку продуктивності через дуже часте спрацювання, та і по суті дублює собою хук _ngOnChanges_.
-- **ngAfterContentInit** - викликається **1 раз** після метода _ngDoCheck()_ після додавання коду html через `<ng-content></ng-content>`
-- **ngAfterContentChecked** - викликається кожного разу, коли контент, доданий через `<ng-content></ng-content>` перевірено системою **change detection**
-- **ngAfterViewInit** - викликається Angular після ініціалізації уявлення (темплейта) компонента. Викликається лише один раз одразу після першого виклику методу _ngAfterContentChecked()_
-- **ngAfterViewChecked** - викликається Angular після того, як стандартний детектор змін закінчив один повний цикл перевірки . Викликається після першого виклику методу _ngAfterViewInit()_ та після кожного наступного виклику _ngAfterContentChecked()_
+- **ngOnChanges** - викликається лише при наявності властивості з декоратором, наприклад _`@Input()`_. Перший раз при ініціалізації компонента перед _`ngOnInit`_, і кожного разу, коли властивість з декоратором зміниться.
+- **ngOnInit** - хук, який викликатиметься лише один раз після ініціалізації компонента. Викликається він наступним після _`ngOnChanges`_, якщо останній використовується, інакше першим. В цьому хуці як правило відбуваються підписки і робляться запити на отримання даних з бекенду.
+- **ngDoCheck** - викликається при кожному спрацюванні системи _`change detection`_ в скоупі всього застосунку. Тому майже не використовується, бо може спричиняти просадку продуктивності через дуже часте спрацювання, та і по суті дублює собою хук _`ngOnChanges`_.
+- **ngAfterContentInit** - викликається **1 раз** після метода _`ngDoCheck()`_ після додавання коду `html` через _`<ng-content></ng-content>`_
+- **ngAfterContentChecked** - викликається кожного разу, коли контент, доданий через _`<ng-content></ng-content>`_ перевірено системою _`change detection`_
+- **ngAfterViewInit** - викликається Angular після ініціалізації уявлення (темплейта) компонента. Викликається лише один раз одразу після першого виклику методу _`ngAfterContentChecked()`_
+- **ngAfterViewChecked** - викликається Angular після того, як стандартний детектор змін закінчив один повний цикл перевірки подання компонента. Викликається після першого виклику методу _`ngAfterViewInit()`_ та після кожного наступного виклику _`ngAfterContentChecked()`_
 - **ngOnDestroy** - викликається перед тим, як компонент буде прибрано з DOM дерева.
 
 ## Custom Attribute Directive
