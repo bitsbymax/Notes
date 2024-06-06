@@ -236,6 +236,7 @@ export class Heroes {
 ```
 
 This implementation would do the tracking based on the id property.
+
 > New syntax
 
 ```html
@@ -311,7 +312,7 @@ This implementation would do the tracking based on the id property.
 
 ---
 
-#### `ng-template directive`
+#### `ng-template`
 
 Як і випливає з назви, ця директива представляє собою _Angular_ темплейт. Це означає, що контент всередині директиви буде частиною темплейту.
 _Angular_ вже використовує _`ng-template`_ під капотом в багатьох структурних директивах, _`ngIf`_, _`ngFor`_ і _`ngSwitch`_.
@@ -338,6 +339,24 @@ When it’s needed (for example the “else” expression kicks into play), Angu
 #### `ng-container`
 
 Працює як **Fragment** в React, тобто його можна використовувати коли ми хочемо додати обгортку для якогось HTML елемента, але не хочемо додавати лишній HTML елемент на сторінку. На _`ng-container`_ також можна додавати структурні директиви.
+
+There is another major use case for the _`ng-container`_ directive: it can also provide a placeholder for injecting a template dynamically into the page.
+
+#### Dynamic Template Creation with the `ngTemplateOutlet` directive
+
+Можливість створювати темплейти з додаванням на них _#template_reference_, як цей, і його використання потім наприклад в структурній директиві _`*ngIf`_ це лише початок.
+
+```html
+<ng-template #loggedIn>
+  <div>Welcome back, friend.</div>
+</ng-template>
+```
+
+За допомогою _`ngTemplateOutlet`_ ми можемо створити екземпляр доданого нами темплейту `ng-template` з _#template reference_, такого як вище, наприклад, і відрендерити його будь-де на сторінці:
+
+```html
+<ng-container *ngTemplateOutlet="loggedIn"></ng-container>
+```
 
 ---
 
