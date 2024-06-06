@@ -273,7 +273,9 @@ export class RoomsComponent implements OnInit, AfterViewInit, AfterViewChecked {
 }
 ```
 
-- Також ми можемо динамічно рендерити компонент всередині нашого темплейта за допомогою цього декоратора.
+---
+
+Також ми можемо динамічно рендерити компонент всередині нашого темплейта за допомогою цього декоратора.
 Додамо в наш темплейт тег з _`template reference`_
 
 ```html
@@ -281,6 +283,28 @@ export class RoomsComponent implements OnInit, AfterViewInit, AfterViewChecked {
 ```
 
 Далі через _`@ViewChild()`_ ми в нашому класі вже можемо екземпляр потрібного компонента отримати і вставити в наш темплейт:
+
+```javascript
+import { BookButtonComponent } from '../book-button/book-button.component';
+
+export class RoomsComponent implements AfterViewInit, AfterViewChecked
+{
+  @ViewChild('bookRoom', { read: ViewContainerRef }) vcr!: ViewContainerRef;
+  
+  ngAfterViewInit() {
+    const componentRef = this.vcr.createComponent(BookButtonComponent); //тут ми отримуємо екземпляр нашого компонента який і буде відмальовано всередині ng-template 
+  }
+}
+```
+
+Також за потреби ми можемо отримати доступ до властивостей класу компонента і модифікувати їх
+
+```javascript
+ngAfterViewInit(): void {
+  const componentRef = this.vcr.createComponent(BookButtonComponent);
+  componentRef.instance.buttonLabel = 'Book new room';
+}
+```
 
 - **`@ContentChild()`** - дає доступ до елементів з атрибутом #someName в темплейті, але тих, що додані через `<ng-content></ng-content>`
 - **`HostListener('any supported event')`** - дає можливість слухати будь-яку подію, яка підтримується JS і виконувати потрібну нам функцію, яка приймає eventData в момент спрацювання події. Приклад:
@@ -303,7 +327,7 @@ export class RoomsComponent implements OnInit, AfterViewInit, AfterViewChecked {
 
 - **ngOnChanges** - викликається лише при наявності властивості з декоратором, наприклад _`@Input()`_. Перший раз при ініціалізації компонента перед _`ngOnInit`_, і кожного разу, коли властивість з декоратором зміниться.
 - **ngOnInit** - хук, який викликатиметься лише один раз після ініціалізації компонента. Викликається він наступним після _`ngOnChanges`_, якщо останній використовується, інакше першим. В цьому хуці як правило відбуваються підписки і робляться запити на отримання даних з бекенду.
-- **ngDoCheck** - викликається при кожному спрацюванні системи _`change detection`_ в скоупі всього застосунку. Тому майже не використовується, бо може спричиняти просадку продуктивності через дуже часте спрацювання, та і по суті дублює собою хук _`ngOnChanges`_.
+- **ngDoCheck** - викликається при кожному спрацюванні системи _`change detection`_ в скоупі всього застосунку. Тому майже не використовується, бо може спричиняти падіння продуктивності через дуже часте спрацювання, та і по суті дублює собою хук _`ngOnChanges`_.
 - **ngAfterContentInit** - викликається **1 раз** після метода _`ngDoCheck()`_ після додавання коду `html` через _`<ng-content></ng-content>`_
 - **ngAfterContentChecked** - викликається кожного разу, коли контент, доданий через _`<ng-content></ng-content>`_ перевірено системою _`change detection`_
 - **ngAfterViewInit** - викликається Angular після ініціалізації уявлення (темплейта) компонента. Викликається лише один раз одразу після першого виклику методу _`ngAfterContentChecked()`_
