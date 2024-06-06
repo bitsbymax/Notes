@@ -37,7 +37,7 @@
 
 ## Interpolation
 
-`{{ someValue }}` where `someValue` is an expression which evaluates to **string**
+`{{ someValue }}` where _`someValue`_ is an expression which evaluates to **string**
 
 ```javascript
 <h1>Welcome to the {{ hotelName }}</h1>
@@ -83,21 +83,43 @@
 
 ### Structural directive
 
-!!!> На одному і тому ж елементі можна мати лише одну **structural directive**
-
-> - Notice that we don't have to import the @if, @for, @switch directives from @angular/common into our component templates anymore.
-> - This is because the @if, @for, @switch syntax is part of the template engine itself, and it is not a directive.
-> - The new @if, @for, @switch are built-in directly into the template engine, so it's automatically available everywhere.
+> На одному і тому ж елементі можна мати лише одну **structural directive**
 
 #### `*ngIf`
 
-`*ngIf="varName; else localRefName"` + `<ng-template #localRefName></ng-template>`
+Умовний рендеринг, де при _`true`_ справа від _`*ngIf`_ буде рендеритись розмітка елементу, на якому директива додана, а при _`false`_ буде рендеритись та розмітка, яку ми додамо в _`ng-template`_
 
-Умовний рендеринг, де при `true` справа від `*ngIf` буде рендеритись розмітка елементу, на якому директива додана, а при `false` буде рендеритись та розмітка, яку ми додамо в `ng-template`
+`*ngIf`
+
+```html
+<div *ngIf="isLoggedIn && !isNewUser">Welcome back, friend</div>
+```
+
+`*ngIf and Else`
+
+```html
+<div *ngIf="isLoggedIn; else loggedOut">Welcome back, friend</div>
+
+<ng-template #loggedOut>Please friend, login</ng-template>
+```
+
+`*ngIf, Then and Else`
+
+```html
+<ng-container *ngIf="isLoggedIn; then loggedIn; else loggedOut"> </ng-container>
+
+<ng-template #loggedIn>
+  <div>Welcome back, friend.</div>
+</ng-template>
+<ng-template #loggedOut>
+  <div>Please friend, login.</div>
+</ng-template>
+```
 
 > New syntax
 
 ```javascript
+//if
 @Component({
   template: `
     @if (showHello) {
@@ -108,6 +130,7 @@
 class Test {
   showHello: boolean = true;
 }
+
 //if -> else
 @Component({
   template: `
@@ -121,6 +144,7 @@ class Test {
 class Test {
   showHello: boolean = true;
 }
+
 //if-> else if-> else
 @Component({
   template: `
@@ -139,11 +163,94 @@ class Test {
 }
 ```
 
+> - Notice that we don't have to import the @if, @for, @switch directives from @angular/common into our component templates anymore.
+> - This is because the @if, @for, @switch syntax is part of the template engine itself, and it is not a directive.
+> - The new @if, @for, @switch are built-in directly into the template engine, so it's automatically available everywhere.
+
+---
+
 #### `*ngFor`
 
-`*ngFor="let server of servers"` - Outputting Lists (цикл for для перебору елементів)
+`*ngFor="let lesson of lessons"` - Outputting Lists (цикл for для перебору елементів)
 
+```html
+<div *ngFor="let lesson of lessons">
+  <div>{{ lesson | json }}</div>
+</div>
+```
+
+`using index`
+
+```html
+<tr *ngFor="let hero of heroes; let i = index">
+  <td>{{hero.name}}</td>
+  <td>{{i}}</td>
+</tr>
+```
+
+`even and odd`
+
+```html
+<tr *ngFor="let hero of heroes; let even = even; let odd = odd" [ngClass]="{ odd: odd, even: even }">
+  <td>{{hero.name}}</td>
+</tr>
+```
+
+`first and last`
+
+```html
+<tr *ngFor="let hero of heroes; let first = first; let last = last" [ngClass]="{ first: first, last: last }">
+  <td>{{hero.name}}</td>
+</tr>
+```
+
+`trackBy`
+
+_`ngFor`_ already does a lot of optimizations out-of-the-box to try to reuse existing DOM elements as much as possible, but it's doing so based on _object identity_.
+
+But we can provide our own mechanism for tracking items in a list by using _`trackBy`_. We need to pass a function to _`trackBy`_, and the function takes a couple of arguments, which are an _`index`_ and the _`current item`_:
+
+```javascript
+@Component({
+  selector: 'heroes',
+  template: `
+    <table>
+      <thead>
+        <th>Name</th>
+      </thead>
+      <tbody>
+        <tr *ngFor="let hero of heroes; trackBy: trackHero">
+          <td>{{ hero.name }}</td>
+        </tr>
+      </tbody>
+    </table>
+  `,
+})
+export class Heroes {
+  heroes = HEROES;
+
+  trackHero(index, hero) {
+    return hero ? hero.id : undefined;
+  }
+}
+```
+
+This implementation would do the tracking based on the id property.
 > New syntax
+
+```html
+@for (room of rooms | slice : 0 : rooms.length; track room.roomNumber; let i = $index, even = $even, odd = $odd) {
+<tr [ngClass]="even ? 'even' : 'odd'">
+  <td>{{ i }}</td>
+  <td>{{ room.roomNumber }}</td>
+  <td>{{ room.checkInTime | date : "longDate" }}</td>
+  <td>{{ room.checkOutTime | date : "longDate" }}</td>
+  <td>{{ room.rating | number : "1.1-1" : "en-us" }}</td>
+</tr>
+}
+```
+
+`@for() {} @empty{}`
 
 ```javascript
 @for (i of items ; track i.name) {
@@ -153,9 +260,11 @@ class Test {
 }
 ```
 
+---
+
 #### `*ngSwitch`
 
-`[ngSwitch]` - дає можливість умовного рендерингу через `switch case`.
+`[ngSwitch]` - дає можливість умовного рендерингу через _`switch case`_.
 
 ```html
 <div [ngSwitch]="value">
@@ -183,6 +292,8 @@ class Test {
 }
 ```
 
+---
+
 #### `ng-content`
 
 `<ng-content></ng-content>` - директива, яка рендерить розмітку, яку ми вставляємо поміж тегів селектора компонента в тому місці, де ми цю директиву пропишемо:
@@ -198,15 +309,41 @@ class Test {
 
 Потім верстку, яка поміж `<app-server-element></>` ми можемо вставити всередину темплейта того компонента, у якого відповідно селектор _"app-server-element"_ додавши туди `<ng-content></ng-content>`
 
-#### `ng-template`
+---
+
+#### `ng-template directive`
+
+Як і випливає з назви, ця директива представляє собою _Angular_ темплейт. Це означає, що контент всередині директиви буде частиною темплейту.
+_Angular_ вже використовує _`ng-template`_ під капотом в багатьох структурних директивах, _`ngIf`_, _`ngFor`_ і _`ngSwitch`_.
+
+Але потрібно розуміти, що сам по собі тег _`<ng-template></ng-template>`_ нічого не рендерить, тобто в результаті такої розмітки нічого на екран виведено не буде
+
+```html
+<ng-template>
+  <div>content</div>
+  //цей тег не відрендериться
+</ng-template>
+```
+
+І це очікувана поведінка, бо використовуючи _`ng-template`_ ми лише визначаємо темплейт але ще не використовуємо ніде.
+
+We use the _`<ng-template>`_ because much like it’s HTML5 counterpart `<template>`, it’s also considered “virtual”.
+
+Being “virtual” means the _`<ng-template>`_ contents won’t actually exist in the compiled DOM, until it’s needed (you will never see it until Angular renders it).
+
+When it’s needed (for example the “else” expression kicks into play), Angular will grab the contents of the _`<ng-template>`_ tag, and replace the _`*ngIf`_ contents with it. That’s it.
+
+---
 
 #### `ng-container`
 
 Працює як **Fragment** в React, тобто його можна використовувати коли ми хочемо додати обгортку для якогось HTML елемента, але не хочемо додавати лишній HTML елемент на сторінку. На _`ng-container`_ також можна додавати структурні директиви.
 
+---
+
 ### Attribute directives
 
-!!!> Unlike structural directives, attribute directives don't add or remove elements. They only change the element they were placed on
+> Unlike structural directives, attribute directives don't add or remove elements. They only change the element they were placed on
 
 `[ngStyle]`
 
@@ -230,7 +367,28 @@ class Test {
 
 - **`@Input()`** - дає можливість компоненту приймати і використовувати дані батьківського компонента
 - **`@Output()`** - дає можливість компоненту передавати дані наверх батьківському компоненту
-- **`@ViewChild()`** - працює схожим чином з _`Local Reference`_ через атрибут _`#someMeaningfulName`_ але дані в метод ми не передаємо для їх отримання в компоненті, вони доступні одразу за посиланням: _`someMeaningfulName.nativeElement.value`_, посилання зберігатиме об'єкт `ElementRef{nativeElement: htmlEl.className}`.
+- **`@ViewChild()`** - дає доступ до подання компонента, де ми в свою чергу можемо отримати доступ до елементів темплейта через _`#template reference`_ або навіть дочірніх компонентів. Також через цей декоратор можна в класі компонента динамічно отримати екземпляр іншого компонента і вставити його в наш темплейт
+
+Для доступу до елементу темплейта, додаємо на нього _`#template reference`_
+
+```html
+<p #description></p>
+```
+
+І далі в класі можемо вже його зчитати і модифікувати. Він буде доступний за посиланням: _`propertyName.nativeElement`_, посилання зберігатиме об'єкт `_ElementRef {nativeElement: p}`, де будуть всі вбудовані властивості конкретного `html` елемента.
+
+```javascript
+export class RoomsComponent implements OnInit
+{
+  @ViewChild('description', { static: true }) description!: ElementRef;
+
+  ngOnInit(): void {
+    this.description.nativeElement.innerText = 'Our goal is to provide best service';
+  }
+}
+```
+
+---
 
 Якщо нам потрібно отримати доступ до дочірнього компонента який рендериться всередині нашого темплейта таким чином:
 
@@ -247,12 +405,17 @@ class Test {
 export class RoomsComponent implements AfterViewInit, AfterViewChecked {
   @ViewChild(HeaderComponent) header!: HeaderComponent;
 
+  constructor(private cdr: ChangeDetectorRef) {}
   ngAfterViewInit(): void {
     this.header.title = 'Hotel inventory'; //- тут це значення зміниться лише на наступному циклі change детектора
+    //щоб відобразити зміни одразу
+    this.cdr.detectChanges();
   }
   //або
   ngAfterViewChecked(): void {
     this.header.title = 'Hotel inventory'; //- тут це значення зміниться лише на наступному циклі change детектора
+    //щоб відобразити зміни одразу
+    this.cdr.detectChanges();
   }
 }
 ```
@@ -276,13 +439,13 @@ export class RoomsComponent implements OnInit, AfterViewInit, AfterViewChecked {
 ---
 
 Також ми можемо динамічно рендерити компонент всередині нашого темплейта за допомогою цього декоратора.
-Додамо в наш темплейт тег з _`template reference`_
+Додамо в наш темплейт тег _`ng-template`_ з _`#template reference`_
 
 ```html
 <ng-template #bookRoom></ng-template>
 ```
 
-Далі через _`@ViewChild()`_ ми в нашому класі вже можемо екземпляр потрібного компонента отримати і вставити в наш темплейт:
+Далі через _`@ViewChild()`_ ми в нашому класі можемо екземпляр потрібного компонента отримати і вставити в наш темплейт:
 
 ```javascript
 import { BookButtonComponent } from '../book-button/book-button.component';
@@ -290,9 +453,9 @@ import { BookButtonComponent } from '../book-button/book-button.component';
 export class RoomsComponent implements AfterViewInit, AfterViewChecked
 {
   @ViewChild('bookRoom', { read: ViewContainerRef }) vcr!: ViewContainerRef;
-  
+
   ngAfterViewInit() {
-    const componentRef = this.vcr.createComponent(BookButtonComponent); //тут ми отримуємо екземпляр нашого компонента який і буде відмальовано всередині ng-template 
+    const componentRef = this.vcr.createComponent(BookButtonComponent); //тут ми отримуємо екземпляр нашого компонента який і буде відмальовано всередині ng-template
   }
 }
 ```
@@ -302,9 +465,60 @@ export class RoomsComponent implements AfterViewInit, AfterViewChecked
 ```javascript
 ngAfterViewInit(): void {
   const componentRef = this.vcr.createComponent(BookButtonComponent);
-  componentRef.instance.buttonLabel = 'Book new room';
+  componentRef.instance.buttonLabel = 'Book new room'; //тут змінюємо значення потрібної властивості
 }
 ```
+
+- **`@ViewChildren()`** - декоратор, який дає можливість отримати доступ до дочірніх компонентів темплейту, які ми використовуємо декілька разів:
+
+```html
+<h1>Welcome to the {{ hotelName }}</h1>
+<p #description></p>
+// як приклад
+<app-header></app-header>
+<app-header></app-header>
+```
+
+Далі в класі ми створюємо властивість з цим декоратором:
+
+```javascript
+export class RoomsComponent implements AfterViewInit, AfterViewChecked
+{
+  @ViewChildren(HeaderComponent) headerChildren!: QueryList<HeaderComponent>;
+}
+```
+
+У властивості _`headerChildren`_ буде ось таке посилання на об'єкт:
+
+```javascript
+_QueryList
+dirty: false
+first: _HeaderComponent {title: 'Hotel inventory', __ngContext__: 3}
+last: _HeaderComponent {title: '', __ngContext__: 3}
+length: 3
+_changes: undefined
+_changesDetected: true
+_emitDistinctChangesOnly: true
+_onDirty: undefined
+_results: Array(3)
+  0: _HeaderComponent {title: 'Hotel inventory', __ngContext__: 3}
+  1: _HeaderComponent {title: '', __ngContext__: 3}
+  2: _HeaderComponent {title: '', __ngContext__: 3}
+  length: 3
+  [[Prototype]]: Array(0)
+  changes: (...)
+[[Prototype]]: Object
+```
+
+І далі в _`ngAfterViewInit`_ ми вже маємо можливість працювати з кожним з цих компонентів:
+
+```javascript
+ngAfterViewInit(): void {
+  this.headerChildren.last.title = 'Hotel inventory 2';
+}
+```
+
+> Для цього декоратора по дефолту _`{ static: false }`_ і змінити це значення не можна.
 
 - **`@ContentChild()`** - дає доступ до елементів з атрибутом #someName в темплейті, але тих, що додані через `<ng-content></ng-content>`
 - **`HostListener('any supported event')`** - дає можливість слухати будь-яку подію, яка підтримується JS і виконувати потрібну нам функцію, яка приймає eventData в момент спрацювання події. Приклад:
