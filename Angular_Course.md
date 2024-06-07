@@ -624,11 +624,15 @@ ngAfterViewInit(): void {
 - **`HostBinding('property.sub_property')`** - в прикладі нижче ми говоримо Angular на елементі, де використання ця директива, звернутися до властивості style під властивості backgroundColor і встановити значення 'red'. Пізніше через this.backgroundColor можна встановити інше значення
   @HostBinding('style.backgroundColor') backgroundColor: string = 'red';
 
+---
+
 ## Template Reference
 
 **`#someMeaningfulName`** - is often a reference to a DOM element within a template. It can also be a reference to an Angular component or directive or a web component.
 
-- Щоб отримати доступ до елементу в коді, цей атрибут потрібно передати в метод, який викликається, наприклад на клік, або ж це можна зробити через _`@ViewChild()`_
+Щоб отримати доступ до елементу в коді, цей атрибут потрібно передати в метод, який викликається, наприклад на клік, або ж це можна зробити через _`@ViewChild()`_
+
+---
 
 ## Lifecycle Hooks
 
