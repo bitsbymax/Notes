@@ -314,7 +314,7 @@ This implementation would do the tracking based on the id property.
 
 #### `ng-template`
 
-Як і випливає з назви, ця директива представляє собою _Angular_ темплейт. Це означає, що контент всередині директиви буде частиною темплейту.
+Як і випливає з назви, ця директива представляє собою _Angular_ темплейт. Це означає, що контент всередині директиви буде частиною загального темплейту.
 _Angular_ вже використовує _`ng-template`_ під капотом в багатьох структурних директивах, _`ngIf`_, _`ngFor`_ і _`ngSwitch`_.
 
 Але потрібно розуміти, що сам по собі тег _`<ng-template></ng-template>`_ нічого не рендерить, тобто в результаті такої розмітки нічого на екран виведено не буде
@@ -342,9 +342,11 @@ When it’s needed (for example the “else” expression kicks into play), Angu
 
 There is another major use case for the _`ng-container`_ directive: it can also provide a placeholder for injecting a template dynamically into the page.
 
+---
+
 #### Dynamic Template Creation with the `ngTemplateOutlet` directive
 
-Можливість створювати темплейти з додаванням на них _#template_reference_, як цей, і його використання потім наприклад в структурній директиві _`*ngIf`_ це лише початок.
+Можливість створювати темплейти з додаванням на них _#template_reference_, як цей, що на прикладі нижче, і його використання потім, наприклад, в структурній директиві _`*ngIf`_ це лише початок.
 
 ```html
 <ng-template #loggedIn>
@@ -352,10 +354,85 @@ There is another major use case for the _`ng-container`_ directive: it can also 
 </ng-template>
 ```
 
-За допомогою _`ngTemplateOutlet`_ ми можемо створити екземпляр доданого нами темплейту `ng-template` з _#template reference_, такого як вище, наприклад, і відрендерити його будь-де на сторінці:
+За допомогою _`ngTemplateOutlet`_ ми можемо створити екземпляр доданого нами темплейту _`ng-template`_ з _#template reference_ і відрендерити його будь-де на сторінці за допомогою _`ng-container`_:
 
 ```html
 <ng-container *ngTemplateOutlet="loggedIn"></ng-container>
+```
+
+#### Template Context
+
+В межах нашого темплейта ми маємо доступ до локально створених змінних через префікс _`let`_ і також до змінних зовнішнього контексту, тобто контексту в якому наш темплейт буде використовуватись.
+
+`app.component.ts`
+
+```javascript
+@Component({
+  selector: 'app-root',
+  standalone: true,
+  imports: [RouterOutlet, RoomsComponent, CommonModule],
+  templateUrl: './app.component.html',
+  styleUrl: './app.component.scss',
+})
+export class AppComponent {
+  totalCustomers = 10;
+  ctx = { count: this.totalCustomers };
+
+  data = {
+    screen: true,
+    label: 'Mobile',
+  };
+}
+```
+
+> Далі приклад того, як можна в контексті _`ng-template`_ отримати дані з нашого компонента
+
+`app.component.html`
+
+> використовуючи _`ng-container`_
+
+```html
+<ng-template #countTemplate let-customerCount="count">
+  <div>Approximately {{ customerCount }} customers on the page...</div>
+</ng-template>
+<ng-container *ngTemplateOutlet="countTemplate; context: ctx"> </ng-container>
+// Approximately 10 customers on the page...
+```
+
+> напряму в `ng-template`
+
+```html
+<ng-template
+  #t
+  [ngTemplateOutlet]="t"
+  [ngTemplateOutletContext]="{
+    defaultScreen: data.screen,
+    label: data.label
+  }"
+  let-defaultScreen="defaultScreen"
+  let-label="label"
+>
+  <div>default screen: {{ defaultScreen }} - label: {{ label }}</div>
+</ng-template>
+// default screen: true - label: Mobile
+```
+
+> А тут ми передаємо в темплейт локальні дані в скоупі циклу @for()
+
+```html
+@for (room of rooms; track room.roomNumber; let i = $index) {
+<tr [ngClass]="even ? 'even' : 'odd'">
+  <ng-container *ngTemplateOutlet="td; context: { i }"></ng-container>
+  //передаємо контекст
+  <td>{{ room.checkInTime | date : "longDate" }}</td>
+  <td>{{ room.checkOutTime | date : "longDate" }}</td>
+  <td>{{ room.rating | number : "1.1-1" : "en-us" }}</td>
+</tr>
+}
+
+<ng-template #td let-index="i">
+  <td>{{ index }}</td>
+</ng-template>
 ```
 
 ---
