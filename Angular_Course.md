@@ -297,6 +297,8 @@ This implementation would do the tracking based on the id property.
 
 #### `ng-content`
 
+> Content Projection
+
 `<ng-content></ng-content>` - директива, яка рендерить розмітку, яку ми вставляємо поміж тегів селектора компонента в тому місці, де ми цю директиву пропишемо:
 
 ```html
@@ -308,7 +310,32 @@ This implementation would do the tracking based on the id property.
 </app-server-element>
 ```
 
-Потім верстку, яка поміж `<app-server-element></>` ми можемо вставити всередину темплейта того компонента, у якого відповідно селектор _"app-server-element"_ додавши туди `<ng-content></ng-content>`
+Потім верстку, яка поміж _`<app-server-element></>`_ ми можемо вставити всередину темплейта того компонента, у якого відповідно селектор _`app-server-element`_ додавши туди _`<ng-content></ng-content>`_. Тоді цей тег буде динамічно замінений на html код, який був переданий.
+
+#### Multi-Slot Content Projection
+
+За допомогою спеціального атрибута _`select`_ ми можемо вказати, який саме контент ми хочемо відобразити всередині директиви _`ng-content`_
+
+`root-component.ts`
+
+```html
+<app-container>
+  <h1>This is from app-container's ng-content</h1>
+  <app-rooms></app-rooms>
+  <app-employee></app-employee>
+</app-container>
+```
+
+`app-container.html`
+
+```html
+<ng-content></ng-content>
+<ng-content select="app-rooms"></ng-content>
+<ng-content select="app-employee"></ng-content>
+```
+
+Порядок того, як елементи будуть додані в _`DOM`_ визначається саме порядком _`ng-content`_.
+Тег без селектора буде рендерити розмітку за принципом виключення.
 
 ---
 
@@ -465,13 +492,15 @@ export class AppComponent {
 - **`@Output()`** - дає можливість компоненту передавати дані наверх батьківському компоненту
 - **`@ViewChild()`** - дає доступ до подання компонента, де ми в свою чергу можемо отримати доступ до елементів темплейта через _`#template reference`_ або навіть дочірніх компонентів. Також через цей декоратор можна в класі компонента динамічно отримати екземпляр іншого компонента і вставити його в наш темплейт
 
-Для доступу до елементу темплейта, додаємо на нього _`#template reference`_
+> Html element access
+
+Для доступу до елемента темплейта, додаємо на нього _`#template reference`_
 
 ```html
 <p #description></p>
 ```
 
-І далі в класі можемо вже його зчитати і модифікувати. Він буде доступний за посиланням: _`propertyName.nativeElement`_, посилання зберігатиме об'єкт `_ElementRef {nativeElement: p}`, де будуть всі вбудовані властивості конкретного `html` елемента.
+І далі в класі можемо його зчитати і модифікувати. Він буде доступний за посиланням: _`propertyName.nativeElement`_, посилання зберігатиме об'єкт `_ElementRef {nativeElement: p}`, де будуть всі вбудовані властивості конкретного `html` елемента.
 
 ```javascript
 export class RoomsComponent implements OnInit
@@ -485,6 +514,8 @@ export class RoomsComponent implements OnInit
 ```
 
 ---
+
+> Child component access
 
 Якщо нам потрібно отримати доступ до дочірнього компонента який рендериться всередині нашого темплейта таким чином:
 
@@ -565,7 +596,7 @@ ngAfterViewInit(): void {
 }
 ```
 
-- **`@ViewChildren()`** - декоратор, який дає можливість отримати доступ до дочірніх компонентів темплейту, які ми використовуємо декілька разів:
+- **`@ViewChildren()`** - декоратор, який дає можливість отримати доступ до дочірніх компонентів темплейту, які ми використовуємо більше ніж один раз:
 
 ```html
 <h1>Welcome to the {{ hotelName }}</h1>
@@ -575,7 +606,7 @@ ngAfterViewInit(): void {
 <app-header></app-header>
 ```
 
-Далі в класі ми створюємо властивість з цим декоратором:
+Далі в класі створюємо властивість з цим декоратором:
 
 ```javascript
 export class RoomsComponent implements AfterViewInit, AfterViewChecked
