@@ -49,8 +49,8 @@
 ## Property binding (One-way binding)
 
 ```html
-[disabled]="!allowNewServer"
-<p [innerText]="allowNewServer"></p>
+<button type="button" [disabled]="!active">-</button>
+<p [innerText]="hotelName"></p>
 ```
 
 Через таку прив'язку ми можемо для будь-якої властивості елемента, через його атрибут, встановити значення будь-якої властивості нашого компонента
@@ -688,7 +688,7 @@ export class EmployeeComponent {
 }
 ```
 
-- ContentChildren()
+- **`ContentChildren()`** - використовується по аналогії з _`@ViewChildren`_, коли нам потрібен доступ до усього _`projected content`_.
 
 - **`HostListener('any supported event')`** - дає можливість слухати будь-яку подію, яка підтримується JS і виконувати потрібну нам функцію, яка приймає eventData в момент спрацювання події. Приклад:
   @HostListener('mouseenter') mouseover(eventData: Event) {
@@ -709,32 +709,37 @@ export class EmployeeComponent {
 
 ## Lifecycle Hooks
 
-> - Component instance has lifecycle hooks which can help you to hook into different events on Components
-> - Lifecycle ends when component is destroyed
+> Component instance has lifecycle hooks which can help you to hook into different events on Components. Lifecycle ends when component is destroyed
 
-- **ngOnChanges** - викликається лише при наявності властивості з декоратором _`@Input()`_ при зміні значення цієї властивості, тобто в будь-якому разі, бо всі властивості по дефолту _`undefined`_, перед _`ngOnInit`_.
-- **ngOnInit** - хук, який викликатиметься лише один раз після ініціалізації компонента. Викликається він наступним після _`ngOnChanges`_, якщо останній використовується, інакше першим. В цьому хуці як правило відбуваються підписки і робляться запити на отримання даних з бекенду.
-- **ngDoCheck** - викликається при кожному спрацюванні системи _`change detection`_ в скоупі всього застосунку. Тому майже не використовується, бо може спричиняти падіння продуктивності через дуже часте спрацювання, та і по суті дублює собою хук _`ngOnChanges`_.
-- **ngAfterContentInit** - викликається **1 раз** після метода _`ngDoCheck()`_ після додавання коду `html` через _`<ng-content></ng-content>`_
-- **ngAfterContentChecked** - викликається кожного разу, коли контент, доданий через _`<ng-content></ng-content>`_ перевірено системою _`change detection`_
-- **ngAfterViewInit** - викликається Angular після ініціалізації уявлення (темплейта) компонента. Викликається лише один раз одразу після першого виклику методу _`ngAfterContentChecked()`_
-- **ngAfterViewChecked** - викликається Angular після того, як стандартний детектор змін закінчив один повний цикл перевірки подання компонента. Викликається після першого виклику методу _`ngAfterViewInit()`_ та після кожного наступного виклику _`ngAfterContentChecked()`_
-- **ngOnDestroy** - викликається перед тим, як компонент буде прибрано з DOM дерева.
+- **ngOnChanges()** - викликається лише при наявності властивості з декоратором _`@Input()`_ при зміні значення цієї властивості, тобто в будь-якому разі, бо всі властивості по дефолту _`undefined`_, перед _`ngOnInit`_.
+- **ngOnInit()** - хук, який викликатиметься лише **1 раз** після ініціалізації компонента. Викликається він наступним після _`ngOnChanges`_, якщо останній використовується, інакше першим. В цьому хуці як правило відбуваються підписки і робляться запити на отримання даних з бекенду.
+- **ngDoCheck()** - викликається при кожному спрацюванні системи _`change detection`_ в скоупі всього застосунку. Тому майже не використовується, бо може спричиняти падіння продуктивності через дуже часте спрацювання, та і по суті дублює собою хук _`ngOnChanges`_.
+- **ngAfterContentInit()** - викликається **1 раз** після метода _`ngDoCheck()`_ після додавання коду _`html`_ через _`<ng-content></ng-content>`_
+- **ngAfterContentChecked()** - викликається кожного разу, коли контент, доданий через _`<ng-content></ng-content>`_ перевірено системою _`change detection`_
+- **ngAfterViewInit()** - викликається Angular після ініціалізації уявлення (темплейта) компонента. Викликається лише **1 раз** одразу після першого виклику методу _`ngAfterContentChecked()`_
+- **ngAfterViewChecked()** - викликається Angular після того, як стандартний детектор змін закінчив один повний цикл перевірки подання компонента. Викликається після першого виклику методу _`ngAfterViewInit()`_ та після кожного наступного виклику _`ngAfterContentChecked()`_
+- **ngOnDestroy()** - викликається перед тим, як компонент буде прибрано з DOM дерева.
+
+---
 
 ## Custom Attribute Directive
 
 - Створити файл some-name.directive.ts
 - В файлі:
-  import { **Directive** } from '@angular/core'
-  _@Directive_({
+
+```javascript
+  import { Directive } from '@angular/core'
+  @Directive_({
   selector: '[someName]'
   })
   export class SomeBasicDirective implements OnInit {
-  constructor(private elementReference: ElementRef) {}
-  ngOnInit() {
-  this.elementReference.nativeElement.style.color = 'red';
+    constructor(private elementReference: ElementRef) {}
+    ngOnInit() {
+      this.elementReference.nativeElement.style.color = 'red';
+    }
   }
-  }
+```
+
 - В _NgModule_ в _declarations_ додати SomeBasicDirective
 - В потрібний елемент DOM додати атрибут _someName_, назва якого має відповідати тій, що у властивості selector нашої директиви - таким чином ми задамо колір нашому елементу
 
