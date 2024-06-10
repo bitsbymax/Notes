@@ -69,8 +69,47 @@
 
 ## Two-way data binding
 
-```JavaScript
-[(ngModel)]="serverName"
+Дає можливість слухати подію і оновлювати дані одночасно через одну властивість між батьківським і дочірнім компонентом. Поєднує в собі _`property binding`_ і _`event binding`_
+
+For two-way data binding to work, the _`@Output()`_ property must use the **pattern**, **_inputChange_**, where input is the name of the _`@Input()`_ property. For example, if the _`@Input()`_ property is _size_, the _`@Output()`_ property must be _sizeChange_.
+
+```javascript
+@Component({
+  selector: 'app-root',
+  standalone: true,
+  imports: [CommonModule],
+  templateUrl: `<app-sizer [(size)]="fontSizePx"></app-sizer>
+<div [style.font-size.px]="fontSizePx">Resizable Text</div>`,
+  styleUrl: './root.component.scss',
+})
+export class RootComponent {
+  fontSizePx = 16;
+}
+```
+
+```javascript
+export class SizerComponent {
+  @Input() size!: number | string;
+  @Output() sizeChange = new EventEmitter<number>();
+  dec() {
+    this.resize(-1);
+  }
+  inc() {
+    this.resize(+1);
+  }
+  resize(delta: number) {
+    this.size = Math.min(40, Math.max(8, +this.size + delta));
+    this.sizeChange.emit(this.size);
+  }
+}
+```
+
+```html
+<div>
+  <button type="button" (click)="dec()" title="smaller">-</button>
+  <button type="button" (click)="inc()" title="bigger">+</button>
+  <span [style.font-size.px]="size">FontSize: {{size}}px</span>
+</div>
 ```
 
 ---
@@ -745,7 +784,7 @@ export class EmployeeComponent {
 
   ---- Цей спосіб(звернення до елемента напряму) не є найкращим варіантом його модифікації, так як Angular може рендерити темплейти без DOM дерева і тоді властивість, наприклад, style, буде недоступною.
 
-- Тому краще викор. другий варіант з **Renderer2**:
+- Тому краще використовувати другий варіант з **Renderer2**:
   import { **Renderer2** } from '@angular/core'
   _@Directive_({
   selector: '[someName]'
@@ -758,14 +797,16 @@ export class EmployeeComponent {
   }
 - <https://angular.io/api/core/Renderer2> - тут більше методів класу **Renderer2**
 
+---
+
 ## Custom Structural Directive
 
-- Приклад реалізаці:
+- Приклад реалізації:
   _@Directive_({
   selector: '[appUnless]'
   })
   export class UnlessDirective {
-  @Input() **set** appUnless(condition: boolean) { //appUnless() це властивість, хоч і є мотодом, до якої ми прив'язуємось, спрацює, коли зміниться параметр, який передається в цей метод. Ключове слово set це _setter_
+  @Input() **set** appUnless(condition: boolean) { //appUnless() це властивість, хоч і є методом, до якої ми прив'язуємось, спрацює, коли зміниться параметр, який передається в цей метод. Ключове слово set це _setter_
   if (!condition) {
   this.vcRef.createEmbeddedView(this.templateRef); //цей метод створює розмітку у ViewContainer до якого ми звертаємось
   } else {
@@ -777,13 +818,38 @@ export class EmployeeComponent {
   //в templateRef буде посилання на наш HTML код, тобто те, ЩО потрібно відобразити, а в vcRef буде вказано ДЕ це треба відобразити
   }
 
+---
+
 ## Services & Dependency injection
 
-- **Services** - допоміжні методи або якийсь функціонал, яким ми будемо використовувати в різних місцях програми. Вони роблять код чистішим, більш лінійним, централізованим, таким, який легше підтримувати
+**Service** - клас, який, як правило, містить допоміжні методи або якийсь функціонал, яким ми будемо використовувати в різних місцях програми для виконання якоїсь бізнес логіки. За рахунок перевикористання цей паттерн дає можливість зробити код чистішим, більш лінійним, централізованим, таким, який легше підтримувати.
+
 - В окремому файлі створюється клас, в який додається потрібний метод.
-- Далі за рахунок **Dependency injection** ми можемо використовувати цей сервіс в потрібному компоненті
-  приклад: constructor(private methodName: serviceName) {} - для цього в constructor передаємо параметр, який буде властивістю нашого класу і в якому буде зберігатися екземпляр класу serviceName з методами, які ми туди додали.
-- Для того, щоб викор. цей сервіс, потрібно передати його в AppModule у властивість providers: [serviceName], або ж використати _@Injectable({providedIn:'root'})_ В обох випадках він буде доступним **application wide**
+- Далі за рахунок **Dependency injection** ми можемо використовувати цей сервіс в потрібному компоненті. Для цього в _`constructor`_ передаємо аргумент, який буде властивістю нашого класу і в якому буде зберігатися екземпляр класу serviceName з методами, які ми туди додали.
+
+```javascript
+constructor(private cdr: ChangeDetectorRef, private roomsService: RoomsService) {}
+```
+
+> `Injectable(options?: ({ providedIn: Type<any> | "root" | "platform" | "any" | null }) & InjectableProvider)`
+>
+> Decorator that marks a class as available to be provided and injected as a dependency.
+
+_`private`_ - модифікатор доступу, який говорить, що екземпляр цього класу можна убуде використати лише в самому класі
+
+- Для того, щоб використати цей сервіс, потрібно або передати його в _`AppModule`_ у властивість _`providers`_: _`[serviceName]`_, або ж використати _`@Injectable({providedIn:'root'})`_. В обох випадках він буде доступним **application wide**.
+
+>Рекомендовано використовувати другий спосіб, _`@Injectable({providedIn:'root'})`_, так як по-перше, якщо такий сервіс таки не буде використовуватися, фреймворк не додаватиме його в продакшн бандл, по-друге, фреймворк створить єдиний екземпляр такого сервісу для всього застосунку.
+>
+>Якщо ж нам таки потрібен локальний екземпляр класу, потрібно передати його в _`providers`_: _`[serviceName]`_ нашого компонента.
+
+### DI Providers
+
+- Class based providers
+- Value Providers
+- Factory
+
+---
 
 ## Routing
 
