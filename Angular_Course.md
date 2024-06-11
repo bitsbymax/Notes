@@ -814,7 +814,7 @@ export class EmployeeComponent {
   }
   }
 
-  constructor(private templateRef: TemplateRef<any>, private vcRef: ViewContainerRef) { }
+  `constructor(private templateRef: TemplateRef<any>, private vcRef: ViewContainerRef) { }`
   //в templateRef буде посилання на наш HTML код, тобто те, ЩО потрібно відобразити, а в vcRef буде вказано ДЕ це треба відобразити
   }
 
@@ -823,6 +823,14 @@ export class EmployeeComponent {
 ## Services & Dependency injection
 
 **Service** - клас, який, як правило, містить допоміжні методи або якийсь функціонал, яким ми будемо використовувати в різних місцях програми для виконання якоїсь бізнес логіки. За рахунок перевикористання цей паттерн дає можливість зробити код чистішим, більш лінійним, централізованим, таким, який легше підтримувати.
+
+### DI Providers
+
+- Class based providers
+- Value Providers
+- Factory
+
+### Class based providers
 
 - В окремому файлі створюється клас, в який додається потрібний метод.
 - Далі за рахунок **Dependency injection** ми можемо використовувати цей сервіс в потрібному компоненті. Для цього в _`constructor`_ передаємо аргумент, який буде властивістю нашого класу і в якому буде зберігатися екземпляр класу serviceName з методами, які ми туди додали.
@@ -839,15 +847,129 @@ _`private`_ - модифікатор доступу, який говорить, 
 
 - Для того, щоб використати цей сервіс, потрібно або передати його в _`AppModule`_ у властивість _`providers`_: _`[serviceName]`_, або ж використати _`@Injectable({providedIn:'root'})`_. В обох випадках він буде доступним **application wide**.
 
->Рекомендовано використовувати другий спосіб, _`@Injectable({providedIn:'root'})`_, так як по-перше, якщо такий сервіс таки не буде використовуватися, фреймворк не додаватиме його в продакшн бандл, по-друге, фреймворк створить єдиний екземпляр такого сервісу для всього застосунку.
+> Рекомендовано використовувати другий спосіб, _`@Injectable({providedIn:'root'})`_, так як по-перше, якщо такий сервіс таки не буде використовуватися, фреймворк не додаватиме його в продакшн бандл, по-друге, фреймворк створить єдиний екземпляр такого сервісу для всього застосунку.
 >
->Якщо ж нам таки потрібен локальний екземпляр класу, потрібно передати його в _`providers`_: _`[serviceName]`_ нашого компонента.
+> Якщо ж нам таки потрібен локальний екземпляр класу, потрібно передати його в _`providers`_: _`[serviceName]`_ нашого компонента.
 
-### DI Providers
+#### Resolution modifiers
 
-- Class based providers
-- Value Providers
-- Factory
+- `@Self()`
+
+Декоратор параметрів _`constructor() {}`_ який говорить _`DI framework`_ почати пошук залежностей з локального інжектора.
+В такому разі сервіс потрібно додати в _`providers: []`_, інакше буде помилка.
+
+```javascript
+constructor(@Self() private roomsService: RoomsService) {}
+```
+
+- `@SkipSelf()`
+
+Декоратор параметрів _`constructor() {}`_ який говорить _`DI framework`_ почати пошук залежностей з батьківського інжектора. Локальний інжектор перевірятися на наявність провайдера не буде.
+
+```javascript
+constructor(@SkipSelf() private roomsService: RoomsService) {}
+```
+
+- `@Optional()`
+
+Декоратор параметрів _`constructor() {}`_, який позначає параметр як опційну залежність. _`DI framework`_ повертає _`null`_, якщо залежність не буде знайдено.
+Може бути використаний разом з іншими декораторами, які модифікують поведінку _DI_.
+
+```javascript
+constructor(@Optional() private loggerService: LoggerService) {}`
+```
+
+- `@Host()`
+
+Декоратор параметрів конструктора класу батьківського компонента або компонента хоста, якщо це наприклад компонент, через який відбувається _`content projection`_, який говорить _`DI framework`_ завершити створення подання _(view)_, перевіряючи інжектори дочірніх елементів і зупинятися при досягненні елемента хоста.
+
+```javascript
+constructor(@Host() private roomsService: RoomsService) {}
+```
+
+### Value providers
+
+Прикладом використання може бути сервіс у якому будуть зберігатися _`api endpoints`_. Для цього треба створити сервіс і інтерфейс:
+
+`config.interface.ts`
+
+```javascript
+export interface AppConfig {
+  apiEndpoint: string;
+}
+```
+
+`config.service.ts`
+
+```typescript
+import { InjectionToken } from '@angular/core';
+import { AppConfig } from './config.interface';
+import { environment } from '../../environments/environment';
+
+export const APP_SERVICE_CONFIG = new InjectionToken<AppConfig>('AppConfig');
+
+export const APP_CONFIG: AppConfig = {
+  apiEndpoint: environment.apiEndpoint,
+};
+```
+
+> This is nothing more but just a unique identifier because all things that we inject must be unique for the injector.
+
+І далі зареєструвати цей сервіс в _`providers`_ головного модуля _`app.module.ts`_ або в _`app.config.ts`_ для _`standalone application`_:
+
+`app.config.ts`
+
+```javascript
+import { ApplicationConfig, provideZoneChangeDetection } from '@angular/core';
+import { provideRouter } from '@angular/router';
+import { routes } from './app.routes';
+import { APP_CONFIG, APP_SERVICE_CONFIG } from './config/config.service';
+
+export const appConfig: ApplicationConfig = {
+  providers: [
+    provideZoneChangeDetection({ eventCoalescing: true }),
+    provideRouter(routes),
+    //реєструємо сервіс і передаємо константу через useValue
+    { provide: APP_SERVICE_CONFIG, useValue: APP_CONFIG },
+  ],
+};
+```
+
+Після цього цей сервіс вже можна використовувати:
+
+```javascript
+constructor(@Inject(APP_SERVICE_CONFIG) private config: AppConfig) {
+  console.log(config.apiEndpoint);
+}
+```
+
+> @Inject(token: any): any
+>
+> Parameter decorator on a dependency parameter of a class constructor that specifies a custom provider of the dependency.
+>
+> When @Inject() is not present, the injector uses the type annotation of the parameter as the provider.
+---
+
+### Factory
+
+Як приклад використання _`factory`_ може бути використання _`Storage API`_, а саме _`localStorage`_.
+
+`local-storage.token.ts`
+
+```typescript
+import { InjectionToken } from '@angular/core';
+
+export const LocalStorageToken = new InjectionToken<Storage>('LocalStorage', {
+  providedIn: 'root',
+  factory: () => localStorage,
+});
+```
+
+В цьому випадку непотрібно реєструвати сервіс, можна одразу використовувати _`localStorage`_
+
+```typescript
+constructor(@Inject(LocalStorageToken) private localStorage: Storage) {}
+```
 
 ---
 
