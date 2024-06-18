@@ -1135,10 +1135,14 @@ resolve: { server: ServerResolver }, server - довільна назва, Serve
 
 ## RxJS and Observables
 
-**`Observable`** --> Various Data Sources(User Input, Events, Http Requests, Triggered in Code).
+>An Observable is the main tool provided by the RxJS library whose Angular uses extensively. As with a regular JavaScript Promise, the goal of an Observable is to handle asynchronous events.
+>
+>The key difference between an Observable and a Promise is that Observables are lazy. You can declare how your data should be handled once received, but you will then need to explicitly subscribe to trigger the asynchronous call. In other words, making the call and handling the results are separated operations. Whereas with a Promise, when you call the then function, you are actually doing both operations at once. It triggers the call and handles the result.
+
+**`Observable`** --> is an object that emits a sequence of items over time, either asynchronously or synchronously. It can be used to represent data from a server, a UI event, or any other kind of data stream. An observable can have multiple observers subscribed to it and will notify them whenever new values are emitted.
 Represents the idea of an invokable collection of future values or events.
 
-_`producing data`_
+_`producing data manually`_
 
 ```typescript
 observable = new Observable<number>((observer) => {
@@ -1205,12 +1209,15 @@ ngOnInit(): void {
 
 Так як дані в потоці після того, як вони попадають в підписку, модифікувати не можна, нам і потрібні оператори, щоб ці дані модифікувати.
 
-Їх можна застосовувати до будь-яких _`Observable`_ викликаючи метод _`pipe()`_ з rxjs, який є у кожного _`Observable`_. Цей метод якраз і використовує чи приймає один з операторів, наприклад _`map()`_, _`filter()`_, _`select()`_, _`merge()`_, _`of()`_, _`from()`_, _`shareReplay()`_, _`tap()`_, _`mergeMap()`_, _`switchMap()`_, _`concatMap()`_, _`exhaustMap()`_ - дають можливість виконати якийсь код не чіпаючи при цьому дані, які приходять нам в subscribe(). Кількість операторів, які можна передати - необмежена, вказуються через кому
+Їх можна застосовувати до будь-яких _`Observable`_ викликаючи метод _`pipe()`_ з rxjs, який є у кожного _`Observable`_. Цей метод якраз і використовує чи приймає один з операторів, наприклад _`map()`_, _`filter()`_, _`select()`_, _`merge()`_, _`takeUntil()`_, _`of()`_, _`from()`_, _`shareReplay()`_, _`tap()`_, _`mergeMap()`_, _`switchMap()`_, _`concatMap()`_, _`exhaustMap()`_ - дають можливість виконати якийсь код не модифікуючи при цьому дані, які приходять нам в subscribe(). Кількість операторів, які можна передати - необмежена, вказуються через кому
 
 ### Subjects (_BehaviorSubjects_, _ReplaySubjects_, _AsyncSubjects_)
 
-**new Subject<>();** - спеціальний вид _Observable_, який є активним варіантом, коли звичайний _Observable_ пасивний, бо, наприклад, викликати метод _next()_ для **new Observable()** можна тільки з середини, а от для _Subject_ можна і ззовні. Їх доречно використовувати замість EventEmitter для крос-компонентної комунікації, вони більше ефективні і рекомендовані до використання в таких випадках. Для них також потрібно робити _unsubscribe()_.
-**!ВАЖЛИВО!** - коли нам потрібно використати, наприклад, @Output - і кастомну подію, викор. EventEmitter а не _Subject_
+**new Subject<>();** - спеціальний вид _`Observable`_, який є активним варіантом, коли звичайний _`Observable`_ пасивний, бо, наприклад, викликати метод _`next()`_ для **_`new Observable()`_** можна тільки з середини, а от для _`Subject`_ можна і ззовні.
+
+Їх доречно використовувати замість _`EventEmitter`_ для крос-компонентної комунікації, вони більше ефективні і рекомендовані до використання в таких випадках. Для них також потрібно робити _`unsubscribe()`_.
+
+**!ВАЖЛИВО!** - коли нам потрібно використати, наприклад, _`@Output`_ - і кастомну подію, викор. _`EventEmitter`_ а не _`Subject`_
 
 ---
 
@@ -1307,6 +1314,12 @@ Some built-in pipes:
 ```
 
 Angular парсить їх зліва направо.
+
+### Async pipe
+
+The async pipe is one of the simplest ways to handle subscriptions in Angular. It allows you to bind an observable or promise directly to your template without having to manually subscribe and unsubscribe from it.
+
+The pipe automatically subscribes when the component is initialized and unsubscribes when the component is destroyed, making it a great way to quickly set up subscriptions with minimal code.
 
 ### Custom Pipes
 
