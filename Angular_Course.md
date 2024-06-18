@@ -1131,19 +1131,83 @@ component: ServerComponent,
 resolve: { server: ServerResolver }, server - довільна назва, ServerResolver - написаний нами СЕРВІС
 }
 
-## Observables
+---
 
-**Observable** --> Various Data Sources(User Input, Events, Http Requests, Triggered in Code)
-**Observer** --> You write the code which gets executed(Handle Data, Handle Error, Handle Completion)
-Власний _Observable_ створюється через `new Observable((observer) => {})`
+## RxJS and Observables
+
+**`Observable`** --> Various Data Sources(User Input, Events, Http Requests, Triggered in Code).
+Represents the idea of an invokable collection of future values or events.
+
+_`producing data`_
+
+```typescript
+observable = new Observable<number>((observer) => {
+  observer.next(1);
+  observer.error('Error');
+  observer.complete();
+});
+```
+
+_`subscribing to data`_
+
+```typescript
+ngOnInit(): void {
+  // 1 спосіб
+  this.observable.subscribe({
+    next: (value) => console.log(value),
+    error: (error) => console.log(error),
+    complete: () => console.log('Completed'),
+  });
+  // 2 спосіб
+  this.observable.subscribe((data) => console.log(data));
+}
+```
+
+**`Observer`** --> You write the code which gets executed(Handle Data, Handle Error, Handle Completion). Is a collection of callbacks that knows how to listen to values delivered by the Observable.
+
+**`Subscription`** --> represents the execution of an Observable, is primarily useful for cancelling the execution.
+
+**`Operators`** --> are pure functions that enable a functional programming style of dealing with collections with operations like map, filter, concat, reduce, etc.
+
+**`Subject`** --> is equivalent to an EventEmitter, and the only way of multicasting a value or event to multiple Observers.
+
+**`Schedulers`** --> are centralized dispatchers to control concurrency, allowing us to coordinate when computation happens on e.g. setTimeout or requestAnimationFrame or others.
+
+---
+
+Концепція **RxJS** полягає в тому, щоб працювати з даними через (_`stream`_), тобто потік даних. В цій концепції є _`producer`_, той, хто створює якісь дані і надає їх і _`consumer`_, той хто через _`subscription`_, тобто підписку, їх споживає, отримує.
+
+Також в **RxJS** використовується _`push-based`_ архітектура. На відміну від _`pull-based`_ архітектури, де _`consumer`_ має запитувати кожне значення, яке _`producer`_ створив, вручну і, скоріше за все, це відбудеться через певний проміжок часу, в _`push-based`_ архітектурі _`consumer`_ отримує ці значення одразу ж як тільки _`producer`_ їх створив через зареєстрований _`next handler`_.
+
+> pull-based architecture -->
+>
+> getData -> addData -> getData
+>
+> push-based architecture -->
+>
+> getData -> continuous stream of data
+
+Це означає, що якщо _`producer`_ згенерував нові дані, вони надсилаються напряму в потік (_`stream`_) і коли він оновиться, всі, хто має _`subscription`_ на цей _`stream`_, отримають ці дані.
+
+```typescript
+ngOnInit(): void {
+  this.roomsService.getRooms().subscribe((rooms) => {
+    this.roomList = rooms;
+  });
+}
+```
+
+Ми маємо змогу підписатися на результат виклику _`getRooms()`_ по тій причині, що цей метод повертатиме _`Observable`_.
 
 ### Operators
 
-Такі собі посередники, які можна застосовувати до даних, які ми отримуємо від Observable перед тим, як ці дані будуть передані як Subscription до Observer для подальшої робити з ними.
-Їх можна застосовувати до будь-яких _Observable_ викликаючи метод **pipe()** з rxjs, який є у кожного _Observable_. Цей метод якраз і використовує чи приймає один з операторів, наприклад map(), filter(), select(), merge(), of(), from(), shareReplay(), tap() - дає можливість виконати якийсь код не чіпаючи при цьому дані, які приходять нам в subscribe() , mergeMap(), switchMap(), concatMap(), exhaustMap():
-_pipe(map(() => {}),)_ Кількість операторів, які можна передати - необмежена, вказуються через кому
+Такі собі посередники, які можна застосовувати до даних, які ми отримуємо від _`Observable`_ перед тим, як ці дані будуть передані через _`Subscription`_ до _`Observer`_ для подальшої робити з ними.
 
-_Subjects_--------------also _BehaviorSubjects_, _ReplaySubjects_, _AsyncSubjects_
+Так як дані в потоці після того, як вони попадають в підписку, модифікувати не можна, нам і потрібні оператори, щоб ці дані модифікувати.
+
+Їх можна застосовувати до будь-яких _`Observable`_ викликаючи метод _`pipe()`_ з rxjs, який є у кожного _`Observable`_. Цей метод якраз і використовує чи приймає один з операторів, наприклад _`map()`_, _`filter()`_, _`select()`_, _`merge()`_, _`of()`_, _`from()`_, _`shareReplay()`_, _`tap()`_, _`mergeMap()`_, _`switchMap()`_, _`concatMap()`_, _`exhaustMap()`_ - дають можливість виконати якийсь код не чіпаючи при цьому дані, які приходять нам в subscribe(). Кількість операторів, які можна передати - необмежена, вказуються через кому
+
+### Subjects (_BehaviorSubjects_, _ReplaySubjects_, _AsyncSubjects_)
 
 **new Subject<>();** - спеціальний вид _Observable_, який є активним варіантом, коли звичайний _Observable_ пасивний, бо, наприклад, викликати метод _next()_ для **new Observable()** можна тільки з середини, а от для _Subject_ можна і ззовні. Їх доречно використовувати замість EventEmitter для крос-компонентної комунікації, вони більше ефективні і рекомендовані до використання в таких випадках. Для них також потрібно робити _unsubscribe()_.
 **!ВАЖЛИВО!** - коли нам потрібно використати, наприклад, @Output - і кастомну подію, викор. EventEmitter а не _Subject_
