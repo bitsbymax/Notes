@@ -1321,6 +1321,23 @@ The async pipe is one of the simplest ways to handle subscriptions in Angular. I
 
 The pipe automatically subscribes when the component is initialized and unsubscribes when the component is destroyed, making it a great way to quickly set up subscriptions with minimal code.
 
+```html
+@if (rooms$ | async; as rooms ) {
+<app-rooms-list
+  *ngIf="!hideRooms"
+  [rooms]="rooms"
+  [title]="title"
+  (selectedRoom)="selectRoom($event)"
+/>
+}
+```
+
+де _`rooms$`_ - це наш _`observable`_
+
+#### It works well with OnPush change detection
+
+The async pipe will trigger change detection when a new value is emitted, even with the OnPush strategy enabled. You would have to do it manually when you are using subscribe. The OnPush strategy is great for the performance of Angular applications. Its use alone is enough of an argument to always consider the use of the async pipe.
+
 ### Custom Pipes
 
 Можна створювати **кастомні** пайпи, до яких, в тому числі, можна додавати _параметризацію_:
