@@ -822,7 +822,7 @@ export class EmployeeComponent {
 
 ## Services & Dependency injection
 
-**Service** - клас, який, як правило, містить допоміжні методи або якийсь функціонал, яким ми будемо використовувати в різних місцях програми для виконання якоїсь бізнес логіки. За рахунок перевикористання цей паттерн дає можливість зробити код чистішим, більш лінійним, централізованим, таким, який легше підтримувати.
+**Service** - клас, який, як правило, містить допоміжні методи або якийсь функціонал, який ми будемо використовувати в різних місцях програми для виконання якоїсь бізнес логіки. За рахунок перевикористання цей паттерн дає можливість зробити код чистішим, більш лінійним, централізованим, таким, який легше підтримувати.
 
 ### DI Providers
 
@@ -833,13 +833,13 @@ export class EmployeeComponent {
 ### Class based providers
 
 - В окремому файлі створюється клас, в який додається потрібний метод.
-- Далі за рахунок **Dependency injection** ми можемо використовувати цей сервіс в потрібному компоненті. Для цього в _`constructor`_ передаємо аргумент, який буде властивістю нашого класу і в якому буде зберігатися екземпляр класу serviceName з методами, які ми туди додали.
+- Далі за рахунок **Dependency injection** ми можемо використовувати цей сервіс в потрібному компоненті. Для цього в _`constructor`_ передаємо аргумент, який буде властивістю нашого класу і в якому буде зберігатися екземпляр класу з методами, які ми туди додали.
 
 ```javascript
 constructor(private cdr: ChangeDetectorRef, private roomsService: RoomsService) {}
 ```
 
-> `Injectable(options?: ({ providedIn: Type<any> | "root" | "platform" | "any" | null }) & InjectableProvider)`
+> `@Injectable(options?: ({ providedIn: Type<any> | "root" | "platform" | "any" | null }) & InjectableProvider)`
 >
 > Decorator that marks a class as available to be provided and injected as a dependency.
 
@@ -1135,7 +1135,7 @@ resolve: { server: ServerResolver }, server - довільна назва, Serve
 
 **Observable** --> Various Data Sources(User Input, Events, Http Requests, Triggered in Code)
 **Observer** --> You write the code which gets executed(Handle Data, Handle Error, Handle Completion)
-Власний _Observable_ створюється через new Observable((observer) => {})
+Власний _Observable_ створюється через `new Observable((observer) => {})`
 
 ### Operators
 
