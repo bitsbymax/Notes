@@ -71,7 +71,7 @@
 
 Дає можливість слухати подію і оновлювати дані одночасно через одну властивість між батьківським і дочірнім компонентом. Поєднує в собі _`property binding`_ і _`event binding`_
 
-For two-way data binding to work, the _`@Output()`_ property must use the **pattern**, **_inputChange_**, where input is the name of the _`@Input()`_ property. For example, if the _`@Input()`_ property is _size_, the _`@Output()`_ property must be _sizeChange_.
+For two-way data binding to work, the _`@Output()`_ property must use the **pattern** - **_inputChange_**, where input is the name of the _`@Input()`_ property. For example, if the _`@Input()`_ property is _size_, the _`@Output()`_ property must be _sizeChange_.
 
 ```javascript
 @Component({
@@ -801,22 +801,45 @@ export class EmployeeComponent {
 
 ## Custom Structural Directive
 
-- Приклад реалізації:
-  _@Directive_({
-  selector: '[appUnless]'
-  })
-  export class UnlessDirective {
-  @Input() **set** appUnless(condition: boolean) { //appUnless() це властивість, хоч і є методом, до якої ми прив'язуємось, спрацює, коли зміниться параметр, який передається в цей метод. Ключове слово set це _setter_
-  if (!condition) {
-  this.vcRef.createEmbeddedView(this.templateRef); //цей метод створює розмітку у ViewContainer до якого ми звертаємось
-  } else {
-  this.vcRef.clear(); //цей метод видаляє розмітку з ViewContainer
-  }
+_`app.component.html`_
+
+```html
+<div *appUnless="!onlyOdd">
+  <li
+    class="list-group-item"
+    [ngClass]="{ odd: even % 2 !== 0 }"
+    [ngStyle]="{
+              backgroundColor: even % 2 !== 0 ? 'yellow' : 'transparent'
+            }"
+    *ngFor="let even of evenNumbers"
+  >
+    {{ even }}
+  </li>
+</div>
+```
+
+де _`*appUnless`_ - селектор структурної директиви, в яку ми передаємо значення змінної _`onlyOdd`_
+
+_`unless.directive.ts`_
+
+```typescript
+@Directive({
+  selector: '[appUnless]',
+})
+export class UnlessDirective {
+  @Input() set appUnless(condition: boolean) {
+    //appUnless() це властивість, хоч і є методом, до якої ми прив'язуємось, спрацює, коли зміниться параметр, який передається в цей метод. Ключове слово set це setter
+    if (condition) {
+      this.vcRef.createEmbeddedView(this.templateRef); //цей метод створює розмітку у ViewContainer до якого ми звертаємось
+    } else {
+      this.vcRef.clear(); //цей метод видаляє розмітку з ViewContainer
+    }
   }
 
-  `constructor(private templateRef: TemplateRef<any>, private vcRef: ViewContainerRef) { }`
-  //в templateRef буде посилання на наш HTML код, тобто те, ЩО потрібно відобразити, а в vcRef буде вказано ДЕ це треба відобразити
-  }
+  constructor(private templateRef: TemplateRef<any>, private vcRef: ViewContainerRef) {}
+  //в templateRef буде посилання на наш HTML код, тобто те, ЩО потрібно відобразити, в vcRef буде вказано ДЕ це треба відобразити
+}
+```
 
 ---
 
@@ -1135,9 +1158,9 @@ resolve: { server: ServerResolver }, server - довільна назва, Serve
 
 ## RxJS and Observables
 
->An Observable is the main tool provided by the RxJS library whose Angular uses extensively. As with a regular JavaScript Promise, the goal of an Observable is to handle asynchronous events.
+> An Observable is the main tool provided by the RxJS library whose Angular uses extensively. As with a regular JavaScript Promise, the goal of an Observable is to handle asynchronous events.
 >
->The key difference between an Observable and a Promise is that Observables are lazy. You can declare how your data should be handled once received, but you will then need to explicitly subscribe to trigger the asynchronous call. In other words, making the call and handling the results are separated operations. Whereas with a Promise, when you call the then function, you are actually doing both operations at once. It triggers the call and handles the result.
+> The key difference between an Observable and a Promise is that Observables are lazy. You can declare how your data should be handled once received, but you will then need to explicitly subscribe to trigger the asynchronous call. In other words, making the call and handling the results are separated operations. Whereas with a Promise, when you call the then function, you are actually doing both operations at once. It triggers the call and handles the result.
 
 **`Observable`** --> is an object that emits a sequence of items over time, either asynchronously or synchronously. It can be used to represent data from a server, a UI event, or any other kind of data stream. An observable can have multiple observers subscribed to it and will notify them whenever new values are emitted.
 Represents the idea of an invokable collection of future values or events.
@@ -1179,7 +1202,7 @@ ngOnInit(): void {
 
 ---
 
-Концепція **RxJS** полягає в тому, щоб працювати з даними через (_`stream`_), тобто потік даних. В цій концепції є _`producer`_, той, хто створює якісь дані і надає їх і _`consumer`_, той хто через _`subscription`_, тобто підписку, їх споживає, отримує.
+Концепція **RxJS** полягає в тому, щоб працювати з даними через (_`stream`_), тобто потік даних. В цій концепції є _`producer`_, той, хто створює якісь дані і надає їх, і _`consumer`_, той хто через _`subscription`_, тобто підписку, їх споживає, отримує.
 
 Також в **RxJS** використовується _`push-based`_ архітектура. На відміну від _`pull-based`_ архітектури, де _`consumer`_ має запитувати кожне значення, яке _`producer`_ створив, вручну і, скоріше за все, це відбудеться через певний проміжок часу, в _`push-based`_ архітектурі _`consumer`_ отримує ці значення одразу ж як тільки _`producer`_ їх створив через зареєстрований _`next handler`_.
 
@@ -1323,12 +1346,7 @@ The pipe automatically subscribes when the component is initialized and unsubscr
 
 ```html
 @if (rooms$ | async; as rooms ) {
-<app-rooms-list
-  *ngIf="!hideRooms"
-  [rooms]="rooms"
-  [title]="title"
-  (selectedRoom)="selectRoom($event)"
-/>
+<app-rooms-list *ngIf="!hideRooms" [rooms]="rooms" [title]="title" (selectedRoom)="selectRoom($event)" />
 }
 ```
 
