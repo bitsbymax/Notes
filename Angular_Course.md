@@ -997,6 +997,97 @@ constructor(@Inject(LocalStorageToken) private localStorage: Storage) {}
 
 ---
 
+## Http Interceptors and APP_INITIALIZER
+
+`HTTP_INTERCEPTORS` - _`Dependency Injection Token`_, який використовується для додавання інтерсепторів, як зрозуміло з назви, це сервіс, який може перехоплювати запити на сервер і відповіді від нього.
+>Всередині інтерсептора не можна модифікувати оригінальний запит. Потрібно склонувати його і тоді вже з ним працювати.
+
+Приклад створення _`class-based`_ сервісу
+
+```typescript
+@Injectable()
+export class RequestInterceptor implements HttpInterceptor {
+  constructor() {}
+
+  intercept(request: HttpRequest<unknown>, next: HttpHandler): Observable<HttpEvent<unknown>> {
+  if (request.method === 'POST') {
+    const newRequest = request.clone({
+      headers: new HttpHeaders({ token: 'testTokenValue' }),
+    });
+    return next.handle(newRequest);
+  }
+    return next.handle(request);
+  }
+}
+```
+
+_`app.module.ts`_
+
+```typescript
+@Module({
+  declarations: [],
+  imports: [],
+  providers: [{
+    provide: HTTP_INTERCEPTORS,
+    useClass: RequestInterceptor,
+    multi: true
+  }],
+})
+```
+
+---
+
+`APP_INITIALIZER` - _`Dependency Injection Token`_, який використовується, коли потрібно, що якісь дані вже були доступні в момент старту застосунку.
+
+- user specific data
+- translations
+- some external configurations
+- redirections
+- authentication.
+
+_`init.service.ts`_
+
+```typescript
+@Injectable({
+  providedIn: 'root',
+})
+export class InitService {
+  config: any;
+  constructor(private http: HttpClient) {}
+
+  init() {
+    return this.http
+      .get('assets/config.json')
+      .pipe(tap((config) => (this.config = config)));
+  }
+}
+```
+
+Реєструємо як сервіс (варіант з використанням модулів)
+
+_`app.module.ts`_
+
+```typescript
+function initFactory(initService: InitService) {
+  return () => initService.init();
+}
+
+@Module({
+  declarations: [],
+  imports: [],
+  providers: [{
+    provide: APP_INITIALIZER,
+    useFactory: initFactory,
+    deps: [InitService],
+    multi: true
+  }],
+})
+```
+
+> Як _`HTTP_INTERCEPTORS`_ так і _`APP_INITIALIZER`_ можна додати більше ніж один, лише треба пам'ятати, що важливий порядок їх додавання, бо виконуватись вони будуть в тому ж порядку.
+
+---
+
 ## Routing
 
 - Для підключення роутінгу потрібно import { **RouterModule**, **Routes** } from "@angular/router";
@@ -1232,7 +1323,7 @@ ngOnInit(): void {
 
 Так як дані в потоці після того, як вони попадають в підписку, модифікувати не можна, нам і потрібні оператори, щоб ці дані модифікувати.
 
-Їх можна застосовувати до будь-яких _`Observable`_ викликаючи метод _`pipe()`_ з rxjs, який є у кожного _`Observable`_. Цей метод якраз і використовує чи приймає один з операторів, наприклад _`map()`_, _`filter()`_, _`select()`_, _`merge()`_, _`takeUntil()`_, _`of()`_, _`from()`_, _`shareReplay()`_, _`tap()`_, _`mergeMap()`_, _`switchMap()`_, _`concatMap()`_, _`exhaustMap()`_ - дають можливість виконати якийсь код не модифікуючи при цьому дані, які приходять нам в subscribe(). Кількість операторів, які можна передати - необмежена, вказуються через кому
+Їх можна застосовувати до будь-яких _`Observable`_ викликаючи метод _`pipe()`_ з rxjs, який є у кожного _`Observable`_. Цей метод якраз і використовує чи приймає один з операторів, наприклад _`map()`_, _`filter()`_, _`select()`_, _`merge()`_, _`takeUntil()`_, _`of()`_, _`from()`_, _`shareReplay()`_ - кешує дані, _`tap()`_, _`mergeMap()`_, _`switchMap()`_, _`concatMap()`_, _`exhaustMap()`_ - дають можливість виконати якийсь код не модифікуючи при цьому дані, які приходять нам в subscribe(). Кількість операторів, які можна передати - необмежена, вказуються через кому
 
 ### Subjects (_BehaviorSubjects_, _ReplaySubjects_, _AsyncSubjects_)
 
