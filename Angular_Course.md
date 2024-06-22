@@ -55,6 +55,8 @@
 
 Через таку прив'язку ми можемо для будь-якої властивості елемента, через його атрибут, встановити значення будь-якої властивості нашого компонента
 
+>Важлива деталь, при використанні _`property binding`_, значення змінюється саме властивості DOM об'єкта, а не атрибута. Проте за рахунок _`reflection`_, при зміні властивості, змінюється і атрибут, хоч і джерелом правди, тобто основою є все ж атрибут, а властивість віддзеркалює його значення. Це стандартна поведінка DOM. Ну і є певні виключення, детальніше тут: [attributes vs properties](https://jakearchibald.com/2024/attributes-vs-properties/)
+
 ---
 
 ## Event binding
@@ -539,7 +541,7 @@ export class AppComponent {
 <p #description></p>
 ```
 
-І далі в класі можемо його зчитати і модифікувати. Він буде доступний за посиланням: _`propertyName.nativeElement`_, посилання зберігатиме об'єкт `_ElementRef {nativeElement: p}`, де будуть всі вбудовані властивості конкретного `html` елемента.
+І далі в класі можемо його зчитати і модифікувати. Він буде доступний за посиланням: _`propertyName.nativeElement`_, посилання зберігатиме об'єкт _`ElementRef {nativeElement: p}`_, де будуть всі вбудовані властивості конкретного _`html`_ елемента.
 
 ```javascript
 @Component({
@@ -840,6 +842,8 @@ export class UnlessDirective {
   //в templateRef буде посилання на наш HTML код, тобто те, ЩО потрібно відобразити, в vcRef буде вказано ДЕ це треба відобразити
 }
 ```
+
+Не забути додати директиву в декоратор _`@NgModule({})`_, у властивість _`declaration`_ відповідного модуля.
 
 ---
 
@@ -1298,7 +1302,7 @@ ngOnInit(): void {
 
 ---
 
-Концепція **RxJS** полягає в тому, щоб працювати з даними через (_`stream`_), тобто потік даних. В цій концепції є _`producer`_, той, хто створює якісь дані і надає їх, і _`consumer`_, той хто через _`subscription`_, тобто підписку, їх споживає, отримує.
+Концепція **RxJS** полягає в тому, щоб працювати з даними через (_`stream`_), тобто потік даних. В цій концепції є **producer**, той, хто створює якісь дані і надає їх у вигляді _`Observable`_, і **consumer** або _`Observer`_, той хто через _`subscription`_, тобто підписку, їх споживає, отримує.
 
 Також в **RxJS** використовується _`push-based`_ архітектура. На відміну від _`pull-based`_ архітектури, де _`consumer`_ має запитувати кожне значення, яке _`producer`_ створив, вручну і, скоріше за все, це відбудеться через певний проміжок часу, в _`push-based`_ архітектурі _`consumer`_ отримує ці значення одразу ж як тільки _`producer`_ їх створив через зареєстрований _`next handler`_.
 
@@ -1328,15 +1332,35 @@ ngOnInit(): void {
 
 Так як дані в потоці після того, як вони попадають в підписку, модифікувати не можна, нам і потрібні оператори, щоб ці дані модифікувати.
 
-Їх можна застосовувати до будь-яких _`Observable`_ викликаючи метод _`pipe()`_ з rxjs, який є у кожного _`Observable`_. Цей метод якраз і використовує чи приймає один з операторів, наприклад _`map()`_, _`filter()`_, _`select()`_, _`merge()`_, _`takeUntil()`_, _`of()`_, _`from()`_, _`shareReplay()`_ - кешує дані, _`tap()`_, _`mergeMap()`_, _`switchMap()`_, _`concatMap()`_, _`exhaustMap()`_ - дають можливість виконати якийсь код не модифікуючи при цьому дані, які приходять нам в subscribe(). Кількість операторів, які можна передати - необмежена, вказуються через кому
+Їх можна застосовувати до будь-яких _`Observable`_ викликаючи метод _`pipe()`_ з rxjs, який є у кожного _`Observable`_. Цей метод якраз і використовує чи приймає один з операторів, наприклад _`map()`_, _`filter()`_, _`select()`_, _`merge()`_, _`takeUntil()`_, _`of()`_, _`from()`_, _`shareReplay()`_ - кешує дані, _`tap()`_, _`mergeMap()`_, _`switchMap()`_, _`concatMap()`_, _`exhaustMap()`_ - дають можливість виконати якийсь код не модифікуючи при цьому дані, які приходять нам в _`subscribe()`_. Кількість операторів, які можна передати - необмежена, вказуються через кому
 
 ### Subjects (_BehaviorSubjects_, _ReplaySubjects_, _AsyncSubjects_)
 
-**new Subject<>();** - спеціальний вид _`Observable`_, який є активним варіантом, коли звичайний _`Observable`_ пасивний, бо, наприклад, викликати метод _`next()`_ для **_`new Observable()`_** можна тільки з середини, а от для _`Subject`_ можна і ззовні.
+**`new Subject()`** - is a special type of Observable that allows values to be multicasted to many Observers.
+
+Subjects are like EventEmitters.
+Every Subject is an Observable and an Observer. You can subscribe to a Subject, and you can call next to feed values as well as error and complete.
+
+Спеціальний вид _`Observable`_, який є активним варіантом, коли звичайний _`Observable`_ пасивний, бо, наприклад, викликати метод _`next()`_ для **_`new Observable()`_** можна тільки з середини, а от для _`Subject`_ можна і ззовні.
 
 Їх доречно використовувати замість _`EventEmitter`_ для крос-компонентної комунікації, вони більше ефективні і рекомендовані до використання в таких випадках. Для них також потрібно робити _`unsubscribe()`_.
 
 **!ВАЖЛИВО!** - коли нам потрібно використати, наприклад, _`@Output`_ - і кастомну подію, викор. _`EventEmitter`_ а не _`Subject`_
+
+#### When to use `Observable` or when `Subject`
+
+#### Observable
+
+- Use an Observable when you want to subscribe to a stream of values emitted over time.
+- Observables are great for scenarios where you need to handle data streams from HTTP requests, WebSocket connections, or other asynchronous operations.
+- You can subscribe to an Observable using the .subscribe() method.
+- Observables are more suitable when you only need to consume data and don’t need to emit values yourself.
+
+#### Subject
+
+- Use a Subject when you need to control the values emitted by the stream.
+- A Subject is both an observable and an observer. You can subscribe to it, but you can also emit values into it.
+- It’s useful when you want to manually trigger updates or push new data to subscribers.
 
 ---
 
