@@ -1000,7 +1000,8 @@ constructor(@Inject(LocalStorageToken) private localStorage: Storage) {}
 ## Http Interceptors and APP_INITIALIZER
 
 `HTTP_INTERCEPTORS` - _`Dependency Injection Token`_, який використовується для додавання інтерсепторів, як зрозуміло з назви, це сервіс, який може перехоплювати запити на сервер і відповіді від нього.
->Всередині інтерсептора не можна модифікувати оригінальний запит. Потрібно склонувати його і тоді вже з ним працювати.
+
+> Всередині інтерсептора не можна модифікувати оригінальний запит. Потрібно склонувати його і тоді вже з ним працювати.
 
 Приклад створення _`class-based`_ сервісу
 
@@ -1010,12 +1011,12 @@ export class RequestInterceptor implements HttpInterceptor {
   constructor() {}
 
   intercept(request: HttpRequest<unknown>, next: HttpHandler): Observable<HttpEvent<unknown>> {
-  if (request.method === 'POST') {
-    const newRequest = request.clone({
-      headers: new HttpHeaders({ token: 'testTokenValue' }),
-    });
-    return next.handle(newRequest);
-  }
+    if (request.method === 'POST') {
+      const newRequest = request.clone({
+        headers: new HttpHeaders({ token: 'testTokenValue' }),
+      });
+      return next.handle(newRequest);
+    }
     return next.handle(request);
   }
 }
@@ -1037,7 +1038,7 @@ _`app.module.ts`_
 
 ---
 
-`APP_INITIALIZER` - _`Dependency Injection Token`_, який використовується, коли потрібно, що якісь дані вже були доступні в момент старту застосунку.
+`APP_INITIALIZER` - _`Dependency Injection Token`_, який використовується для додавання сервісу, який використовується для виконання якоїсь логіки перед стартом застосунку.
 
 - user specific data
 - translations
@@ -1056,9 +1057,7 @@ export class InitService {
   constructor(private http: HttpClient) {}
 
   init() {
-    return this.http
-      .get('assets/config.json')
-      .pipe(tap((config) => (this.config = config)));
+    return this.http.get('assets/config.json').pipe(tap((config) => (this.config = config)));
   }
 }
 ```
@@ -1090,18 +1089,24 @@ function initFactory(initService: InitService) {
 
 ## Routing
 
-- Для підключення роутінгу потрібно import { **RouterModule**, **Routes** } from "@angular/router";
-- Далі передати в imports: [RouterModule.forRoot(appRoutes)], де appRoutes - змінна, куди ми прописали наші шляхи ось в такому вигляді:
-  const appRoutes: Routes = [
-  { path: "", component: HomeComponent },
-  { path: "users", component: UsersComponent },
-  { path: "servers", component: ServersComponent },
-  ];
-- В самих лінках викор. **routerLink**='/somePath' замість href. Тоді при переході сторінка не буде перезавантажуватися, як з викор href. **routerLink** завжди знає, для якого компонента він застосовується, так як для нього прописаний конкретний шлях.
-- Для рендерингу темплейту, в розмітку додається <router-outlet></router-outlet>, куди буде підставлятися теплейт компонета, який відповідає певному шляху.
+`app-routing.module.ts`
+
+- Підключення роутінгу: _`import { RouterModule, Routes } from "@angular/router";`_
+- Далі передати в _`imports: [RouterModule.forRoot(appRoutes)]`_, де _`appRoutes`_ - змінна, куди ми прописали наші шляхи ось в такому вигляді:
+
+```typescript
+const appRoutes: Routes = [
+  { path: '', component: HomeComponent },
+  { path: 'users', component: UsersComponent },
+  { path: 'servers', component: ServersComponent },
+];
+```
+
+- В самих лінках використовується **routerLink**='/somePath' замість href. Тоді при переході сторінка не буде перезавантажуватися, як з використанням href. **routerLink** завжди знає, для якого компонента він застосовується, так як для нього прописаний конкретний шлях.
+- Для рендерингу темплейту, в розмітку додається _`<router-outlet></router-outlet>`_, куди буде підставлятися темплейт компонента, який відповідає певному шляху.
 - **Абсолютний шлях**: "/somePath" - завжди додається до кореневого домену
 - **Відносний шлях**: "somePath" - додається до поточного шляху
-- Для додавання стилів темплейту, шлях якого зараз обраний, викор. атрибут **routerLinkActive**="cssClass" і атрибут [routerLinkActiveOptions]="{ exact: true }" - якщо потрібно, щоб перевірявся і порівнювався весь шлях, бо по дефолту для шляху /somePath, при тому, що просто / це кореневий шлях, стилі будуть застосовуватися і для кореневого шляху і для /somePath.
+- Для додавання стилів темплейту, шлях якого зараз обраний, використовується атрибут **routerLinkActive**="cssClass" і атрибут [routerLinkActiveOptions]="{ exact: true }" - якщо потрібно, щоб перевірявся і порівнювався весь шлях, бо по дефолту для шляху /somePath, при тому, що просто / це кореневий шлях, стилі будуть застосовуватися і для кореневого шляху і для /somePath.
 
 - _Navigating Programmatically_
 
