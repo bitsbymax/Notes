@@ -763,9 +763,13 @@ export class EmployeeComponent {
 
 ---
 
-## Custom Attribute Directive
+## Custom Directives
 
-- Створити файл some-name.directive.ts
+>Загалом директиви схожі на компоненти, в тому сенсі, що за допомогою них можна елементам в темплейті додавати потрібну нам кастомну логіку і вони (директиви) також можуть імплементувати _`life-cycle hooks`_. У них лише немає свого темплейта.
+
+### Custom Attribute Directive
+
+- Створити файл, де назва слідує такому паттерну `some-name.directive.ts`
 - В файлі:
 
 ```javascript
@@ -801,7 +805,7 @@ export class EmployeeComponent {
 
 ---
 
-## Custom Structural Directive
+### Custom Structural Directive
 
 _`app.component.html`_
 
@@ -1439,7 +1443,7 @@ Every Subject is an Observable and an Observer. You can subscribe to a Subject, 
 - Для того, щоб одразу значення, яке ми вводимо в input, можна було використовувати, потрібно використати _`two-way data binding`_. Додаємо властивість в компонент з потрібним значенням і робимо прив'язку: `[(ngModel)]="propName"`
 - Також можна згрупувати декілька inputs в одну групу, тобто вони будуть додані всередину окремої властивості в середині властивості `value`. Робиться це через атрибут `ngModelGroup="anyName"`. Якщо потрібно отримати доступ до значень inputs і інших властивостей, використовуємо template reference ось так: `#anyName="ngModelGroup"`
 - Для того, або, наприклад, по кліку на кнопку перезаписати всі дані форми або лише деякі, використовуємо методи _`patchValue()`_ і _`setValue()`_. Вони доступні лише на формі, яка обгорнута в `ngForm`. Приклади в коді `forms-td`
-- Для очистки полів форми і також всі вбудовані властивості форми, як от `valid`, `invalid`, `touched`, `pristine`, `dirty`, і так далі можна використовувати метод _`reset()`_. В нього також можна передати `{}` в якому вказати конкретно, які поля форми ми хочемо очистити.
+- Для очистки полів форми і також всі вбудовані властивості форми, як от `valid`, `invalid`, `touched`, `pristine`, `dirty`, і так далі можна використовувати методи _`reset()`_ і `resetForm()`. В останній також можна передати `{}` з полями форми і з дефолтними значеннями для них.
 - Також для `Template-driven` форм доречно використовувати вбудовані валідатори HTML5, такі як: `email`, `required`, `pattern`, `min`, `max`, `minLength`, `maxLength`
 
 ### Reactive Approach
