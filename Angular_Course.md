@@ -1567,6 +1567,8 @@ Every Subject is an Observable and an Observer. You can subscribe to a Subject, 
 </form>
 ```
 
+`app.component.ts`
+
 ```typescript
 @Component({
   selector: "app-root",
@@ -1634,7 +1636,54 @@ export class AppComponent {
 }
 ```
 
-#### T-d form custom validation
+#### Custom validation
+
+`email-validator.directive.ts`
+
+```typescript
+@Directive({
+  selector: '[appEmailValidator]',
+  providers: [
+    {
+      provide: NG_VALIDATORS, //Injection token
+      useExisting: EmailValidatorDirective,
+      multi: true,
+    },
+  ],
+})
+export class EmailValidatorDirective implements Validator {
+  validate(control: AbstractControl): ValidationErrors | null {
+    const email = control.value;
+
+    if (String(email).includes('test')) {
+      return { invalidEmail: true };
+    }
+
+    return null;
+  }
+}
+```
+
+```html
+<div class="form-group">
+  <label for="email">Mail</label>
+  <input
+    type="email"
+    id="email"
+    class="form-control"
+    required
+    name="email"
+    email
+    ngModel
+    #email="ngModel"
+    appEmailValidator
+  />
+  <div class="help-block" *ngIf="!email.valid && email.touched">
+    <span>Email is invalid</span>
+    <span class="help-block" *ngIf="email.errors?.invalidEmail">It should not have "test" inside</span>
+  </div>
+</div>
+```
 
 
 ### Reactive Approach
