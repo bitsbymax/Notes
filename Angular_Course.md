@@ -1,4 +1,4 @@
-# Angular  docs
+# Angular docs
 
 ## How an Angular App gets Loaded and Started
 
@@ -779,7 +779,8 @@ export class BetterHighlightDirective implements OnInit {
 <p [appBetterHighlight]="'red'" defaultColor="yellow">Style me with a better directive!</p>
 ```
 
->Варто зауважити, що на прикладі вище ми поєднуємо селектор директиви з _`property-binding`_, тобто цей запис `[appBetterHighlight]="'red'"` означає, що ми до елементу додаємо директиву і одночасно прив'язуємось до відповідної властивості в директиві.
+> Варто зауважити, що на прикладі вище ми поєднуємо селектор директиви з _`property-binding`_, тобто цей запис `[appBetterHighlight]="'red'"` означає, що ми до елементу додаємо директиву і одночасно прив'язуємось до відповідної властивості в директиві.
+
 ---
 
 ## Template Reference
@@ -1257,6 +1258,10 @@ this.router.navigate(['/servers', id, 'edit'], {
 });
 ```
 
+_`navigate()`_ створює `URL` динамічно з переданих даних.
+
+_`navigateByUrl('path')`_ просто отримує вже готову адресу, по якій буде здійснено перехід
+
 #### Retrieving Query parameters and Fragments
 
 Отримати їх можна через модуль **`ActivatedRoute`**
@@ -1496,69 +1501,33 @@ Every Subject is an Observable and an Observer. You can subscribe to a Subject, 
 
 ```html
 <form (ngSubmit)="onSubmit()" #f="ngForm">
-  <div
-    id="user-data"
-    ngModelGroup="userData"
-    #userData="ngModelGroup"
-  >
+  <div id="user-data" ngModelGroup="userData" #userData="ngModelGroup">
     <div class="form-group">
       <label for="username">Username</label>
-      <input
-        type="text"
-        id="username"
-        class="form-control"
-        name="username"
-        required
-        [ngModel]="defaultUserName"
-      />
+      <input type="text" id="username" class="form-control" name="username" required [ngModel]="defaultUserName" />
     </div>
     <button class="btn btn-default" type="button" (click)="suggestUserName()">Suggest an Username</button>
     <div class="form-group">
       <label for="email">Mail</label>
-      <input
-        type="email"
-        id="email"
-        class="form-control"
-        required
-        email
-        ngModel name="email"
-        #email="ngModel"
-      />
+      <input type="email" id="email" class="form-control" required email ngModel name="email" #email="ngModel" />
       <span class="help-block" *ngIf="!email.valid && email.touched">Please enter a valid email</span>
     </div>
   </div>
   <p *ngIf="!userData.valid && userData.touched">User data is invalid!</p>
   <div class="form-group">
     <label for="secret">Secret Questions</label>
-    <select
-      id="secret"
-      class="form-control"
-      [ngModel]="defaultQuestion"
-      name="secret"
-    >
+    <select id="secret" class="form-control" [ngModel]="defaultQuestion" name="secret">
       <option value="pet">Your first Pet?</option>
       <option value="teacher">Your first teacher?</option>
     </select>
   </div>
   <div class="form-group">
-    <textarea
-      class="form-control"
-      name="questionAnswer"
-      rows="3"
-      [(ngModel)]="answer">
-    </textarea>
+    <textarea class="form-control" name="questionAnswer" rows="3" [(ngModel)]="answer"> </textarea>
   </div>
   <p>Your reply: {{ answer }}</p>
   <div class="radio" *ngFor="let gender of genders">
     <label for="gender">
-      <input
-        type="radio"
-        id="gender"
-        name="gender"
-        required 
-        ngModel
-        [value]="gender"
-      />
+      <input type="radio" id="gender" name="gender" required ngModel [value]="gender" />
       {{ gender }}
     </label>
   </div>
@@ -1571,29 +1540,29 @@ Every Subject is an Observable and an Observer. You can subscribe to a Subject, 
 
 ```typescript
 @Component({
-  selector: "app-root",
-  templateUrl: "./app.component.html",
-  styleUrls: ["./app.component.css"],
+  selector: 'app-root',
+  templateUrl: './app.component.html',
+  styleUrls: ['./app.component.css'],
 })
 export class AppComponent {
-  @ViewChild("f") signUpForm: NgForm;
-  @ViewChild("email") emailInput: NgForm;
+  @ViewChild('f') signUpForm: NgForm;
+  @ViewChild('email') emailInput: NgForm;
 
-  defaultQuestion = "pet";
-  defaultUserName = "";
-  answer = "";
-  genders = ["male", "female"];
+  defaultQuestion = 'pet';
+  defaultUserName = '';
+  answer = '';
+  genders = ['male', 'female'];
   submitted = false;
   user = {
-    username: "",
-    email: "",
-    secretQuestion: "pet",
-    answer: "",
-    gender: "",
+    username: '',
+    email: '',
+    secretQuestion: 'pet',
+    answer: '',
+    gender: '',
   };
 
   suggestUserName() {
-    const suggestedName = "Superuser";
+    const suggestedName = 'Superuser';
     //patchValue() і setValue() доступні лише на формі, яка обгорнута в ngForm
     /* this.signUpForm.setValue({ //setValue() перезапише всі дані
       userData: {
@@ -1609,11 +1578,11 @@ export class AppComponent {
       //patchValue() дає можливість перезаписати дані, які ми хочемо
       userData: {
         username: suggestedName,
-        email: "test@gmail.com",
+        email: 'test@gmail.com',
       },
-      secretQuestion: "pet",
-      questionAnswer: "Funny",
-      gender: "male",
+      secretQuestion: 'pet',
+      questionAnswer: 'Funny',
+      gender: 'male',
     });
   }
 
@@ -1684,7 +1653,6 @@ export class EmailValidatorDirective implements Validator {
   </div>
 </div>
 ```
-
 
 ### Reactive Approach
 
@@ -1837,15 +1805,15 @@ _`PipeName`_ додається в _`declarations`_ of _`@NgModule`_.
 
 - Angular modules - це будівельні блоки застосунку. Angular аналізує всі _`@NgModules`_ в проекті, щоб зрозуміти його і всі його деталі і можливості. _`@NgModule()`_ декоратор трансформує звичайний TypeScript клас в модуль Angular
 - В Angular modules визначаються всі **`компоненти`**, **`директиви`**, **`пайпи`**. Вони додаються в масив `declarations: []`. В застосунку має бути хоча б один модуль.
-- Всі основні можливості Angular додані як _`@NgModules`_,наприклад `FormsModule`, щоб можна було швидко і просто їх додати, коли вони нам потрібні.
+- Всі основні можливості Angular додані як _`@NgModules`_, наприклад `FormsModule`, щоб можна було швидко і просто їх додати, коли вони нам потрібні.
 - Також потрібно пам'ятати, що кожен модуль в Angular працює самостійно, вони не комунікують один з одним напряму.
 - Тому якщо нам потрібен функціонал для роботи з формами в декількох компонентах, які в свою чергу в окремих модулях, нам потрібно додавати відповідний модуль, наприклад, `FormsModule`, в _`imports[]`_ кожного з цих модулів. _`BrowserModule`_, який відповідає за різні базові фічі, як _`ngFor/ngIf`_, додаємо в основний модуль, і якщо він потрібен в інших модулях, то додавати треба _`CommonModule`_.
 - Потрібно пам'ятати, що вказувати в _`declarations[]`_ чи то компонент, чи директива, чи пайп можна лише раз в якомусь одному модулі. Далі їх просто потрібно експортувати і імпортувати де нам потрібно.
 - Стосовно **`сервісів`** є 5 варіантів їх додавання з різними особливостями.
-- Перший і рекомендований, це використовувати _`@Injectable({providedIn: 'root'})`_ що робить його доступним **`application wide`** надаючи доступ до одного і того ж екземпляру класу. В такому разі його не потрібно додавати в _`providers[]`_ в _`AppModule`_, що і є ще одним варіантом, який є аналогом першому.
-- Те ж саме буде відбуватись, якщо ми додаватимемо сервіс в будь-який інший модуль, який є жадібно завантажений, тобто одразу ж, а не на вимогу. Але в такому разі краще додавати сервіс в `AppModule`.
-- При додаванні сервісу в _`Lazy loaded`_ модуль, такий модуль матиме свій власний екземпляр класу сервісу, використовуючи _`child injector`_
-- Також можливий варіант, коли єдиний екземпляр класу сервісу буде доступний лише в компоненті або в дереві компонентів.
+  - Перший і рекомендований, це використовувати _`@Injectable({providedIn: 'root'})`_ що робить його доступним **`application wide`** надаючи доступ до одного і того ж екземпляру класу. В такому разі його не потрібно додавати в _`providers[]`_ в _`AppModule`_, що і є ще одним варіантом, який є аналогом першому.
+  - Те ж саме буде відбуватись, якщо ми додаватимемо сервіс в будь-який інший модуль, який є жадібно завантажений, тобто одразу ж, а не на вимогу. Але в такому разі краще додавати сервіс в `AppModule`.
+  - При додаванні сервісу в _`Lazy loaded`_ модуль, такий модуль матиме свій власний екземпляр класу сервісу, використовуючи _`child injector`_
+  - Також можливий варіант, коли єдиний екземпляр класу сервісу буде доступний лише в компоненті або в дереві компонентів.
 - Сервіси не потрібно експортувати щоби потім імпортувати.
 
 ### **Lazy Loading**
