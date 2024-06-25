@@ -695,7 +695,7 @@ ngAfterViewInit(): void {
 
 > Для цього декоратора по дефолту _`{ static: false }`_ і змінити це значення не можна.
 
-- **`@ContentChild()`** - дає доступ до елементів з атрибутом #someName в темплейті, але тих, що додані через _`<ng-content></ng-content>`_
+- **`@ContentChild()`** - дає доступ до елементів з атрибутом _`#someName`_ в темплейті, але тих, що додані через _`<ng-content></ng-content>`_, тобто шляхом `content projection`
 
 ```html
 <app-rooms [hotelName]="hotelName">
@@ -704,6 +704,8 @@ ngAfterViewInit(): void {
   <app-employee></app-employee>
 </app-rooms>
 ```
+
+`rooms.component.ts`
 
 ```javascript
 export class RoomsComponent implements AfterContentInit, AfterContentChecked
@@ -715,6 +717,14 @@ export class RoomsComponent implements AfterContentInit, AfterContentChecked
     this.empName = this.employee.employeeName;
   }
 }
+```
+
+`rooms.component.html`
+
+```html
+<!-- ng-content displaying -->
+<ng-content select="[data]"></ng-content>
+<ng-content select="app-employee"></ng-content>
 ```
 
 `employee.component.ts`
@@ -731,12 +741,43 @@ export class EmployeeComponent {
 
 - **`ContentChildren()`** - використовується по аналогії з _`@ViewChildren`_, коли нам потрібен доступ до усього _`projected content`_.
 
-- **`HostListener('any supported event')`** - дає можливість слухати будь-яку подію, яка підтримується JS і виконувати потрібну нам функцію, яка приймає eventData в момент спрацювання події. Приклад:
-  @HostListener('mouseenter') mouseover(eventData: Event) {
-  do something
+- **`HostListener('any supported event')`** - дає можливість слухати будь-яку подію, яка підтримується JS і виконувати потрібну нам функцію, яка приймає _`eventData`_ в момент спрацювання події.
+
+- **`HostBinding('property.sub_property')`** - в прикладі нижче ми говоримо Angular на елементі, де застосовується ця директива, звернутися до властивості _`style`_ під властивості _`backgroundColor`_ і встановити значення _`'red'`_. Пізніше через _`this.backgroundColor`_ можна встановити інше значення
+
+```typescript
+@Directive({
+  selector: '[appBetterHighlight]',
+})
+export class BetterHighlightDirective implements OnInit {
+  @Input() defaultColor: string = 'transparent';
+  @Input('appBetterHighlight') highlightColor: string = 'blue';
+  @HostBinding('style.backgroundColor') backgroundColor: string;
+
+  constructor(private elRef: ElementRef, private renderer: Renderer2) {
+    console.log('appBetterHighlight directive created');
   }
-- **`HostBinding('property.sub_property')`** - в прикладі нижче ми говоримо Angular на елементі, де використання ця директива, звернутися до властивості style під властивості backgroundColor і встановити значення 'red'. Пізніше через this.backgroundColor можна встановити інше значення
-  @HostBinding('style.backgroundColor') backgroundColor: string = 'red';
+
+  ngOnInit() {
+    this.backgroundColor = this.defaultColor;
+    // this.renderer.setStyle(this.elRef.nativeElement, 'background-color', 'blue');
+  }
+
+  @HostListener('mouseenter') mouseover(eventData: Event) {
+    // this.renderer.setStyle(this.elRef.nativeElement, 'background-color', 'blue');
+    this.backgroundColor = this.highlightColor;
+  }
+
+  @HostListener('mouseleave') mouseleave(eventData: Event) {
+    // this.renderer.setStyle(this.elRef.nativeElement, 'background-color', 'transparent');
+    this.backgroundColor = this.defaultColor;
+  }
+}
+```
+
+```html
+<p [appBetterHighlight]="'red'" defaultColor="yellow">Style me with a better directive!</p>
+```
 
 ---
 
@@ -765,7 +806,7 @@ export class EmployeeComponent {
 
 ## Custom Directives
 
->Загалом директиви схожі на компоненти, в тому сенсі, що за допомогою них можна елементам в темплейті додавати потрібну нам кастомну логіку і вони (директиви) також можуть імплементувати _`life-cycle hooks`_. У них лише немає свого темплейта.
+> Загалом директиви схожі на компоненти, в тому сенсі, що за допомогою них можна елементам в темплейті додавати потрібну нам кастомну логіку і вони (директиви) також можуть імплементувати _`life-cycle hooks`_. У них лише немає свого темплейта.
 
 ### Custom Attribute Directive
 
@@ -774,7 +815,7 @@ export class EmployeeComponent {
 
 ```javascript
   import { Directive } from '@angular/core'
-  @Directive_({
+  @Directive({
   selector: '[someName]'
   })
   export class SomeBasicDirective implements OnInit {
@@ -785,29 +826,33 @@ export class EmployeeComponent {
   }
 ```
 
-- В _NgModule_ в _declarations_ додати SomeBasicDirective
-- В потрібний елемент DOM додати атрибут _someName_, назва якого має відповідати тій, що у властивості selector нашої директиви - таким чином ми задамо колір нашому елементу
+- В _`NgModule`_ в _`declarations`_ додати `SomeBasicDirective`
+- В потрібний елемент DOM додати атрибут _`someName`_, назва якого має відповідати тій, що у властивості `selector` нашої директиви - таким чином на прикладі вище ми задамо колір нашому елементу
 
-  ---- Цей спосіб(звернення до елемента напряму) не є найкращим варіантом його модифікації, так як Angular може рендерити темплейти без DOM дерева і тоді властивість, наприклад, style, буде недоступною.
+> Цей спосіб(звернення до елемента напряму) не є найкращим варіантом його модифікації, так як Angular може рендерити темплейти без DOM дерева і тоді властивість, наприклад, `style`, буде недоступною.
 
-- Тому краще використовувати другий варіант з **Renderer2**:
-  import { **Renderer2** } from '@angular/core'
-  _@Directive_({
-  selector: '[someName]'
-  })
-  export class SomeBasicDirective implements OnInit {
-  constructor(private elementReference: ElementRef, private _renderer_: **Renderer2**) {}
+- Ще один доступний `API` для роботи з DOM елементами це **`Renderer2`**:
+
+```typescript
+import { Renderer2 } from '@angular/core';
+@Directive({
+  selector: '[someName]',
+})
+export class SomeBasicDirective implements OnInit {
+  constructor(private elementReference: ElementRef, private renderer: Renderer2) {}
   ngOnInit() {
-  this.renderer.setStyle(this.elementReference.nativeElement, 'background-color', 'blue');
+    this.renderer.setStyle(this.elementReference.nativeElement, 'background-color', 'blue');
   }
-  }
-- <https://angular.io/api/core/Renderer2> - тут більше методів класу **Renderer2**
+}
+```
+
+> [https://angular.io/api/core/Renderer2](https://angular.io/api/core/Renderer2) - тут більше методів класу **Renderer2**
 
 ---
 
 ### Custom Structural Directive
 
-_`app.component.html`_
+`app.component.html`
 
 ```html
 <div *appUnless="!onlyOdd">
