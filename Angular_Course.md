@@ -1,8 +1,8 @@
-# Angular docs
+# Angular  docs
 
 ## How an Angular App gets Loaded and Started
 
-- Entry point це файл `index.html` в якому після збірки angular cli додав свої скрипти, які завантажуються першими і серед яких буде бандл з файлом `main.ts`, код якого і виконається спочатку.
+- **Entry point** це файл `index.html` в якому після збірки angular cli додав свої скрипти, які завантажуються першими і серед яких буде бандл з файлом `main.ts`, код якого і виконається спочатку.
 - В ньому і стартує наш веб-застосунок в момент виклику `platformBrowserDynamic().bootstrapModule(AppModule)` з головним модулем _AppModule_, в якому в свою чергу вказано початковий компонент з селектором `<app-root></app-root>`, який і вказаний в `body` файлу `index.html`.
 
 ## Decorators
@@ -743,7 +743,7 @@ export class EmployeeComponent {
 
 - **`HostListener('any supported event')`** - дає можливість слухати будь-яку подію, яка підтримується JS і виконувати потрібну нам функцію, яка приймає _`eventData`_ в момент спрацювання події.
 
-- **`HostBinding('property.sub_property')`** - в прикладі нижче ми говоримо Angular на елементі, де застосовується ця директива, звернутися до властивості _`style`_ під властивості _`backgroundColor`_ і встановити значення _`'red'`_. Пізніше через _`this.backgroundColor`_ можна встановити інше значення
+- **`HostBinding('property.subProperty')`** - в прикладі нижче ми говоримо Angular на елементі, де застосовується ця директива, звернутися до властивості _`style`_ під властивості _`backgroundColor`_ і встановити значення _`'red'`_. Пізніше через _`this.backgroundColor`_ можна встановити інше значення
 
 ```typescript
 @Directive({
@@ -779,6 +779,7 @@ export class BetterHighlightDirective implements OnInit {
 <p [appBetterHighlight]="'red'" defaultColor="yellow">Style me with a better directive!</p>
 ```
 
+>Варто зауважити, що на прикладі вище ми поєднуємо селектор директиви з _`property-binding`_, тобто цей запис `[appBetterHighlight]="'red'"` означає, що ми до елементу додаємо директиву і одночасно прив'язуємось до відповідної властивості в директиві.
 ---
 
 ## Template Reference
@@ -1471,7 +1472,7 @@ Every Subject is an Observable and an Observer. You can subscribe to a Subject, 
 
 В Angular є 2 підходи до роботи з формами - _`Template-Driven`_ і _`Reactive`_.
 
-Перший більш простий, де Angular самостійно "прочитає" структуру форми за допомогою спеціального механізму, яку було прописано як html код в темплейті.
+Перший більш простий, де нам треба самостійно створити форму в темплейті і Angular "прочитає" її за допомогою спеціальної директиви `ngForm`.
 
 Другий спосіб складніше, коли ми самостійно визначаємо структуру форми в TypeScript, потім в HTML коді і потім вручну їх з'єднуємо.
 Робота зі стилями форм і контролів відбувається для обох підходів однаково, за рахунок класів, які Angular автоматично додає на кожен тег.
@@ -1491,11 +1492,156 @@ Every Subject is an Observable and an Observer. You can subscribe to a Subject, 
 - Для очистки полів форми і також всі вбудовані властивості форми, як от `valid`, `invalid`, `touched`, `pristine`, `dirty`, і так далі можна використовувати методи _`reset()`_ і `resetForm()`. В останній також можна передати `{}` з полями форми і з дефолтними значеннями для них.
 - Також для `Template-driven` форм доречно використовувати вбудовані валідатори HTML5, такі як: `email`, `required`, `pattern`, `min`, `max`, `minLength`, `maxLength`
 
+`app.component.html`
+
+```html
+<form (ngSubmit)="onSubmit()" #f="ngForm">
+  <div
+    id="user-data"
+    ngModelGroup="userData"
+    #userData="ngModelGroup"
+  >
+    <div class="form-group">
+      <label for="username">Username</label>
+      <input
+        type="text"
+        id="username"
+        class="form-control"
+        name="username"
+        required
+        [ngModel]="defaultUserName"
+      />
+    </div>
+    <button class="btn btn-default" type="button" (click)="suggestUserName()">Suggest an Username</button>
+    <div class="form-group">
+      <label for="email">Mail</label>
+      <input
+        type="email"
+        id="email"
+        class="form-control"
+        required
+        email
+        ngModel name="email"
+        #email="ngModel"
+      />
+      <span class="help-block" *ngIf="!email.valid && email.touched">Please enter a valid email</span>
+    </div>
+  </div>
+  <p *ngIf="!userData.valid && userData.touched">User data is invalid!</p>
+  <div class="form-group">
+    <label for="secret">Secret Questions</label>
+    <select
+      id="secret"
+      class="form-control"
+      [ngModel]="defaultQuestion"
+      name="secret"
+    >
+      <option value="pet">Your first Pet?</option>
+      <option value="teacher">Your first teacher?</option>
+    </select>
+  </div>
+  <div class="form-group">
+    <textarea
+      class="form-control"
+      name="questionAnswer"
+      rows="3"
+      [(ngModel)]="answer">
+    </textarea>
+  </div>
+  <p>Your reply: {{ answer }}</p>
+  <div class="radio" *ngFor="let gender of genders">
+    <label for="gender">
+      <input
+        type="radio"
+        id="gender"
+        name="gender"
+        required 
+        ngModel
+        [value]="gender"
+      />
+      {{ gender }}
+    </label>
+  </div>
+  <hr />
+  <button class="btn btn-primary" type="submit" [disabled]="f.invalid">Submit</button>
+</form>
+```
+
+```typescript
+@Component({
+  selector: "app-root",
+  templateUrl: "./app.component.html",
+  styleUrls: ["./app.component.css"],
+})
+export class AppComponent {
+  @ViewChild("f") signUpForm: NgForm;
+  @ViewChild("email") emailInput: NgForm;
+
+  defaultQuestion = "pet";
+  defaultUserName = "";
+  answer = "";
+  genders = ["male", "female"];
+  submitted = false;
+  user = {
+    username: "",
+    email: "",
+    secretQuestion: "pet",
+    answer: "",
+    gender: "",
+  };
+
+  suggestUserName() {
+    const suggestedName = "Superuser";
+    //patchValue() і setValue() доступні лише на формі, яка обгорнута в ngForm
+    /* this.signUpForm.setValue({ //setValue() перезапише всі дані
+      userData: {
+        username: suggestedName,
+        email: "admin@gmail.com"
+      },
+      secret: "pet",
+      questionAnswer: "",
+      gender: "male"
+    }) */
+    //це не найкращий спосіб задати потрібні значення полям форми, так як якщо там вже були введені якісь значення раніше, вони будуть перезаписані
+    this.signUpForm.form.patchValue({
+      //patchValue() дає можливість перезаписати дані, які ми хочемо
+      userData: {
+        username: suggestedName,
+        email: "test@gmail.com",
+      },
+      secretQuestion: "pet",
+      questionAnswer: "Funny",
+      gender: "male",
+    });
+  }
+
+  /* onSubmit(form: NgForm) {
+    console.log(form)
+  } */
+
+  onSubmit() {
+    console.log(this.signUpForm);
+    // console.log(this.emailInput);
+    this.submitted = true;
+    this.user.username = this.signUpForm.value.userData.username;
+    this.user.email = this.signUpForm.value.userData.email;
+    this.user.secretQuestion = this.signUpForm.value.secret;
+    this.user.answer = this.signUpForm.value.questionAnswer;
+    this.user.gender = this.signUpForm.value.gender;
+
+    this.signUpForm.reset(); //цей метод не тільки очищає поля форми, а і також всі вбудовані властивості форми, як от valid, touched і так далі
+  }
+}
+```
+
+#### T-d form custom validation
+
+
 ### Reactive Approach
 
 - Спочатку в imports[] of **main.module.ts** додаємо _ReactiveFormsModule_
 - Для ініціалізації форми викор хук ngOninit(), створивши перед цим властивість з довільною назвою, але з типом **FormGroup**
-- Далі за рахунок ініціалізації об'єкту класу FormGroup, записуємо в цю властивість нову форму, яку цей клас створить для нас: this.signupForm = new FormGroup({}); - такий запис стоврить порожню форму.
+- Далі за рахунок ініціалізації об'єкту класу FormGroup, записуємо в цю властивість нову форму, яку цей клас створить для нас: this.signUpForm = new FormGroup({}); - такий запис стоврить порожню форму.
 - Для конфігурації форми в constructor() передається {} з потрібними нам властивостями, наприклад: "username" : new **FormControl**(null), а в цю властивість записуємо ініціалізацію об'єкту класу FormControl, в конструктор якого можна передати, наприклад, якесь дефолтне значення для інпута, або _null_, якщо залишаємо його порожнім
 - Для того, щоб сказати Angular, що ми хочемо використовувати власну конфігурації форми, потрібно в темплейті на тег _form_ додати через _Property binding_ атрибут _formGroup_ і передати як аргумент нашу властивість з типом **FormGroup**: <form [formGroup]="propName">
 - Далі для інпутів, які ми хочемо контролювати. додаємо атрибут _formControlName_, в який передаємо як рядок назву створеної нами властивості всередині new FormGroup({}), наприклад formControlName="username". Також тут можна викор. _Property binding_ з таким синтаксисом: [formControlName]="'username'"
@@ -1506,21 +1652,21 @@ Every Subject is an Observable and an Observer. You can subscribe to a Subject, 
   "email" : new FormControl(null, [Validators.required, Validators.email])
 - Доступ до властивойстей полів форми, таких як, наприклад, valid, touch і тд. можна отримати двома способами:
   *ngIf="
-  !signupForm.*get*('username').valid &&
-  signupForm.*get*('username').touched
+  !signUpForm.*get*('username').valid &&
+  signUpForm.*get*('username').touched
   "
   //2 варіант працює лише якщо у нас немає вкладених контролів тобто групування
   *ngIf="
-  !signupForm.valid &&
-  signupForm.touched
+  !signUpForm.valid &&
+  signUpForm.touched
   "
-  де signupForm - це назва властивості з типом _FormGroup_ в нашому компоненті.
+  де signUpForm - це назва властивості з типом _FormGroup_ в нашому компоненті.
 - Для групування полів форми викор. атрибут _formGroupName_, який додається до тегу, яким ми обгортаємо згруповані поля форми. В атрибут передається як рядок назва властивості в яку ми вклали наші поля в TS коді formGroupName="userData":
   "userData": new FormGroup({
   "username" : new FormControl(null, Validators.required),
   "email" : new FormControl(null, [Validators.required, Validators.email]),
   }),
-- Якщо нам потрібно декілька полів додати, використовуючи лише одну властивість всередені форми, можна юзати **FormArray** --> 'anyName': new FormArray([]). Далі туди можна додавати потрібні нам дані, ітерувати їх і через _Property binding_ і індекс в масиві, використовувати їх в темплейті. Можна навіть додавати поля форми в цей масив ось так: (<FormArray>this.signupForm.get('anyName')).push(new FormControl());
+- Якщо нам потрібно декілька полів додати, використовуючи лише одну властивість всередені форми, можна юзати **FormArray** --> 'anyName': new FormArray([]). Далі туди можна додавати потрібні нам дані, ітерувати їх і через _Property binding_ і індекс в масиві, використовувати їх в темплейті. Можна навіть додавати поля форми в цей масив ось так: (<FormArray>this.signUpForm.get('anyName')).push(new FormControl());
 - Для того, аби підписатися на зміни значення або статуса всієї форми або конкретних її полів, викор. вбудовані observables valueChanges() і statusChanges(). Приклади в коді forms-reactive
 - _patchValue()_,_setValue()_ і _reset()_ також доступні для _Reactive_ підходу
 
