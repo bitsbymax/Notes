@@ -1290,6 +1290,8 @@ const routes: Routes = [
   }
 ```
 
+>Потрібно пам'ятати, що порядок `{path}` важливий, динамічні параметри повинні бути в кінці масиву, щоб шлях правильно парсився
+
 І потім додати _`<router-outlet></router-outlet>`_ в потрібному місці батьківського темплейта
 
 #### queryParamsHandling
@@ -1306,72 +1308,151 @@ const routes: Routes = [
 { path: '**', redirectTo: '/page-not-found' }
 ```
 
+### Router Events
+
+Кожного разу, коли відбувається навігація, тобто адреса змінюється, _`Router`_ сервіс емітить ланцюг подій, які можна перехопити і при потребі використати.
+
+```javascript
+NavigationStart {id: 2, url: '/recipes', navigationTrigger: 'imperative', restoredState: null}
+RoutesRecognized {id: 2, url: '/recipes', urlAfterRedirects: '/recipes', state: RouterStateSnapshot}
+GuardsCheckStart {id: 2, url: '/recipes', urlAfterRedirects: '/recipes', state: RouterStateSnapshot}
+ChildActivationStart {snapshot: ActivatedRouteSnapshot}
+ActivationStart {snapshot: ActivatedRouteSnapshot}
+ChildActivationStart {snapshot: ActivatedRouteSnapshot}
+ActivationStart {snapshot: ActivatedRouteSnapshot}
+ChildActivationStart {snapshot: ActivatedRouteSnapshot}
+ActivationStart {snapshot: ActivatedRouteSnapshot}
+GuardsCheckEnd {id: 2, url: '/recipes', urlAfterRedirects: '/recipes', state: RouterStateSnapshot, shouldActivate: true}
+ResolveStart {id: 2, url: '/recipes', urlAfterRedirects: '/recipes', state: RouterStateSnapshot}
+ResolveEnd {id: 2, url: '/recipes', urlAfterRedirects: '/recipes', state: RouterStateSnapshot}
+ActivationEnd {snapshot: ActivatedRouteSnapshot}
+ChildActivationEnd {snapshot: ActivatedRouteSnapshot}
+ActivationEnd {snapshot: ActivatedRouteSnapshot}
+ChildActivationEnd {snapshot: ActivatedRouteSnapshot}
+ActivationEnd {snapshot: ActivatedRouteSnapshot}
+ChildActivationEnd {snapshot: ActivatedRouteSnapshot}
+Scroll {routerEvent: NavigationEnd, position: null, anchor: null}
+NavigationEnd {id: 2, url: '/recipes', urlAfterRedirects: '/recipes'}
+```
+
+Кожна окрема серія таких подій матиме свою властивість `id`.
+
 ---
 
-## Guards
+## Route Guards
 
-- Захист реалізовується за допомогою вбудованого в пакет @angular/router інтерфейсу **СanActivate**. Для цього потрібно створити сервіс (all GUARDS are SERVICE), який буде імплементувати цей інтерфейс і прописати потрібну логіку:
-  export class AuthGuard implements CanActivate {
+- `canActivate`
+- `canActivateChild`
+- `canDeactivate`
+- `canLoad`
+- `Resolve`
+
+### `canActivate`
+
+Захист реалізовується за допомогою вбудованого в пакет `@angular/router` інтерфейсу **`СanActivate`**. Для цього потрібно створити сервіс **(all Guards are Service)**, який буде імплементувати цей інтерфейс і прописати потрібну логіку:
+
+`auth.guard.ts`
+
+```typescript
+export class AuthGuard implements CanActivate {
   canActivate(
-  route: ActivatedRouteSnapshot,
-  state: RouterStateSnapshot
+    route: ActivatedRouteSnapshot,
+    state: RouterStateSnapshot
   ): Observable<boolean> | Promise<boolean> | boolean {
-  return ....is needed
+    return ....is needed
   }
-  }
-  І потім
-  const appRoutes: Routes = [
+}
+```
+
+`feature-routing.module.ts`
+
+```typescript
+const routes: Routes = [
   {
-  path: "servers",
-  _canActivate_: [AuthGuard], //ПЕРЕДАЄМ САМ СЕРВІС
-  component: ServersComponent,
-  children: [
-  { path: ":id", component: ServerComponent },
-  { path: ":id/edit", component: EditServerComponent },
-  ],
-  }
+    path: '',
+    component: RecipesComponent,
+    canActivate: [AuthGuard], //передаємо Guard
+    children: [
+      {
+        path: '',
+        component: RecipeStartComponent
+      },
+      {
+        path: 'new',
+        component: RecipeEditComponent
+      },
+      {
+        path: ':id',
+        component: RecipeDetailsComponent,
+        resolve: [RecipesResolverService]
+      },
+      {
+        path: ':id/edit',
+        component: RecipeEditComponent,
+        resolve: [RecipesResolverService]
+      },
+    ]
+  },
+];
 
-- Для захисту дочірніх маршрутів викор. інтерфейс **canActivateChild**, який імплементується таким же способом. **АЛЕ!!!** в _Routes_ ми маємо передати замість _canActivate_ ---> _canActivateChild_ В такому разі захист працюватиме для всіх вкладених маршрутів.
+@NgModule({
+  imports: [RouterModule.forChild(routes)], //forChild() використовується для модулів, які ми потім будемо імпортувати в основний модуль
+  exports: [RouterModule]
+})
+export class RecipesRoutingModule { }
+```
 
-- **canLoad** and **canActivate**
-  ● canActivate checks after the data of a lazy loaded module have been loaded whether the loaded stuff is allowed to be shown,
+### `canActivateChild`
 
-● canLoad checks first whether it is necessary to load the data at all:
+Для захисту дочірніх маршрутів використовується інтерфейс **`canActivateChild`**, який імплементується таким же способом.
 
-canActivate: click button/load data - call guard - display page (or don't)
-canLoad: click button - call guard - load data/display page (or don't)
+**АЛЕ!!!** в _`Routes`_ ми маємо передати замість _`canActivate`_ ---> _`canActivateChild`_. В такому разі захист працюватиме для всіх вкладених маршрутів.
 
-- _Controlling Navigation with **canDeactivate**_
+### **`canLoad`** and **`canActivate`**
+
+- `canActivate` checks after the data of a lazy loaded module have been loaded whether the loaded stuff is allowed to be shown,
+
+- `canLoad` checks first whether it is necessary to load the data at all:
+
+- `canActivate`: click button/load data - call guard - display page (or don't)
+
+- `canLoad`: click button - call guard - load data/display page (or don't)
+
+### Controlling Navigation with **`canDeactivate`**
 
 Функціонал, який додається для зручності користувача, де можна задати логіку, яка буде, наприклад, перепитувати користувача, чи точно він бажає покинути сторінку, чи, наприклад, нагадати про щось, що клієнт міг забути натиснути і тд.
-export class CanDeactivateGuard implements _canDeactivate_<interFaceName>
-{ }
-Angular ініціалізує виконання коду з CanDeactivateGuard як тільки ми залишимо шлях або компонент, який рендериться при переході по цьому шляху
 
-- _Resolving Dynamic Data with the resolve Guard_
+```typescript
+export class CanDeactivateGuard implements canDeactivate<interFaceName>{}
+```
 
-Такий підхід дає можливість виконати якийсь код до того, як відбудеться перехід по якомусь шляху і відбудеться рендер компонента. Таким чином, наприклад, можна отримати якісь дані, які будть потім потрібні компоненту. Це така собі альтернатива до хука _OnInit_, але все ж код виконується ще до завантаження компонента.
-Імплементація відбувається через створення класу, який імплементує клас Resolve:
+Angular ініціалізує виконання коду з `CanDeactivateGuard` як тільки ми залишимо шлях або компонент, який рендериться при переході по цьому шляху
+
+### Resolving Dynamic Data with the `Resolve` Guard
+
+Такий підхід дає можливість виконати якийсь код до того, як відбудеться перехід по якомусь шляху і відбудеться рендер компонента. Таким чином, наприклад, можна отримати якісь дані, які будуть потім потрібні компоненту. Це така собі альтернатива до хука _`OnInit`_, але все ж код виконується ще до завантаження компонента.
+
+Імплементація відбувається через створення класу, який імплементує клас `Resolve`:
+
+```typescript
 export class ServerResolver implements Resolve<genericType> {
-resolve(route: ActivatedRouteSnapshot, state: RouterStateSnapshot):
-Server | Observable<genericType> | Promise<genericType> {
-тут описуємо логіку
+  resolve(route: ActivatedRouteSnapshot, state: RouterStateSnapshot): Server | Observable<genericType> |Promise<genericType> {}
 }
-}
-І потім додаємо до наших шляхів відповідний параметр:
+//І потім додаємо до наших шляхів відповідний параметр:
 {
-path: ":id",
-component: ServerComponent,
-resolve: { server: ServerResolver }, server - довільна назва, ServerResolver - написаний нами СЕРВІС
+  path: ":id",
+  component: ServerComponent,
+  resolve: { server: ServerResolver }, //server - довільна назва, ServerResolver - написаний нами СЕРВІС
 }
+```
 
 ---
 
 ## RxJS and Observables
 
-> An Observable is the main tool provided by the RxJS library whose Angular uses extensively. As with a regular JavaScript Promise, the goal of an Observable is to handle asynchronous events.
+> An _`Observable`_ is the main tool provided by the _`RxJS`_ library whose _`Angular`_ uses extensively. As with a regular JavaScript Promise, the goal of an Observable is to handle asynchronous events.
 >
-> The key difference between an Observable and a Promise is that Observables are lazy. You can declare how your data should be handled once received, but you will then need to explicitly subscribe to trigger the asynchronous call. In other words, making the call and handling the results are separated operations. Whereas with a Promise, when you call the then function, you are actually doing both operations at once. It triggers the call and handles the result.
+> The key difference between an _`Observable`_ and a _`Promise`_ is that Observables are lazy. You can declare how your data should be handled once received, but you will then need to explicitly subscribe to trigger the asynchronous call. In other words, making the call and handling the results are separated operations. Whereas with a Promise, when you call the then function, you are actually doing both operations at once. It triggers the call and handles the result.
 
 **`Observable`** --> is an object that emits a sequence of items over time, either asynchronously or synchronously. It can be used to represent data from a server, a UI event, or any other kind of data stream. An observable can have multiple observers subscribed to it and will notify them whenever new values are emitted.
 Represents the idea of an invokable collection of future values or events.
@@ -1832,20 +1913,23 @@ _`PipeName`_ додається в _`declarations`_ of _`@NgModule`_.
 ```typescript
 @NgModule({
   //NgModule трансформує звичайний TypeScript клас в модуль Angular
-  imports: [RouterModule.forRoot(routes, {
-    preloadingStrategy: PreloadAllModules
-  })], //в вбудований модуль RouterModule ми передаємо свою конфігурацію шляхів. forRoot() конфігурується лише раз для вказання кореневих шляхів
+  imports: [
+    RouterModule.forRoot(routes, {
+      preloadingStrategy: PreloadAllModules,
+    }),
+  ], //в вбудований модуль RouterModule ми передаємо свою конфігурацію шляхів. forRoot() конфігурується лише раз для вказання кореневих шляхів
   //? PreloadAllModules - говорить ангуляру про те, що потрібно завантажити всі бандли, створені loadChildren, одразу ж при ініціалізації кореневого/початкового модуля. При цьому сам початковий модуль, який теж завантажується як окремий бандл, залишається малим по розміру.
   exports: [RouterModule], //і тут ми цей сконфігурований модуль експортуємо, щоб потім імпортувати і використати в основному модулі AppModule
 })
-export class AppRoutingModule { } //!Модуль в якому прописані шляхи для компонентів з Lazy Loading
+export class AppRoutingModule {} //!Модуль в якому прописані шляхи для компонентів з Lazy Loading
 ```
 
->Важливо пам'ятати.
+> Важливо пам'ятати.
 >
->Коли використовується **`@Injectable({ providedIn: 'any' })`** для якогось сервісу і _`lazy-loading`_ модуль, буде створено один екземпляр класу цього сервісу для використання _application-wide_ і для кожного такого модуля окремо, якщо звичайно в такому модулі цей сервіс використовується.
+> Коли використовується **`@Injectable({ providedIn: 'any' })`** для якогось сервісу і _`lazy-loading`_ модуль, буде створено один екземпляр класу цього сервісу для використання _application-wide_ і для кожного такого модуля окремо, якщо звичайно в такому модулі цей сервіс використовується.
 >
->Також у випадку, якщо сервіс ми інжектимо через `injection token`, то для кожного окремого `lazy-loaded` модуля в `providers` можна передавати різне значення в `useValue`.
+> Також у випадку, якщо сервіс ми інжектимо через `injection token`, то для кожного окремого `lazy-loaded` модуля в `providers` можна передавати різне значення в `useValue`.
+
 ---
 
 ## Standalone Components
