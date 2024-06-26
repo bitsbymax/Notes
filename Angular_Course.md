@@ -1359,7 +1359,16 @@ export class AuthGuard implements CanActivate {
     route: ActivatedRouteSnapshot,
     state: RouterStateSnapshot
   ): Observable<boolean> | Promise<boolean> | boolean {
-    return ....is needed
+    return this.authService.user$
+      .pipe(
+        take(1),//Так як нам не потрібно, щоб наш захист слухав нові дані цього Subject'a постійно, а лише щоб значення user$ бралось лиш раз і все, аж до поки захист не буде викликано повторно
+        map(user => {
+          const isAuth = !!user; //converting to boolean
+          if (isAuth) {
+            return isAuth;
+          }
+          return this.router.createUrlTree(['/auth']);//редіректимось на сторінку авторизації якщо ми не були залогінені попередньо
+        }));
   }
 }
 ```
