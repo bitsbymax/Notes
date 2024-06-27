@@ -1347,6 +1347,27 @@ NavigationEnd {id: 2, url: '/recipes', urlAfterRedirects: '/recipes'}
 - `canLoad`
 - `Resolve`
 
+>Один і той же сервіс, які ми використовуємо як `Guard`, можна застосовувати для декількох `lazy loaded` шляхів і навіть для різних _guards_ в межах одного шляху.
+
+```typescript
+const routes: Routes = [
+  { path: 'login', component: LoginComponent, canActivate: [LoginGuard] },
+  { path: 'employee', component: EmployeeComponent, canActivate: [LoginGuard] },
+  {
+    path: 'rooms',
+    loadChildren: () => import('./rooms/rooms.module').then(m => m.RoomsModule),
+    canActivate: [LoginGuard],
+    canLoad: [LoginGuard],
+  },
+  {
+    path: 'booking',
+    loadChildren: () => import('./booking/booking.module').then(m => m.BookingModule),
+    canActivate: [LoginGuard],
+  },
+  { path: '**', component: NotFoundComponent }
+];
+```
+
 ### `canActivate`
 
 Захист реалізовується за допомогою вбудованого в пакет `@angular/router` інтерфейсу **`СanActivate`**. Для цього потрібно створити сервіс **(all Guards are Service)**, який буде імплементувати цей інтерфейс і прописати потрібну логіку:
@@ -1421,11 +1442,13 @@ export class RecipesRoutingModule {}
 
 - `canActivate` checks after the data of a lazy loaded module have been loaded whether the loaded stuff is allowed to be shown,
 
-- `canLoad` checks first whether it is necessary to load the data at all:
+- `canLoad` checks first whether it is necessary to load the data at all
 
-- `canActivate`: click button/load data - call guard - display page (or don't)
+- `canActivate`- click button/load data - call guard - display page (or don't)
 
 - `canLoad`: click button - call guard - load data/display page (or don't)
+
+>`canLoad` can only be applied to lazy loaded routes
 
 ### Controlling Navigation with **`canDeactivate`**
 
@@ -1748,36 +1771,47 @@ export class EmailValidatorDirective implements Validator {
 
 ### Reactive Approach
 
-- Спочатку в imports[] of **main.module.ts** додаємо _ReactiveFormsModule_
-- Для ініціалізації форми викор хук ngOninit(), створивши перед цим властивість з довільною назвою, але з типом **FormGroup**
-- Далі за рахунок ініціалізації об'єкту класу FormGroup, записуємо в цю властивість нову форму, яку цей клас створить для нас: this.signUpForm = new FormGroup({}); - такий запис стоврить порожню форму.
-- Для конфігурації форми в constructor() передається {} з потрібними нам властивостями, наприклад: "username" : new **FormControl**(null), а в цю властивість записуємо ініціалізацію об'єкту класу FormControl, в конструктор якого можна передати, наприклад, якесь дефолтне значення для інпута, або _null_, якщо залишаємо його порожнім
-- Для того, щоб сказати Angular, що ми хочемо використовувати власну конфігурації форми, потрібно в темплейті на тег _form_ додати через _Property binding_ атрибут _formGroup_ і передати як аргумент нашу властивість з типом **FormGroup**: <form [formGroup]="propName">
-- Далі для інпутів, які ми хочемо контролювати. додаємо атрибут _formControlName_, в який передаємо як рядок назву створеної нами властивості всередині new FormGroup({}), наприклад formControlName="username". Також тут можна викор. _Property binding_ з таким синтаксисом: [formControlName]="'username'"
-- Для відправки даних з форми потрібно додати на тег _form_ атрибут _(ngSubmit)_="someMethod()" і передати в нього метод, яким ми будемо виконувати потрібну нам логіку
-- Використовувати template reference нам вже непотрібно для доступу до форми як {}
-- Валідація полів форми додається через вбудований клас **Validators**, з якого береться потрібна властивість і передається в new **FormControl**(), якщо їх декілька, можна передати [] ->
-  "username" : new FormControl(null, Validators.required),
-  "email" : new FormControl(null, [Validators.required, Validators.email])
-- Доступ до властивойстей полів форми, таких як, наприклад, valid, touch і тд. можна отримати двома способами:
-  *ngIf="
-  !signUpForm.*get*('username').valid &&
-  signUpForm.*get*('username').touched
-  "
-  //2 варіант працює лише якщо у нас немає вкладених контролів тобто групування
-  *ngIf="
-  !signUpForm.valid &&
-  signUpForm.touched
-  "
-  де signUpForm - це назва властивості з типом _FormGroup_ в нашому компоненті.
-- Для групування полів форми викор. атрибут _formGroupName_, який додається до тегу, яким ми обгортаємо згруповані поля форми. В атрибут передається як рядок назва властивості в яку ми вклали наші поля в TS коді formGroupName="userData":
-  "userData": new FormGroup({
+- Спочатку в `imports[]` of **`main.module.ts`** додаємо _`ReactiveFormsModule`_
+- Для ініціалізації форми в компоненті використовуємо хук `ngOnInit()`, створивши перед цим властивість з довільною назвою, але з типом **`FormGroup`**
+- Далі за рахунок ініціалізації об'єкту класу `FormGroup`, записуємо в цю властивість нову форму, яку цей клас створить для нас: `this.signUpForm = new FormGroup({})`; - такий запис створить порожню форму.
+- Для конфігурації форми в `constructor` передається `{}` з потрібними нам властивостями, наприклад: `"username" : new FormControl(null)`, а в цю властивість записуємо ініціалізацію об'єкту класу `FormControl`, в конструктор якого можна передати, наприклад, якесь дефолтне значення для інпута, або _`null`_, якщо залишаємо його порожнім
+- Для того, щоб сказати Angular, що ми хочемо використовувати власну конфігурації форми, потрібно в темплейті на тег _`form`_ додати через _`Property binding`_ атрибут _`formGroup`_ і передати як аргумент нашу властивість з типом **FormGroup**: `<form [formGroup]="signUpForm">`
+- Далі для інпутів, які ми хочемо контролювати додаємо атрибут _`formControlName`_, в який передаємо як рядок назву створеної нами властивості всередині `new FormGroup({})`, наприклад `formControlName="username"`. Також тут можна використовувати _`Property binding`_ з таким синтаксисом: `[formControlName]="'username'"`
+- Для відправки даних з форми потрібно додати на тег _`form`_ атрибут _`(ngSubmit)="someMethod()"` і передати в нього метод, яким ми будемо виконувати потрібну нам логіку
+- Використовувати `template reference` нам вже непотрібно для доступу до форми як `{}`
+- Валідація полів форми додається через вбудований клас **`Validators`**, з якого береться потрібна властивість і передається в `new FormControl()`, якщо їх декілька, можна передати `[]`
+
+```typescript
+"username" : new FormControl(null, Validators.required),
+"email" : new FormControl(null, [Validators.required, Validators.email])
+```
+
+- Доступ до властивостей полів форми, таких як, наприклад, `valid`, `touch` і тд. можна отримати двома способами:
+
+```typescript
+*ngIf="!signUpForm.get('username').valid && signUpForm.get('username').touched"
+```
+
+2 варіант працює лише якщо у нас немає вкладених контролів тобто групування
+
+```typescript
+*ngIf="!signUpForm.valid && signUpForm.touched"
+```
+
+де `signUpForm` - це назва властивості з типом _`FormGroup`_ в нашому компоненті.
+
+- Для групування полів форми використовується атрибут _`formGroupName`_, який додається до тегу, яким ми обгортаємо згруповані поля форми. В атрибут передається як рядок назва властивості `formGroupName="userData"` в яку ми вклали наші поля в TS коді
+
+```typescript
+"userData": new FormGroup({
   "username" : new FormControl(null, Validators.required),
   "email" : new FormControl(null, [Validators.required, Validators.email]),
-  }),
-- Якщо нам потрібно декілька полів додати, використовуючи лише одну властивість всередені форми, можна юзати **FormArray** --> 'anyName': new FormArray([]). Далі туди можна додавати потрібні нам дані, ітерувати їх і через _Property binding_ і індекс в масиві, використовувати їх в темплейті. Можна навіть додавати поля форми в цей масив ось так: (<FormArray>this.signUpForm.get('anyName')).push(new FormControl());
-- Для того, аби підписатися на зміни значення або статуса всієї форми або конкретних її полів, викор. вбудовані observables valueChanges() і statusChanges(). Приклади в коді forms-reactive
-- _patchValue()_,_setValue()_ і _reset()_ також доступні для _Reactive_ підходу
+}),
+```
+
+- Якщо нам потрібно декілька полів додати, використовуючи лише одну властивість всередині форми, можна використовувати **`FormArray`** --> `'anyName': new FormArray([])`. Далі туди можна додавати потрібні нам дані, ітерувати їх і через _`Property binding`_ і індекс в масиві, використовувати їх в темплейті. Можна навіть додавати поля форми в цей масив ось так: `(<FormArray>this.signUpForm.get('anyName')).push(new FormControl());`
+- Для того, аби підписатися на зміни значення або статусу всієї форми або конкретних її полів, використовуються вбудовані **observables** `valueChanges()` і `statusChanges()`. Приклади в коді `forms-reactive`
+- _`patchValue()`_,_`setValue()`_ і _`reset()`_ також доступні для _`Reactive`_ підходу
 
 ---
 
