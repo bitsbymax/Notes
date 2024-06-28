@@ -1817,9 +1817,34 @@ export class EmailValidatorDirective implements Validator {
 - Для доступу до значень полів форми в коді можна використати такий запис:
 `this.recipeForm.value.name`, де `name` - це одна з властивостей, до якої прив'язаний інпут. Для отримання об'єкту зі всіма інпутами і їх значень, використовуємо `this.recipeForm.value`.
 
-- У випадку, якщо у формі є вимкнені інпути (disabled), можна використати метод `getRawValue()` який поверне об'єкт зі всіма інпутами, включно з вимкненими.
+- У випадку, якщо у формі є вимкнені інпути (_disabled_), можна використати метод `getRawValue()` який поверне об'єкт зі всіма інпутами, включно з вимкненими.
 
 - Якщо нам потрібно декілька полів додати, використовуючи лише одну властивість всередині форми, можна використовувати **`FormArray`** --> `'anyName': new FormArray([])`. Далі туди можна додавати потрібні нам дані, ітерувати їх і через _`Property binding`_ і індекс в масиві, використовувати їх в темплейті. Можна навіть додавати поля форми в цей масив ось так: `(<FormArray>this.signUpForm.get('anyName')).push(new FormControl());`
+
+- Якщо нам в темплейті потрібно відобразити помилку для інпута, який знаходиться всередині `FormArray`, використовується такий запис:
+
+```html
+<div formArrayName="hobbies">
+  <h4>Your Hobbies</h4>
+  <button class="btn btn-default" type="button" (click)="onAddHobby()">
+    Add Hobby
+  </button>
+  <div
+    class="form-group"
+    *ngFor="let hobbyControl of hobbyControls; let i = index"
+  >
+    <input
+      type="text"
+      title="hobbies"
+      name="hobbies"
+      class="form-control"
+      [formControlName]="i"
+    />
+    <mat-error *ngIf="signUpForm.get(['hobbies', i,])"></mat-error>
+    //[formArrayName, formGroupName, formControlName] в такому порядку
+  </div>
+</div>
+```
 
 - Для того, аби підписатися на зміни значення або статусу всієї форми або конкретних її полів, використовуються вбудовані **observables** `valueChanges()` і `statusChanges()`. Приклади в коді `forms-reactive`
 
