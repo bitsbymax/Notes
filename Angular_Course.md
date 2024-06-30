@@ -1347,7 +1347,7 @@ NavigationEnd {id: 2, url: '/recipes', urlAfterRedirects: '/recipes'}
 - `canLoad`
 - `Resolve`
 
->Один і той же сервіс, які ми використовуємо як `Guard`, можна застосовувати для декількох `lazy loaded` шляхів і навіть для різних _guards_ в межах одного шляху.
+> Один і той же сервіс, які ми використовуємо як `Guard`, можна застосовувати для декількох `lazy loaded` шляхів і навіть для різних _guards_ в межах одного шляху.
 
 ```typescript
 const routes: Routes = [
@@ -1355,16 +1355,16 @@ const routes: Routes = [
   { path: 'employee', component: EmployeeComponent, canActivate: [LoginGuard] },
   {
     path: 'rooms',
-    loadChildren: () => import('./rooms/rooms.module').then(m => m.RoomsModule),
+    loadChildren: () => import('./rooms/rooms.module').then((m) => m.RoomsModule),
     canActivate: [LoginGuard],
     canLoad: [LoginGuard],
   },
   {
     path: 'booking',
-    loadChildren: () => import('./booking/booking.module').then(m => m.BookingModule),
+    loadChildren: () => import('./booking/booking.module').then((m) => m.BookingModule),
     canActivate: [LoginGuard],
   },
-  { path: '**', component: NotFoundComponent }
+  { path: '**', component: NotFoundComponent },
 ];
 ```
 
@@ -1378,18 +1378,18 @@ const routes: Routes = [
 export class AuthGuard implements CanActivate {
   canActivate(
     route: ActivatedRouteSnapshot,
-    state: RouterStateSnapshot
+    state: RouterStateSnapshot,
   ): Observable<boolean> | Promise<boolean> | boolean {
-    return this.authService.user$
-      .pipe(
-        take(1),//Так як нам не потрібно, щоб наш захист слухав нові дані цього Subject'a постійно, а лише щоб значення user$ бралось лиш раз і все, аж до поки захист не буде викликано повторно
-        map(user => {
-          const isAuth = !!user; //converting to boolean
-          if (isAuth) {
-            return isAuth;
-          }
-          return this.router.createUrlTree(['/auth']);//редіректимось на сторінку авторизації якщо ми не були залогінені попередньо
-        }));
+    return this.authService.user$.pipe(
+      take(1), //Так як нам не потрібно, щоб наш захист слухав нові дані цього Subject'a постійно, а лише щоб значення user$ бралось лиш раз і все, аж до поки захист не буде викликано повторно
+      map((user) => {
+        const isAuth = !!user; //converting to boolean
+        if (isAuth) {
+          return isAuth;
+        }
+        return this.router.createUrlTree(['/auth']); //редіректимось на сторінку авторизації якщо ми не були залогінені попередньо
+      }),
+    );
   }
 }
 ```
@@ -1448,7 +1448,7 @@ export class RecipesRoutingModule {}
 
 - `canLoad`: click button - call guard - load data/display page (or don't)
 
->`canLoad` can only be applied to lazy loaded routes
+> `canLoad` can only be applied to lazy loaded routes
 
 ### Controlling Navigation with **`canDeactivate`**
 
@@ -1462,19 +1462,35 @@ Angular ініціалізує виконання коду з `CanDeactivateGuar
 
 ### Resolving Dynamic Data with the `Resolve` Guard
 
-Такий підхід дає можливість виконати якийсь код до того, як відбудеться перехід по якомусь шляху і відбудеться рендер компонента. Таким чином, наприклад, можна отримати якісь дані, які будуть потім потрібні компоненту. Це така собі альтернатива до хука _`OnInit`_, але все ж код виконується ще до завантаження компонента.
+Такий підхід дає можливість виконати якийсь код до того, як відбудеться перехід по якомусь шляху і відбудеться рендер компонента. Таким чином, наприклад, можна отримати якісь дані, які будуть потім потрібні компоненту. Це така собі альтернатива до хуку _`OnInit`_, але все ж код виконується ще до завантаження компонента.
 
 Імплементація відбувається через створення класу, який імплементує клас `Resolve`:
 
 ```typescript
 export class ServerResolver implements Resolve<genericType> {
-  resolve(route: ActivatedRouteSnapshot, state: RouterStateSnapshot): Server | Observable<genericType> |Promise<genericType> {}
+  resolve(route: ActivatedRouteSnapshot, state: RouterStateSnapshot): Server | Observable<genericType> | Promise<genericType> {
+    //виконуємо якусь логіку, наприклад пріфетч даних з бекенду
+  }
 }
-//І потім додаємо до наших шляхів відповідний параметр:
+
+//потім додаємо до наших шляхів відповідний параметр:
 {
   path: ":id",
   component: ServerComponent,
-  resolve: { server: ServerResolver }, //server - довільна назва, ServerResolver - написаний нами СЕРВІС
+  resolve: { serverData: ServerResolver }, //server - довільна назва, ServerResolver - написаний нами СЕРВІС
+}
+
+//отримуємо доступ до цих даних в компоненті
+export class DummyComponent implements NgOnInit {
+  //другий спосіб через stream і async pipe
+  data$ = this.route.data.pipe(pluck('serverData'))
+  
+  constructor(private route: ActivatedRoute) {}
+
+  ngOnIit() {
+    //перший спосіб
+    this.route.data.subscribe((data) => data['serverData']) //наші дані
+  }
 }
 ```
 
@@ -1609,8 +1625,25 @@ Every Subject is an Observable and an Observer. You can subscribe to a Subject, 
 - Для того, щоб одразу значення, яке ми вводимо в input, можна було використовувати, потрібно використати _`two-way data binding`_. Додаємо властивість в компонент з потрібним значенням і робимо прив'язку: `[(ngModel)]="propName"`
 - Також можна згрупувати декілька inputs в одну групу, тобто вони будуть додані всередину окремої властивості в середині властивості `value`. Робиться це через атрибут `ngModelGroup="anyName"`. Якщо потрібно отримати доступ до значень inputs і інших властивостей, використовуємо template reference ось так: `#anyName="ngModelGroup"`
 - Для того, або, наприклад, по кліку на кнопку перезаписати всі дані форми або лише деякі, використовуємо методи _`patchValue()`_ і _`setValue()`_. Вони доступні лише на формі, яка обгорнута в `ngForm`. Приклади в коді `forms-td`
+
+> `setValue()` - потребує передачі об'єкту зі всіма властивостями, які ми ми додали, використовуючи `patchValue()` ми можемо передати лише властивості, значення яких хочемо змінити.
+
 - Для очистки полів форми і також всі вбудовані властивості форми, як от `valid`, `invalid`, `touched`, `pristine`, `dirty`, і так далі можна використовувати методи _`reset()`_ і `resetForm()`. В останній також можна передати `{}` з полями форми і з дефолтними значеннями для них.
 - Також для `Template-driven` форм доречно використовувати вбудовані валідатори HTML5, такі як: `email`, `required`, `pattern`, `min`, `max`, `minLength`, `maxLength`
+
+- Також за допомогою `[ngModelOptions]` можна налаштувати на яку подію буде відбуватися оновлення форми чи окремого інпута.
+
+```html
+<input
+  type="text"
+  id="username"
+  class="form-control"
+  name="username"
+  required
+  [ngModel]="defaultUserName"
+  [ngModelOptions]="{updateOn: blur}"
+/>
+```
 
 `app.component.html`
 
@@ -1777,12 +1810,12 @@ export class EmailValidatorDirective implements Validator {
 - Для конфігурації форми в `constructor` передається `{}` з потрібними нам властивостями, наприклад: `"username" : new FormControl(null)`, а в цю властивість записуємо ініціалізацію об'єкту класу `FormControl`, в конструктор якого можна передати, наприклад, якесь дефолтне значення для інпута, або _`null`_, якщо залишаємо його порожнім
 - Для того, щоб сказати Angular, що ми хочемо використовувати власну конфігурації форми, потрібно в темплейті на тег _`form`_ додати через _`Property binding`_ атрибут _`formGroup`_ і передати як аргумент нашу властивість з типом **FormGroup**: `<form [formGroup]="signUpForm"></form>`
 
->Загалом в темплейті може бути лише одна форма з атрибутом `[formGroup]`.
+> Загалом в темплейті може бути лише одна форма з атрибутом `[formGroup]`.
 
 - Далі для інпутів, які ми хочемо контролювати, додаємо атрибут _`formControlName`_, в який передаємо назву створеної нами властивості всередині `new FormGroup({})`, наприклад `formControlName="username"`. Також тут можна використовувати _`Property binding`_ з таким синтаксисом: `[formControlName]="'username'"`
 - Для відправки даних з форми потрібно додати на тег _`form`_ атрибут `(ngSubmit)="someMethod()"` і передати в нього метод, яким ми будемо виконувати потрібну нам логіку
 
->Використовувати `template reference` нам вже непотрібно для доступу до форми як `{}`
+> Використовувати `template reference` нам вже непотрібно для доступу до форми як `{}`
 
 - Валідація полів форми додається через вбудований клас **`Validators`**, з якого береться потрібна властивість і передається в `new FormControl()`, якщо їх декілька, можна передати `[]`
 
@@ -1815,7 +1848,7 @@ export class EmailValidatorDirective implements Validator {
 ```
 
 - Для доступу до значень полів форми в коді можна використати такий запис:
-`this.recipeForm.value.name`, де `name` - це одна з властивостей, до якої прив'язаний інпут. Для отримання об'єкту зі всіма інпутами і їх значень, використовуємо `this.recipeForm.value`.
+  `this.recipeForm.value.name`, де `name` - це одна з властивостей, до якої прив'язаний інпут. Для отримання об'єкту зі всіма інпутами і їх значень, використовуємо `this.recipeForm.value`.
 
 - У випадку, якщо у формі є вимкнені інпути (_disabled_), можна використати метод `getRawValue()` який поверне об'єкт зі всіма інпутами, включно з вимкненими.
 
@@ -1826,29 +1859,137 @@ export class EmailValidatorDirective implements Validator {
 ```html
 <div formArrayName="hobbies">
   <h4>Your Hobbies</h4>
-  <button class="btn btn-default" type="button" (click)="onAddHobby()">
-    Add Hobby
-  </button>
-  <div
-    class="form-group"
-    *ngFor="let hobbyControl of hobbyControls; let i = index"
-  >
-    <input
-      type="text"
-      title="hobbies"
-      name="hobbies"
-      class="form-control"
-      [formControlName]="i"
-    />
+  <button class="btn btn-default" type="button" (click)="onAddHobby()">Add Hobby</button>
+  <div class="form-group" *ngFor="let hobbyControl of hobbyControls; let i = index">
+    <input type="text" title="hobbies" name="hobbies" class="form-control" [formControlName]="i" />
     <mat-error *ngIf="signUpForm.get(['hobbies', i,])"></mat-error>
     //[formArrayName, formGroupName, formControlName] в такому порядку
   </div>
 </div>
 ```
 
-- Для того, аби підписатися на зміни значення або статусу всієї форми або конкретних її полів, використовуються вбудовані **observables** `valueChanges()` і `statusChanges()`. Приклади в коді `forms-reactive`
+- Для того, аби підписатися на зміни значення або статусу всієї форми або конкретних її полів, використовуються вбудовані **observables** `valueChanges()` і `statusChanges()`.
+
+> `valueChanges()` викликатиметься на кожне спрацювання події `onchange`.
+
+Приклади в коді `forms-reactive`
 
 - _`patchValue()`_,_`setValue()`_ і _`reset()`_ також доступні для _`Reactive`_ підходу
+
+- **`updateOn`** - властивість, за допомогою якої можна налаштувати на яку події значення інпутів будуть оновлюватися. По дефолту це `change`, інші це `blur` і `submit`. Можна задати як окремому інпуту так і всій формі загалом.
+
+#### Custom validation for Reactive forms
+
+> Валідатори можна додати як на всю форму, так і на масив інпутів чи окремий інпут
+
+##### Валідатори в окремому класі
+
+```typescript
+export class CustomValidators {
+  static invalidProjectName(control: FormControl): { [s: string]: boolean } {
+    if (control.value === 'Test') {
+      return { invalidProjectName: true };
+    }
+    return null;
+  }
+
+  static asyncInvalidProjectName(control: FormControl): Promise<any> | Observable<any> {
+    const promise = new Promise((resolve, reject) => {
+      setTimeout(() => {
+        if (control.value === 'TestProject') {
+          resolve({ invalidProjectName: true });
+        } else {
+          resolve(null);
+        }
+      }, 2000);
+    });
+    return promise;
+  }
+
+  static validateSpecialChar(char) {
+    return (control: AbstractControl) => {
+      if (String(value).includes(char)) {
+        return { invalidSpecialChar: true };
+      }
+      return null;
+    };
+  }
+}
+```
+
+`app.component.ts`
+
+```typescript
+export class AppComponent implements OnInit {
+  projectForm: FormGroup;
+
+  ngOnInit() {
+    this.projectForm = new FormGroup({
+      projectName: new FormControl(
+        null,
+        [Validators.required, CustomValidators.invalidProjectName],
+        CustomValidators.asyncInvalidProjectName,
+      ),
+      email: new FormControl(null, [Validators.required, Validators.email]),
+      projectStatus: new FormControl('critical'),
+    });
+  }
+}
+```
+
+> Якщо ми додаємо валідатор на всю форму, в самому валідаторі можна додати еррорку на окрему властивість у формі через метод `setErrors({})`.
+
+##### Валідатори в класі компонента
+
+`app.component.ts`
+
+```typescript
+export class AppComponent implements OnInit {
+  genders = ["male", "female"];
+  signUpForm: FormGroup;
+  forbiddenUsernames = ["Chris", "Anna"];
+
+  ngOnInit() {
+    this.signUpForm = new FormGroup({
+      userData: new FormGroup({
+        username: new FormControl(null, [
+          Validators.required,
+          this.forbiddenNames.bind(this),
+        ]),
+        email: new FormControl(
+          null,
+          [Validators.required, Validators.email],
+          this.forbiddenEmails
+        ),
+      }),
+      gender: new FormControl("male"),
+      hobbies: new FormArray([]),
+    });
+
+  //!КАСТОМНИЙ ВАЛІДАТОР
+  forbiddenNames(control: FormControl): { [s: string]: boolean } {
+    //Він перевірятиме, чи введені користувачем дані == одному з імен в масиві forbiddenUsernames. Ця функція буде викликатись автоматично в той момент, коли Angular перевіряє валідність поля форми
+    if (this.forbiddenUsernames.indexOf(control.value) !== -1) {
+      //робимо перевірку того, чи введене в поле форми значення відповідає одному зі значень в нашому масиві forbiddenUsernames
+      return { nameIsForbidden: true };
+    }
+    return null; //щоб дати зрозуміти Angular, що поле валідне, повертаємо null або взагалі нічого не повертаємо
+  } // функція приймає на вхід поле форми і повертає key: value пару, де ключ - рядок, значення - true/false
+  //!КАСТОМНИЙ АСИНХРОННИЙ ВАЛІДАТОР
+  forbiddenEmails(control: FormControl): Promise<any> | Observable<any> {
+    const promise = new Promise<any>((resolve, reject) => {
+      setTimeout(() => {
+        if (control.value === "test@test.com") {
+          resolve({ emailIsForbidden: true });
+        } else {
+          resolve(null);
+        }
+      }, 1500);
+    });
+    return promise;
+  }
+}
+```
 
 ---
 
