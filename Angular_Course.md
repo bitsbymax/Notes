@@ -910,24 +910,78 @@ export class UnlessDirective {
 
 ### Class based providers
 
-- В окремому файлі створюється клас, в який додається потрібний метод.
-- Далі за рахунок **Dependency injection** ми можемо використовувати цей сервіс в потрібному компоненті. Для цього в _`constructor`_ передаємо аргумент, який буде властивістю нашого класу і в якому буде зберігатися екземпляр класу з методами, які ми туди додали.
+Angular allows the injection of necessary dependencies, such as classes, functions, or primitives to classes decorated with `@Component`, `@Directive`, `@Pipe`, `@Injectable` and `@NgModule` by defining them as a constructor parameter:
 
-```javascript
-constructor(private cdr: ChangeDetectorRef, private roomsService: RoomsService) {}
+```typescript
+@Component({ … })
+class UserComponent {
+  constructor(private userService: UserService) {}
+}
 ```
 
-> `@Injectable(options?: ({ providedIn: Type<any> | "root" | "platform" | "any" | null }) & InjectableProvider)`
->
-> Decorator that marks a class as available to be provided and injected as a dependency.
+or using inject function:
 
-_`private`_ - модифікатор доступу, який говорить, що екземпляр цього класу можна убуде використати лише в самому класі
+```typescript
+@Component({ … })
+class UserComponent {
+  private userService = inject(UserService);
+}
+```
+
+Decorator that marks a class as available to be provided and injected as a dependency:
+
+```typescript
+@Injectable(options?: ({ providedIn: Type<any> | "root" | "platform" | "any" | null }) & InjectableProvider)
+```
+
+_`private`_ - модифікатор доступу, який говорить, що екземпляр цього класу можна буде використати лише в самому класі
 
 - Для того, щоб використати цей сервіс, потрібно або передати його в _`AppModule`_ у властивість _`providers`_: _`[serviceName]`_, або ж використати _`@Injectable({providedIn:'root'})`_. В обох випадках він буде доступним **application wide**.
 
 > Рекомендовано використовувати другий спосіб, _`@Injectable({providedIn:'root'})`_, так як по-перше, якщо такий сервіс таки не буде використовуватися, фреймворк не додаватиме його в продакшн бандл, по-друге, фреймворк створить єдиний екземпляр такого сервісу для всього застосунку.
 >
 > Якщо ж нам таки потрібен локальний екземпляр класу, потрібно передати його в _`providers`_: _`[serviceName]`_ нашого компонента.
+
+### Hierarchical Injectors in Angular
+
+- `Element Injector` — registers dependencies defined in providers inside the _`@Component`_ or _`@Directive`_ decorators. These dependencies are available for the component and its children.
+
+```typescript
+@Component({
+  ...
+  providers: [UserService]
+})
+export class UserComponent {}
+```
+
+- `Environment Injector` — child hierarchies of the environment injector are created whenever dynamically loaded components are created, such as with a router. In that case, the injector is available for components and its children. It is higher in the hierarchy than the element injector in the same component.
+
+```typescript
+const routes: Routes = [
+  { path: 'user', component: UserComponent, providers: [UserService] }
+]
+```
+
+- `Environment Root Injector` — contains globally available dependencies decorated with _`@Injectable`_ and having **providedIn** set to **"root"** or **"platform"**.
+
+```typescript
+@Injectable({providedIn: 'root'})
+export class UserService {
+  name = 'John'
+}
+```
+
+or defined in providers of the ApplicationConfig interface:
+
+```typescript
+bootstrapApplication(AppComponent, { providers: [UserService] });
+```
+
+- `Module Injector` — in module-based applications, this injector stores global dependencies decorated with _`@Injectable`_ and having **providedIn** set to **"root"** or **"platform"**. Additionally, it keeps track of dependencies defined in the _`providers`_ array within _`@NgModule`_. During compilation, Angular also recursively registers dependencies from eagerly loaded modules. Child hierarchies of _`Module Injector`_ are created by lazy loaded modules.
+
+- `Platform Injector` — configured by Angular, this injector registers platform-specific dependencies such as _`DomSanitizer`_ or the _`PLATFORM_ID token`_. Additional dependencies can be defined by passing them to the _`extraProviders`_ array in the _`platformBrowserDynamic`_ function parameter.
+
+- `Null Injector` — the highest injector in the hierarchy. Its  job is to throw the error _`"NullInjectorError: No provider for …"`_ unless the _`@Optional`_ modifier was used.
 
 #### Resolution modifiers
 
@@ -1484,7 +1538,7 @@ export class ServerResolver implements Resolve<genericType> {
 export class DummyComponent implements NgOnInit {
   //другий спосіб через stream і async pipe
   data$ = this.route.data.pipe(pluck('serverData'))
-  
+
   constructor(private route: ActivatedRoute) {}
 
   ngOnIit() {
