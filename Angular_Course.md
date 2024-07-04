@@ -983,12 +983,12 @@ bootstrapApplication(AppComponent, { providers: [UserService] });
 
 - `Null Injector` — the highest injector in the hierarchy. Its  job is to throw the error _`"NullInjectorError: No provider for …"`_ unless the _`@Optional`_ modifier was used.
 
-#### Resolution modifiers
+### Resolution modifiers
 
 - `@Self()`
 
 Декоратор параметрів _`constructor() {}`_ який говорить _`DI framework`_ почати пошук залежностей з локального інжектора.
-В такому разі сервіс потрібно додати в _`providers: []`_, інакше буде помилка.
+В такому разі сервіс потрібно додати в _`providers: []`_, інакше буде помилка `"NodeInjector: NOT_FOUND"` .
 
 ```javascript
 constructor(@Self() private roomsService: RoomsService) {}
@@ -996,7 +996,7 @@ constructor(@Self() private roomsService: RoomsService) {}
 
 - `@SkipSelf()`
 
-Декоратор параметрів _`constructor() {}`_ який говорить _`DI framework`_ почати пошук залежностей з батьківського інжектора. Локальний інжектор перевірятися на наявність провайдера не буде.
+Декоратор параметрів _`constructor() {}`_ який говорить _`DI framework`_ почати пошук залежностей з батьківського `Element Injector`. Локальний інжектор перевірятися на наявність провайдера не буде.
 
 ```javascript
 constructor(@SkipSelf() private roomsService: RoomsService) {}
@@ -1004,8 +1004,8 @@ constructor(@SkipSelf() private roomsService: RoomsService) {}
 
 - `@Optional()`
 
-Декоратор параметрів _`constructor() {}`_, який позначає параметр як опційну залежність. _`DI framework`_ повертає _`null`_, якщо залежність не буде знайдено.
-Може бути використаний разом з іншими декораторами, які модифікують поведінку _DI_.
+Декоратор параметрів _`constructor() {}`_, який позначає параметр як опційну залежність. _`DI framework`_ повертає _`null`_, а не викидає помилку якщо залежність не буде знайдено.
+Може бути використаний разом з іншими декораторами, які модифікують поведінку _`DI`_.
 
 ```javascript
 constructor(@Optional() private loggerService: LoggerService) {}`
