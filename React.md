@@ -10,7 +10,7 @@ There are a few things you need to consider when building modern applications. S
 - Infrastructure - where you deploy, store, and run your application code (Serverless, CDN, Edge, etc).
 - Performance - how to optimize your application for end-users.
 - Scalability - how your application adapts as your team, data, and traffic grow.
-- Developer Experience - your team’s experience building and maintaining your application.
+- Developer Experience - your team's experience building and maintaining your application.
 
 JavaScript frameworks were created to make this kind of work a lot easier — they exist to provide a better developer experience. They don't bring brand-new powers to JavaScript; they give you easier access to JavaScript's powers so you can build for today's web.
 
@@ -22,19 +22,19 @@ JavaScript frameworks were created to make this kind of work a lot easier — th
 
 - **minify**
 
-  Minification is the process of removing unnecessary code formatting and comments without changing the code’s functionality. The goal is to improve the application’s performance by decreasing file sizes
+  Minification is the process of removing unnecessary code formatting and comments without changing the code's functionality. The goal is to improve the application's performance by decreasing file sizes
 
 - **bundle**
 
-  Bundling is the process of resolving the web of dependencies and merging (or ‘packaging’) the files (or modules) into optimized bundles for the browser, with the goal of reducing the number of requests for files when a user visits a web page
+  Bundling is the process of resolving the web of dependencies and merging (or 'packaging') the files (or modules) into optimized bundles for the browser, with the goal of reducing the number of requests for files when a user visits a web page
 
 - **code split**
   Developers usually split their applications into multiple pages that can be accessed from different URLs. Each of these pages becomes a unique entry point into the application.
-  Code-splitting is the process of splitting the application’s bundle into smaller chunks required by each entry point. The goal is to improve the application's initial load time by only loading the code required to run that page.
+  Code-splitting is the process of splitting the application's bundle into smaller chunks required by each entry point. The goal is to improve the application's initial load time by only loading the code required to run that page.
 
 **Build time** (or build step) is the name given to a series of steps that prepare your application code for production.
 
-**Runtime** (or request time) refers to the period of time when your application runs in response to a user’s request, after your application has been built and deployed.
+**Runtime** (or request time) refers to the period of time when your application runs in response to a user's request, after your application has been built and deployed.
 
 _tree-shaking_ (removal of any code that isn't actually used in the app during the build process)
 
@@ -91,12 +91,12 @@ _tree-shaking_ (removal of any code that isn't actually used in the app during t
 - Компоненти в React діляться на **Stateful** components і **Presentational** components, **Smart** or **Dumb**. Також компоненти можуть буть **Controlled** і **Uncontrolled** (часто таку характеристику можна побачити і для форм). Форма, чи інпут, для контролю якого викор. _Two-way binding_ через прив'язку значення input'a до змінної з useState() до атрибуту _value_ вважається контрольованою. Інпут, значення якого отримується через _ref_ вважається неконтрольованим, так як React напряму ніяк не контролює і не модифікує значення цього input'a, а лише читає.
 
 - Компонент обгортка **_Wrapper_** - дає можливість замінити необов'язковий `<div>` у випадках, коли цей `<div>` нам потрібен лише для того, щоб відмалювати більше одного кореневого елемента.
-  
+
 ```js
-  const Wrapper = (props) => props.children;
+const Wrapper = (props) => props.children;
 ```
 
-  Також можна використати _Fragment_ <></>
+Також можна використати _Fragment_ <></>
 
 ## React Portals
 
@@ -115,10 +115,7 @@ const Modal = (props) => {
   return (
     <>
       {ReactDOM.createPortal(<Backdrop />, portalElement)}
-      {ReactDOM.createPortal(
-        <ModalOverlay>{props.children}</ModalOverlay>,
-        portalElement,
-      )}
+      {ReactDOM.createPortal(<ModalOverlay>{props.children}</ModalOverlay>, portalElement)}
     </>
   );
 };
@@ -137,7 +134,7 @@ There are **four - 4** reasons why a component would re-evaluate itself
 
 - Але врешті-решт повторний виклик компонента - (`re-evaluating`) і, якщо потрібно, `re-rendering` відбуваються через зміну стану, так як і `Context` і `props` так само залежать від даних і, так би мовити, підписуються на їх зміну.
 
-- It always goes “down” the tree: the re-render of a child doesn’t trigger the re-render of a parent. При цьому re-rendering батьківського компоненту завжди по ланцюгу вниз тригерить re-evaluating або виклик дочірніх компонентів.
+- It always goes “down” the tree: the re-render of a child doesn't trigger the re-render of a parent. При цьому re-rendering батьківського компоненту завжди по ланцюгу вниз тригерить re-evaluating або виклик дочірніх компонентів.
 
 ---
 
@@ -173,7 +170,7 @@ export default React.memo(SomeCompName);
 - Щоб цю проблему вирішити для функцій, існує хук `useCallback(() => {}, [])`
   При його використанні React гарантує, що це завжди буде одна і та ж функції в пам'яті. Масив залежностей для цього хука потрібен по тій причині, що функціє може використовувати зовнішні змінні, наприклад змінну, яка зберігає стан з `useState()`. І для того, щоб при зміні стану, нове значення попадало всередину цією функції, її потрібно передати в масив залежностей. Тоді функція всередині `useCallback()` перествориться з новим значенням цієї змінної.
 - Слід пам'ятати, що цей хук є сенс використовувати лише з підготовленими компонентами, як мінімум тими, що огорнуті в _React.memo()_
-  
+
 ---
 
 Ще один хук для оптимізації обчислень в компоненті це `useMemo(() => {})`
@@ -246,21 +243,21 @@ _Правила використання хуків_:
 
 ---
 
-`useEffect(() => {}, [deps])` - хук для виконання так званих _`Side effects`_http запити, работа з таймерами, localStorage і в той же час, наприклад, перевірка і оновлення стану валідності форми після кожного нового введеного символу, це теж side effect, який спрацьовуватиме за певних обставин, в залежності від того, як його використовувати.
+`useEffect(() => {}, [deps])` - хук для виконання так званих \_`Side effects`\_http запити, работа з таймерами, localStorage і в той же час, наприклад, перевірка і оновлення стану валідності форми після кожного нового введеного символу, це теж side effect, який спрацьовуватиме за певних обставин, в залежності від того, як його використовувати.
 
-This may sound strange at first, but effects defined with `useEffect` are invoked **AFTER** render. To be more specific, it runs both after the first render and after every update. In contrast to lifecycle methods, **_effects don’t block the UI because they run asynchronously_**.
+This may sound strange at first, but effects defined with `useEffect` are invoked **AFTER** render. To be more specific, it runs both after the first render and after every update. In contrast to lifecycle methods, **_effects don't block the UI because they run asynchronously_**.
 
 **_The key concepts of using effects_**
 
 - You must have a thorough understanding of when components (re-)render because effects run after every render cycle.
 - Effects are always executed after render, but you have options to opt out from this behavior.
-- To opt out or skip effects, you have to understand basic JavaScript concepts about values. An effect is only rerun if at least one of the values specified as part of the effect’s dependencies has changed since the last render cycle.
+- To opt out or skip effects, you have to understand basic JavaScript concepts about values. An effect is only rerun if at least one of the values specified as part of the effect's dependencies has changed since the last render cycle.
 - You should ensure that components are not re-rendered unnecessarily. This constitutes another strategy to skip unnecessary reruns of effects.
 - You have to understand that functions defined in the body of your function component get recreated on every render cycle. This has an impact if you use it inside of your effect. There are strategies to cope with it (hoist them outside of the component, define them inside of the effect, use useCallback).
-- You have to understand basic JavaScript concepts such as stale closures, otherwise you might have trouble tackling problems with outdated props or state values inside of your effect. There are strategies to solve this, e.g., with an effect’s dependency array or with the useRef Hook.
-- You should not ignore suggestions from the React Hooks ESLint plugin. Do not blindly remove dependencies (and rashly ignore ESLint warnings) or carelessly use ESLint’s disable comments; you most likely have introduced a bug. You may still lack understanding of some important concept.
+- You have to understand basic JavaScript concepts such as stale closures, otherwise you might have trouble tackling problems with outdated props or state values inside of your effect. There are strategies to solve this, e.g., with an effect's dependency array or with the useRef Hook.
+- You should not ignore suggestions from the React Hooks ESLint plugin. Do not blindly remove dependencies (and rashly ignore ESLint warnings) or carelessly use ESLint's disable comments; you most likely have introduced a bug. You may still lack understanding of some important concept.
 - Do not mimic the lifecycle methods of class-based components. This way of thinking does more harm than good. Instead, think more in terms of data flow and state associated with effects because you run effects based on state changes across render cycles.
-- The question is not ‘when does this effect run,’ the question is ‘with which state does this effect synchronize with’?
+- The question is not 'when does this effect run,' the question is 'with which state does this effect synchronize with'?
 
 For someone who really not understand the `useEffect` hook:
 
@@ -294,7 +291,7 @@ useEffect(() => {
 - _`state`_ - містить у собі знімок останнього стану, тобто інфо-цію про те, яким він є на момент, коли ми викликатимемо функцію для його оновлення
 - _`dispatchFn`_ - функція, яка оновлює стан. Але працює вона таким чином, що вона не просто встановлює нове значення стану, а відправляє чи посилає(_`dispatch`_) якусь дію(_`action`_), яка автоматично попадатиме у _`reducerFn`_. Як правило це об'єкт з двома ключами `{type: 'someType', payload: 'someData'}`
 - _`reducerFn`_ - `(prevState, action) => newState` - функція, яку Реакт автоматично викликатиме кожного разу, коли викликатиметься _`dispatchFn`_ і яка автоматично отримує актуальний на момент виклику стан(_`state`_) і дію(_`action`_), яку ми передали в _`dispatchFn`_. І повертає оновлений стан.
-- optional _`initFn`_: The initializer function that specifies how the initial state is calculated. If it’s not specified, the initial state is set to _`initialState`_. Otherwise, the initial state is set to the result of calling _`initFn(initialState)`_.
+- optional _`initFn`_: The initializer function that specifies how the initial state is calculated. If it's not specified, the initial state is set to _`initialState`_. Otherwise, the initial state is set to the result of calling _`initFn(initialState)`_.
 
 ## React Custom Hooks
 
