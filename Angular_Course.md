@@ -1372,7 +1372,7 @@ describe(MyComponent, () => {
 }
 ```
 
-A design pattern that we can use using Dependency Injection is port-adapter. It assumes that one module defines the shape of an abstraction and another provides its implementation. This allows us to decouple logic and loosen dependencies between modules, since the implementation can be swapped on-the-fly. This is where an abstract class that creates an interface and can also be used as a token works great:
+A design pattern that we can use using _`Dependency Injection`_ is `port-adapter`. It assumes that one module defines the shape of an abstraction and another provides its implementation. This allows us to decouple logic and loosen dependencies between modules, since the implementation can be swapped on-the-fly. This is where an abstract class that creates an interface and can also be used as a token works great:
 
 ```typescript
 abstract class NotificationPort {
@@ -2343,9 +2343,17 @@ export class AppComponent implements OnInit {
 
 ## Pipes
 
-> Pipes використовується для зміни вихідних даних. Працюють як синхронно так і асинхронно. Вони не модифікують сам об'єкт з яким працюють.
+- Pipes використовується для зміни вихідних даних. Працюють як синхронно так і асинхронно. Вони не модифікують сам об'єкт з яким працюють.
 
-Some built-in pipes:
+- Бувають двох типів: `pure` (не допускають змін) і `impure` (допускають зміни). Різниця між цими двома типами полягає в реагуванні на зміни значень, які передаються в _`pipe`_.
+
+**По замовчуванню** всі _`pipes`_ є типу _`pure`_.
+
+- Такі об'єкти відстежують зміни в значеннях примітивних типів (String, Number, Boolean, Symbol). В інших об'єктах — типів Date, Array, Function, Object зміни відстежуються, коли змінюється посилання, а не значення по посиланню.
+
+- `Impure pipes` відстежують всі зміни.
+
+### Some built-in pipes
 
 - DatePipe
 - UpperCasePipe
@@ -2356,6 +2364,8 @@ Some built-in pipes:
 - JsonPipe
 - SlicePipe
 - AsyncPipe
+
+---
 
 Наприклад, є властивість _`username: 'Max'`_; яку ми показуємо на сторінці `<p>{{ username }}</p>`, і якщо нам по якійсь причині потрібно вивести ім'я великими літерами, можна використати вбудований _pipe_ _`uppercase`_:
 
@@ -2377,9 +2387,9 @@ Some built-in pipes:
 <p>{{ server.started | date: 'fullDate' | uppercase }}</p>
 ```
 
-Angular парсить їх зліва направо.
+>Angular парсить їх зліва направо
 
-### Async pipe
+### `Async` pipe
 
 The async pipe is one of the simplest ways to handle subscriptions in Angular. It allows you to bind an observable or promise directly to your template without having to manually subscribe and unsubscribe from it.
 
@@ -2415,8 +2425,6 @@ export class PipeName implements PipeTransform {
 ```
 
 _`PipeName`_ додається в _`declarations`_ of _`@NgModule`_.
-
-Потрібно пам'ятати, що при використанні пайпу під час ітерації, він не викликається повторно при оновленні масиву чи об'єкту _by default_. Щоб змінити цю поведінку, потрібно в декоратор додати властивість `pure : false`.
 
 ---
 
