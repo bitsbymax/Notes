@@ -1846,11 +1846,37 @@ export class DummyComponent implements NgOnInit {
 
 ## RxJS and Observables
 
-> An _`Observable`_ is the main tool provided by the _`RxJS`_ library whose _`Angular`_ uses extensively. As with a regular JavaScript Promise, the goal of an Observable is to handle asynchronous events.
->
-> The key difference between an _`Observable`_ and a _`Promise`_ is that Observables are lazy. You can declare how your data should be handled once received, but you will then need to explicitly subscribe to trigger the asynchronous call. In other words, making the call and handling the results are separated operations. Whereas with a Promise, when you call the then function, you are actually doing both operations at once. It triggers the call and handles the result.
+Концепція **RxJS** полягає в тому, щоб працювати з даними через (_`stream`_), тобто потік даних. В цій концепції є **producer**, той, хто створює якісь дані і надає їх у вигляді _`Observable`_, і **consumer** або _`Observer`_, той хто через _`subscription`_, тобто підписку, їх споживає, отримує.
 
-**`Observable`** --> is an object that emits a sequence of items over time, either asynchronously or synchronously. It can be used to represent data from a server, a UI event, or any other kind of data stream. An observable can have multiple observers subscribed to it and will notify them whenever new values are emitted.
+Також в **RxJS** використовується _`push-based`_ архітектура. На відміну від _`pull-based`_ архітектури, де _`consumer`_ має запитувати кожне значення, яке _`producer`_ створив, вручну і, скоріше за все, це відбудеться через певний проміжок часу, в _`push-based`_ архітектурі _`consumer`_ отримує ці значення одразу ж як тільки _`producer`_ їх створив через зареєстрований _`next handler`_.
+
+> pull-based architecture -->
+>
+> getData -> addData -> getData
+>
+> push-based architecture -->
+>
+> getData -> continuous stream of data
+
+Це означає, що якщо _`producer`_ згенерував нові дані, вони надсилаються напряму в потік (_`stream`_) і коли він оновиться, всі, хто має _`subscription`_ на цей _`stream`_, отримають ці дані.
+
+```typescript
+ngOnInit(): void {
+  this.roomsService.getRooms().subscribe((rooms) => {
+    this.roomList = rooms;
+  });
+}
+```
+
+Ми маємо змогу підписатися на результат виклику _`getRooms()`_ по тій причині, що цей метод повертатиме _`Observable`_.
+
+---
+
+**`Observable`** is an object that emits a sequence of items over time, either asynchronously or synchronously.
+
+It can be used to represent data from a server, a UI event, or any other kind of data stream.
+An observable can have multiple observers subscribed to it and will notify them whenever new values are emitted.
+
 Represents the idea of an invokable collection of future values or events.
 
 _`producing data manually`_
@@ -1878,6 +1904,20 @@ ngOnInit(): void {
 }
 ```
 
+> An _`Observable`_ is the main tool provided by the _`RxJS`_ library whose _`Angular`_ uses extensively. As with a regular JavaScript Promise, the goal of an Observable is to handle asynchronous events.
+>
+> The key difference between an _`Observable`_ and a _`Promise`_ is that Observables are lazy. You can declare how your data should be handled once received, but you will then need to explicitly subscribe to trigger the asynchronous call. In other words, making the call and handling the results are separated operations. Whereas with a Promise, when you call the then function, you are actually doing both operations at once. It triggers the call and handles the result.
+
+### Promise vs Observable
+
+> По-перше, після створення нашого стріма (через об'єкт _`Observable`_ або через оператори створення `of`, `from`, про них далі в статтях) потрібно обов'язково підписатись _`subscribe`_, без підписки стрім не буде працювати і ви опинитесь у вічному очікуванні, на відміну від _`Promise`_, якому підписка не потрібна.
+>
+>По-друге, _`stream`_ — це довільний набір даних, який можна доповнювати, перезаписувати, трансформувати, фільтрувати, об'єднувати (об'єднувати з іншими стрімами), переривати, що не властиво _`Promise`_, він просто створюється -> і викликається.
+>
+>Ну і по-третє, стрім можна уявити як щось з нашого життя, підписка на наш Medium канал, як тільки вийде нова стаття, ви обов'язково про неї дізнаєтесь, звичайно, якщо підпишетесь, що я вам рекомендую зробити!
+>
+>>Якщо `Promise` — це константа, то `Observable(stream)` — це **Array<змінних>**
+
 **`Observer`** --> You write the code which gets executed(Handle Data, Handle Error, Handle Completion). Is a collection of callbacks that knows how to listen to values delivered by the Observable.
 
 **`Subscription`** --> represents the execution of an Observable, is primarily useful for cancelling the execution.
@@ -1889,30 +1929,6 @@ ngOnInit(): void {
 **`Schedulers`** --> are centralized dispatchers to control concurrency, allowing us to coordinate when computation happens on e.g. setTimeout or requestAnimationFrame or others.
 
 ---
-
-Концепція **RxJS** полягає в тому, щоб працювати з даними через (_`stream`_), тобто потік даних. В цій концепції є **producer**, той, хто створює якісь дані і надає їх у вигляді _`Observable`_, і **consumer** або _`Observer`_, той хто через _`subscription`_, тобто підписку, їх споживає, отримує.
-
-Також в **RxJS** використовується _`push-based`_ архітектура. На відміну від _`pull-based`_ архітектури, де _`consumer`_ має запитувати кожне значення, яке _`producer`_ створив, вручну і, скоріше за все, це відбудеться через певний проміжок часу, в _`push-based`_ архітектурі _`consumer`_ отримує ці значення одразу ж як тільки _`producer`_ їх створив через зареєстрований _`next handler`_.
-
-> pull-based architecture -->
->
-> getData -> addData -> getData
->
-> push-based architecture -->
->
-> getData -> continuous stream of data
-
-Це означає, що якщо _`producer`_ згенерував нові дані, вони надсилаються напряму в потік (_`stream`_) і коли він оновиться, всі, хто має _`subscription`_ на цей _`stream`_, отримають ці дані.
-
-```typescript
-ngOnInit(): void {
-  this.roomsService.getRooms().subscribe((rooms) => {
-    this.roomList = rooms;
-  });
-}
-```
-
-Ми маємо змогу підписатися на результат виклику _`getRooms()`_ по тій причині, що цей метод повертатиме _`Observable`_.
 
 ### Operators
 
@@ -1926,12 +1942,27 @@ ngOnInit(): void {
 
 **`new Subject()`** - is a special type of Observable that allows values to be multicasted to many Observers.
 
-Subjects are like EventEmitters.
+_`Subjects`_ are like _`EventEmitters`_.
 Every Subject is an Observable and an Observer. You can subscribe to a Subject, and you can call next to feed values as well as error and complete.
 
-Спеціальний вид _`Observable`_, який є активним варіантом, коли звичайний _`Observable`_ пасивний, бо, наприклад, викликати метод _`next()`_ для **_`new Observable()`_** можна тільки з середини, а от для _`Subject`_ можна і ззовні.
+_`Subject`_ дуже схожий на _`Observable`_, його можна створити через оператор `new`, на нього можна підписатись `subscribe`, і його стрім можна змінювати за допомогою `pipe`.
+Відмінність в тому, що його підписник водночас може бути і джерелом стріма.
 
 Їх доречно використовувати замість _`EventEmitter`_ для крос-компонентної комунікації, вони більше ефективні і рекомендовані до використання в таких випадках. Для них також потрібно робити _`unsubscribe()`_.
+
+```typescript
+const sub = new Subject();
+
+sub.subscribe(
+  (value) => {
+    console.log(value); 
+    //після того, як виконається команда sub.next('вода'), в консолі ми побачимо 'вода'
+  }
+);
+
+sub.next('вода');
+```
+
 
 **!ВАЖЛИВО!** - коли нам потрібно використати, наприклад, _`@Output`_ - і кастомну подію, використовуємо _`EventEmitter`_ а не _`Subject`_
 
