@@ -902,9 +902,112 @@ export class UnlessDirective {
 
 **Service** - клас, який, як правило, містить допоміжні методи або якийсь функціонал, який ми будемо використовувати в різних місцях програми для виконання якоїсь бізнес логіки. За рахунок перевикористання цей паттерн дає можливість зробити код чистішим, більш лінійним, централізованим, таким, який легше підтримувати.
 
+Dependency Injection (DI) is one of the most important mechanisms in Angular. This pattern allows for inversion of control by passing instances of requested dependencies to the class instead of creating them inside the class. This approach creates loose coupling and makes testing easier.
+Dependency Injection is not only a programming technique, but also an application design philosophy that promotes solutions that are modular, flexible and easy to test.
+Using Dependency Injection brings a number of benefits, including increased code readability, easier dependency management and flexibility in modifying applications.
+
+---
+
+### How to inject dependencies in Angular?
+
+Angular allows the injection of necessary dependencies, such as classes, functions, or primitives, to classes decorated with `@Component`, `@Directive`, `@Pipe`, `@Injectable` and `@NgModule` by defining them as a constructor parameter:
+
+```typescript
+@Component({ … })
+class UserComponent {
+  constructor(private userService: UserService) {}
+}
+```
+
+or using `inject` function:
+
+```typescript
+@Component({ … })
+class UserComponent {
+  private userService = inject(UserService);
+}
+```
+
+The `inject` function in its current form was introduced in version 14. Aside from bringing a convenient and readable way of declaring dependencies, it also offers the following advantages:
+
+- It allows the omission of explicit typing — let TypeScript do it for you.
+- Class extension is made easier without the necessity of passing every argument to the base class constructor.
+- Additionally, it lets the programmer move the logic to reusable functions — the downside here, however, is hiding dependencies inside the function.
+
+```typescript
+const getPageParam = (): Observable<string> =>
+  inject(ActivatedRoute).  queryParams.pipe(
+    map(params => params[‘page’]),
+    filter(pageParam => pageParam !== null)
+  )
+```
+
+It’s worth remembering that the inject function can only be used inside an injection context. This means
+
+- Within a _`constructor`_,
+- As a definition of a class field,
+- Inside the factory function, as `useFactory` in the Provider interface, `@Injectable` decorator or a factory in the Injection token definition,
+- An API within the injection context, such as a router guard or a `runInInjectionContext` function callback.
+
+---
+
+### How does the Angular Injector work?
+
+An abstraction called **`Injector`** is responsible for resolving dependencies. It can store an instance of a required dependency. If it already exists, it’s passed onto the consumer. Otherwise, a new instance is created and passed as a constructor parameter and stored in memory. Every dependency inside an `Injector` is a _`singleton`_ — which means there’s always only one instance.
+
+To better demonstrate this process, let’s create a simple example. Let’s assume that we have a class representing some service:
+
+```typescript
+class SomeService {
+  doSomething() {
+    console.log('do something');
+  }
+}
+```
+
+and a class representing a component which uses the service:
+
+```typescript
+class Component {
+  constructor(public service: SomeService) {}
+}
+```
+
+The injector is responsible for storing and returning an instance of the dependency:
+
+```typescript
+class Injector {
+  private container = new Map();
+  
+  constructor(private providers: any[] = []) {
+    this.providers.forEach(service => this.container.set(service, new service()));
+  }
+  
+  get(service: any) {
+    const serviceInstance = this.container.get(service);
+  
+    if (!serviceInstance) throw new Error('Service not provided');
+  
+    return serviceInstance;
+  }
+}
+```
+
+>_`private`_ - модифікатор доступу, який говорить, що екземпляр цього класу можна буде використати лише в самому класі
+
+During the bootstrapping, Angular creates the Injector and registers dependencies which will be passed to components:
+
+```typescript
+const injector = new Injector([SomeService]);
+const component = new Component(injector.get(SomeService));
+component.service.doSomething();
+```
+
+---
+
 ### Hierarchical Injectors in Angular
 
-- `Element Injector` — registers dependencies defined in providers inside the _`@Component`_ or _`@Directive`_ decorators. These dependencies are available for the component and its children.
+- `Element Injector` — registers dependencies defined in _`providers`_ inside the _`@Component`_ or _`@Directive`_ decorators. These dependencies are available for the component and its children.
 
 ```typescript
 @Component({
@@ -929,11 +1032,19 @@ export class UserService {
 }
 ```
 
-or defined in providers of the ApplicationConfig interface:
+or defined in _`providers`_ of the _`ApplicationConfig`_ interface:
 
 ```typescript
 bootstrapApplication(AppComponent, { providers: [UserService] });
 ```
+
+>Decorator that marks a class as available to be provided and injected as a dependency:
+
+```typescript
+@Injectable(options?: ({ providedIn: Type<any> | "root" | "platform" | "any" | null }) & InjectableProvider)
+```
+
+>To achieve better optimization, it’s recommended to use the _`@Injectable`_ decorator. Such a definition makes dependencies _`tree-shakeable`_ — they are removed from bundled files if they haven’t been used.
 
 - `Module Injector` — in module-based applications, this injector stores global dependencies decorated with _`@Injectable`_ and having **providedIn** set to **"root"** or **"platform"**. Additionally, it keeps track of dependencies defined in the _`providers`_ array within _`@NgModule`_. During compilation, Angular also recursively registers dependencies from eagerly loaded modules. Child hierarchies of _`Module Injector`_ are created by lazy loaded modules.
 
@@ -943,6 +1054,14 @@ bootstrapApplication(AppComponent, { providers: [UserService] });
 
 #### Injectors Hierarchy
 
+- If a component requires a dependency, Angular first looks for it in the `element injector` of the component.
+- If it isn’t defined in the providers array, then the framework looks at the parent component. This process repeats for as long as Angular finds a dependency in an ancestor.
+- If the dependency isn’t found, the next phase is searching in the `environment injector` (or the `module injector` in the case of module-based applications), and then the `environment root injector`.
+- Finally, the `platform injector` is checked.
+- If Angular reaches the `null injector` an error is thrown.
+
+In this hierarchical order, if a dependency exists in more than injector, the instance defined on the lowest level, the one closest to the component is resolved.
+
 **`Element Injector (Component)`** ---> **`Element Injector (Parent Component)`** ---> **`Element Injector (App Component)`** ---> **If not resolved** ---> **`Environment Injector`** ---> **`Environment Root Injector`** ---> **`Platform Injector`** ---> **`Null Injector`**
 
 ---
@@ -951,8 +1070,8 @@ bootstrapApplication(AppComponent, { providers: [UserService] });
 
 - `@Self()`
 
-Декоратор параметрів _`constructor() {}`_ який говорить _`DI framework`_ почати пошук залежностей з локального інжектора.
-В такому разі сервіс потрібно додати в _`providers: []`_, інакше буде помилка `"NodeInjector: NOT_FOUND"` .
+Декоратор параметрів _`constructor() {}`_ який говорить _`DI framework`_ почати пошук залежностей з `Element injector`.
+В такому разі сервіс потрібно додати в _`providers`_, інакше буде помилка `"Null Injector: NOT_FOUND"` .
 
 ```javascript
 constructor(@Self() private roomsService: RoomsService) {}
@@ -983,46 +1102,20 @@ constructor(@Optional() private loggerService: LoggerService) {}`
 constructor(@Host() private roomsService: RoomsService) {}
 ```
 
+>Described decorators can be used for dependencies defined as `constructor` parameters. When we use the `inject` function, flags with names corresponding to decorators should be set in the options object:
+
+```typescript
+userService = inject(UserService, { optional: true, skipSelf: true });
+```
+
+---
+
 ### Dependency Injection Providers
 
 - Class based provider
 - Alias provider
 - Value provider
 - Factory provider
-
-Angular allows the injection of necessary dependencies, such as classes, functions, or primitives to classes decorated with `@Component`, `@Directive`, `@Pipe`, `@Injectable` and `@NgModule` by defining them as a constructor parameter:
-
-```typescript
-@Component({ … })
-class UserComponent {
-  constructor(private userService: UserService) {}
-}
-```
-
-or using inject function:
-
-```typescript
-@Component({ … })
-class UserComponent {
-  private userService = inject(UserService);
-}
-```
-
-Decorator that marks a class as available to be provided and injected as a dependency:
-
-```typescript
-@Injectable(options?: ({ providedIn: Type<any> | "root" | "platform" | "any" | null }) & InjectableProvider)
-```
-
-_`private`_ - модифікатор доступу, який говорить, що екземпляр цього класу можна буде використати лише в самому класі
-
-- Для того, щоб використати цей сервіс, потрібно або передати його в _`AppModule`_ у властивість _`providers`_: _`[serviceName]`_, або ж використати _`@Injectable({providedIn:'root'})`_. В обох випадках він буде доступним **application wide**.
-
-> Рекомендовано використовувати другий спосіб, _`@Injectable({providedIn:'root'})`_, так як по-перше, якщо такий сервіс таки не буде використовуватися, фреймворк не додаватиме його в продакшн бандл, по-друге, фреймворк створить єдиний екземпляр такого сервісу для всього застосунку.
->
-> Якщо ж нам таки потрібен локальний екземпляр класу, потрібно передати його в _`providers`_: _`[serviceName]`_ нашого компонента.
-
----
 
 #### Class Provider
 
@@ -1078,7 +1171,7 @@ This type of definition ensures that if the component depends on the _Logger_ or
 
 #### Value Provider
 
-The value provider allows us to associate a static value defined within the useValue with a token. This technique is usually used for resolving configuration constants or mocking data in tests.
+The value provider allows us to associate a static value defined within the `useValue` with a token. This technique is usually used for resolving configuration constants or mocking data in tests.
 
 ```typescript
 @Component({
@@ -1972,7 +2065,7 @@ _`Subject`_ дуже схожий на _`Observable`_, його можна ст�
 Такий підхід називають `hot observable`.
 `Subject`, на відміну від `Observable`, по замовчуванню є `hot observable`.
 
->Для `Subjects` також потрібно робити _`unsubscribe()`_.
+> Для `Subjects` також потрібно робити _`unsubscribe()`_.
 
 ```typescript
 const sub = new Subject();
