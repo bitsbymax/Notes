@@ -1999,7 +1999,7 @@ ngOnInit(): void {
 
 > An _`Observable`_ is the main tool provided by the _`RxJS`_ library whose _`Angular`_ uses extensively. As with a regular JavaScript Promise, the goal of an Observable is to handle asynchronous events.
 >
-> The key difference between an _`Observable`_ and a _`Promise`_ is that Observables are lazy. You can declare how your data should be handled once received, but you will then need to explicitly subscribe to trigger the asynchronous call. In other words, making the call and handling the results are separated operations. Whereas with a Promise, when you call the then function, you are actually doing both operations at once. It triggers the call and handles the result.
+> The key difference between an _`Observable`_ and a _`Promise`_ is that Observables are lazy. You can declare how your data should be handled once received, but you will then need to explicitly _`subscribe`_ to trigger the asynchronous call. In other words, making the call and handling the results are separated operations. Whereas with a _`Promise`_, when you call the _`then`_ function, you are actually doing both operations at once. It triggers the call and handles the result.
 
 ---
 
@@ -2009,7 +2009,7 @@ ngOnInit(): void {
 >
 > По-друге, _`stream`_ — це довільний набір даних, який можна доповнювати, перезаписувати, трансформувати, фільтрувати, об'єднувати (об'єднувати з іншими стрімами), переривати, що не властиво _`Promise`_, він просто створюється -> і викликається.
 >
-> Ну і по-третє, стрім можна уявити як щось з нашого життя, підписка на наш Medium канал, як тільки вийде нова стаття, ви обов'язково про неї дізнаєтесь, звичайно, якщо підпишетесь, що я вам рекомендую зробити!
+> Ну і по-третє, стрім можна уявити як щось з нашого життя, підписка на наш Medium канал, як тільки вийде нова стаття, ви обов'язково про неї дізнаєтесь, звичайно, якщо підпишетесь
 >
 > > Якщо `Promise` — це константа, то `Observable(stream)` — це **Array<змінних>**
 
