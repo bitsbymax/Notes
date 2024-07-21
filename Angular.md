@@ -2003,6 +2003,18 @@ ngOnInit(): void {
 
 ---
 
+**`Observer`** --> You write the code which gets executed(Handle Data, Handle Error, Handle Completion). Is a collection of callbacks that knows how to listen to values delivered by the Observable.
+
+**`Subscription`** --> represents the execution of an Observable, is primarily useful for cancelling the execution.
+
+**`Operators`** --> are pure functions that enable a functional programming style of dealing with collections with operations like map, filter, concat, reduce, etc.
+
+**`Subject`** --> is equivalent to an EventEmitter, and the only way of multicasting a value or event to multiple Observers.
+
+**`Schedulers`** --> are centralized dispatchers to control concurrency, allowing us to coordinate when computation happens on e.g. setTimeout or requestAnimationFrame or others.
+
+---
+
 ### Promise vs Observable
 
 The key difference between an _`Observable`_ and a _`Promise`_ is that Observables are lazy. You can declare how your data should be handled once received, but you will then need to explicitly _`subscribe`_ to trigger the asynchronous call.
@@ -2029,25 +2041,16 @@ In other words, making the call and handling the results are separated operation
 
 ---
 
-**`Observer`** --> You write the code which gets executed(Handle Data, Handle Error, Handle Completion). Is a collection of callbacks that knows how to listen to values delivered by the Observable.
-
-**`Subscription`** --> represents the execution of an Observable, is primarily useful for cancelling the execution.
-
-**`Operators`** --> are pure functions that enable a functional programming style of dealing with collections with operations like map, filter, concat, reduce, etc.
-
-**`Subject`** --> is equivalent to an EventEmitter, and the only way of multicasting a value or event to multiple Observers.
-
-**`Schedulers`** --> are centralized dispatchers to control concurrency, allowing us to coordinate when computation happens on e.g. setTimeout or requestAnimationFrame or others.
-
----
-
 ### Operators
 
 Такі собі посередники, які можна застосовувати до даних, які ми отримуємо від _`Observable`_ перед тим, як ці дані будуть передані через _`Subscription`_ до _`Observer`_ для подальшої робити з ними.
 
-Так як дані в потоці після того, як вони попадають в підписку, модифікувати не можна, нам і потрібні оператори, щоб ці дані модифікувати.
+Так як дані в потоці після того, як вони попадають в підписку, модифікувати не можна, для цього і використовуються оператори.
 
-Їх можна застосовувати до будь-яких _`Observable`_ викликаючи метод _`pipe()`_ з rxjs, який є у кожного _`Observable`_. Цей метод якраз і використовує чи приймає один з операторів, наприклад _`map()`_, _`filter()`_, _`select()`_, _`merge()`_, _`takeUntil()`_, _`of()`_, _`from()`_, _`shareReplay()`_ - кешує дані, _`tap()`_, _`mergeMap()`_, _`switchMap()`_, _`concatMap()`_, _`exhaustMap()`_ - дають можливість виконати якийсь код не модифікуючи при цьому дані, які приходять нам в _`subscribe()`_.
+Їх можна застосовувати до будь-яких _`Observable`_ викликаючи метод **_`pipe()`_** з rxjs, який є у кожного _`Observable`_.
+
+Цей метод якраз і використовує чи приймає один з операторів, наприклад _`map()`_, _`filter()`_, _`select()`_, _`merge()`_, _`takeUntil()`_, _`of()`_, _`from()`_, _`shareReplay()`_ - кешує дані, _`tap()`_, _`mergeMap()`_, _`switchMap()`_, _`concatMap()`_, _`exhaustMap()`_ - дають можливість виконати якийсь код не модифікуючи при цьому дані, які ми потім отримаємо в _`subscribe()`_.
+
 Кількість операторів, які можна передати - необмежена, вказуються через кому
 
 ---
