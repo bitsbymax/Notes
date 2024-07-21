@@ -978,22 +978,22 @@ The injector is responsible for storing and returning an instance of the depende
 ```typescript
 class Injector {
   private container = new Map();
-  
+
   constructor(private providers: any[] = []) {
-    this.providers.forEach(service => this.container.set(service, new service()));
+    this.providers.forEach((service) => this.container.set(service, new service()));
   }
-  
+
   get(service: any) {
     const serviceInstance = this.container.get(service);
-  
+
     if (!serviceInstance) throw new Error('Service not provided');
-  
+
     return serviceInstance;
   }
 }
 ```
 
->_`private`_ - модифікатор доступу, який говорить, що екземпляр цього класу можна буде використати лише в самому класі
+> _`private`_ - модифікатор доступу, який говорить, що екземпляр цього класу можна буде використати лише в самому класі
 
 During the bootstrapping, Angular creates the Injector and registers dependencies which will be passed to components:
 
@@ -1038,13 +1038,13 @@ or defined in _`providers`_ of the _`ApplicationConfig`_ interface:
 bootstrapApplication(AppComponent, { providers: [UserService] });
 ```
 
->Decorator that marks a class as available to be provided and injected as a dependency:
+> Decorator that marks a class as available to be provided and injected as a dependency:
 
 ```typescript
 @Injectable(options?: ({ providedIn: Type<any> | "root" | "platform" | "any" | null }) & InjectableProvider)
 ```
 
->To achieve better optimization, it’s recommended to use the _`@Injectable`_ decorator. Such a definition makes dependencies _`tree-shakeable`_ — they are removed from bundled files if they haven’t been used.
+> To achieve better optimization, it’s recommended to use the _`@Injectable`_ decorator. Such a definition makes dependencies _`tree-shakeable`_ — they are removed from bundled files if they haven’t been used.
 
 - `Module Injector` — in module-based applications, this injector stores global dependencies decorated with _`@Injectable`_ and having **providedIn** set to **"root"** or **"platform"**. Additionally, it keeps track of dependencies defined in the _`providers`_ array within _`@NgModule`_. During compilation, Angular also recursively registers dependencies from eagerly loaded modules. Child hierarchies of _`Module Injector`_ are created by lazy loaded modules.
 
@@ -1102,7 +1102,7 @@ constructor(@Optional() private loggerService: LoggerService) {}`
 constructor(@Host() private roomsService: RoomsService) {}
 ```
 
->Described decorators can be used for dependencies defined as `constructor` parameters. When we use the `inject` function, flags with names corresponding to decorators should be set in the options object:
+> Described decorators can be used for dependencies defined as `constructor` parameters. When we use the `inject` function, flags with names corresponding to decorators should be set in the options object:
 
 ```typescript
 userService = inject(UserService, { optional: true, skipSelf: true });
@@ -1953,16 +1953,6 @@ export class DummyComponent implements NgOnInit {
 
 Це означає, що якщо _`producer`_ згенерував нові дані, вони надсилаються напряму в потік (_`stream`_) і коли він оновиться, всі, хто має _`subscription`_ на цей _`stream`_, отримають ці дані.
 
-```typescript
-ngOnInit(): void {
-  this.roomsService.getRooms().subscribe((rooms) => {
-    this.roomList = rooms;
-  });
-}
-```
-
-Ми маємо змогу підписатися на результат виклику _`getRooms()`_ по тій причині, що цей метод повертатиме _`Observable`_.
-
 ---
 
 **`Observable`** is an object that emits a sequence of items over time, either asynchronously or synchronously.
@@ -1971,6 +1961,8 @@ It can be used to represent data from a server, a UI event, or any other kind of
 An observable can have multiple observers subscribed to it and will notify them whenever new values are emitted.
 
 Represents the idea of an invokable collection of future values or events.
+
+> An _`Observable`_ is the main tool provided by the _`RxJS`_ library whose _`Angular`_ uses extensively. As with a regular _`JavaScript Promise`_, the goal of an Observable is to handle asynchronous events.
 
 _`producing data manually`_
 
@@ -1982,7 +1974,19 @@ observable = new Observable<number>((observer) => {
 });
 ```
 
-_`subscribing to data`_
+`subscribing to data with Happy path callback`
+
+```typescript
+ngOnInit(): void {
+  this.roomsService.getRooms().subscribe((rooms) => {
+    this.roomList = rooms;
+  });
+}
+```
+
+>Ми маємо змогу підписатися на результат виклику _`getRooms()`_ по тій причині, що цей метод повертатиме _`Observable`_.
+
+_`subscribing to data with full notation`_
 
 ```typescript
 ngOnInit(): void {
@@ -1997,21 +2001,33 @@ ngOnInit(): void {
 }
 ```
 
-> An _`Observable`_ is the main tool provided by the _`RxJS`_ library whose _`Angular`_ uses extensively. As with a regular JavaScript Promise, the goal of an Observable is to handle asynchronous events.
->
-> The key difference between an _`Observable`_ and a _`Promise`_ is that Observables are lazy. You can declare how your data should be handled once received, but you will then need to explicitly _`subscribe`_ to trigger the asynchronous call. In other words, making the call and handling the results are separated operations. Whereas with a _`Promise`_, when you call the _`then`_ function, you are actually doing both operations at once. It triggers the call and handles the result.
-
 ---
 
 ### Promise vs Observable
 
-> По-перше, після створення нашого стріма (через об'єкт _`Observable`_ або через оператори створення `of`, `from`, про них далі в статтях) потрібно обов'язково підписатись _`subscribe`_, без підписки стрім не буде працювати і ви опинитесь у вічному очікуванні, на відміну від _`Promise`_, якому підписка не потрібна.
+The key difference between an _`Observable`_ and a _`Promise`_ is that Observables are lazy. You can declare how your data should be handled once received, but you will then need to explicitly _`subscribe`_ to trigger the asynchronous call.
+
+In other words, making the call and handling the results are separated operations. Whereas with a _`Promise`_, when you call the _`then`_ function, you are actually doing both operations at once. It triggers the call and handles the result.
+
+> По-перше, після створення нашого стріма (через об'єкт _`Observable`_ або через оператори створення `of`, `from`) потрібно обов'язково підписатись через _`subscribe`_, без підписки стрім не буде працювати і ми опинимось у вічному очікуванні, на відміну від _`Promise`_, якому підписка не потрібна.
 >
 > По-друге, _`stream`_ — це довільний набір даних, який можна доповнювати, перезаписувати, трансформувати, фільтрувати, об'єднувати (об'єднувати з іншими стрімами), переривати, що не властиво _`Promise`_, він просто створюється -> і викликається.
 >
 > Ну і по-третє, стрім можна уявити як щось з нашого життя, підписка на наш Medium канал, як тільки вийде нова стаття, ви обов'язково про неї дізнаєтесь, звичайно, якщо підпишетесь
 >
 > > Якщо `Promise` — це константа, то `Observable(stream)` — це **Array<змінних>**
+>
+> Загалом використовувати _`Promise`_ в Angular це _`anti-pattern`_
+
+Як висновок:
+
+1. _`Promise`_ поверне значення лише раз і завершиться
+2. _`Promise`_ не можна відмінити на відміну від _`Observable`_
+3. У _`Promise`_ немає допоміжних методів, які додають зручності для роботи з даними. Вся логіка пишеться в _`then`_
+4. _`Promise`_ не є lazy, тобто він виконається, навіть якщо ми не викликатимемо _`then`_ для нього
+5. З _`Promise`_ помилку ми можемо обробити лише в самому _`Promise`_
+
+---
 
 **`Observer`** --> You write the code which gets executed(Handle Data, Handle Error, Handle Completion). Is a collection of callbacks that knows how to listen to values delivered by the Observable.
 
