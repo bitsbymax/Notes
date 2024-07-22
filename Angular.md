@@ -2134,7 +2134,7 @@ const source3$ = new AsyncSubject();
 
 ### Unsubscribing
 
-- `OnDestroy()`
+- `Subscription` with `OnDestroy()`
 
 ```typescript
 export class PostsComponent implements OnDestroy {
@@ -2159,17 +2159,101 @@ export class PostsComponent implements OnDestroy {
 <div>{{ interval$ | async }}</div>
 ```
 
-> Відписка відбудеться автоматично
+> Відписка відбудеться автоматично.
 
-- `take(count: number)`
+- `take(count: number)` RxJS operator
 
 ```typescript
 constructor() {
   this.intervalSubscription = this.interval$.pipe(take(1)).subscribe((i) => {
     console.log(i);
   });
-  }
+}
 ```
+
+> Відписка відбудеться автоматично.
+
+- `takeWhile(predicate)` RxJS operator
+
+```typescript
+constructor() {
+  this.intervalSubscription = this.interval$.pipe(takeWhile((i) => i < 5>)).subscribe((i) => {
+    console.log(i);
+  });
+}
+```
+
+> Відписка відбудеться автоматично.
+
+- `takeUntil()` with `Subject` and `OnDestroy` RxJS operator
+
+```typescript
+export class PostsComponent implements OnDestroy {
+  interval$ = interval(1000);
+  unsubscribe$ = new Subject<void>();
+
+  constructor() {
+    this.interval$.pipe(takeUntil(this.unsubscribe$))
+    .subscribe((i) => console.log(i)); //1 підписка
+    this.interval$.pipe(takeUntil(this.unsubscribe$))
+    .subscribe((i) => console.log(i)); //2 підписка
+  }
+
+  ngOnDestroy() {
+    this.unsubscribe$.next();
+    this.unsubscribe$.complete();
+  }
+}
+```
+
+>В даному способі ми спираємось на те, чи наш _`Subject`_ вже завершився, а завершиться він коли компонент буде розмонтовано.
+>
+>Також цей спосіб зручний тим, що ми можемо використати _`Subject`_ для всіх наших підписників в компоненті. Тоді не потрібно буде створювати для кожної підписки змінну з типом _`Subscription`_ і робити _`unsubscribe()`_.
+>
+> Відписка відбудеться автоматично.
+
+Цей спосіб можна покращити, використавши клас, який буде шерити загальну логіку:
+
+```typescript
+export abstract class Unsubscribe implements OnDestroy {
+  unsubscribe$ = new Subject<void>();
+  
+  ngOnDestroy() {
+    this.unsubscribe$.next();
+    this.unsubscribe$.complete();
+  }
+}
+```
+
+І далі розширити наш основний клас:
+
+```typescript
+export class PostsComponent extends Unsubscribe {
+  interval$ = interval(1000);
+  
+  constructor() {
+    super(); //для використання власного конструктора
+    this.interval$.pipe(takeUntil(this.unsubscribe$))
+    .subscribe((i) => console.log(i)); //1 підписка
+    this.interval$.pipe(takeUntil(this.unsubscribe$))
+    .subscribe((i) => console.log(i)); //2 підписка
+  }
+}
+```
+
+- `takeUntilDestroyed` from @angular/core
+
+```typescript
+export class PostsComponent {
+  interval$ = interval(1000).pipe(takeUntilDestroyed())
+
+  constructor() {
+    this.interval$.subscribe((i) => console.log(i));
+  }
+}
+```
+
+>Відписка буде зроблена автоматично, коли компонент буде розмонтовано.
 
 ---
 
