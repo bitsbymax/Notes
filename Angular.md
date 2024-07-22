@@ -902,9 +902,9 @@ export class UnlessDirective {
 
 **Service** - клас, який, як правило, містить допоміжні методи або якийсь функціонал, який ми будемо використовувати в різних місцях програми для виконання якоїсь бізнес логіки. За рахунок перевикористання цей паттерн дає можливість зробити код чистішим, більш лінійним, централізованим, таким, який легше підтримувати.
 
-Dependency Injection (DI) is one of the most important mechanisms in Angular. This pattern allows for inversion of control by passing instances of requested dependencies to the class instead of creating them inside the class. This approach creates loose coupling and makes testing easier.
-Dependency Injection is not only a programming technique, but also an application design philosophy that promotes solutions that are modular, flexible and easy to test.
-Using Dependency Injection brings a number of benefits, including increased code readability, easier dependency management and flexibility in modifying applications.
+_`Dependency Injection`_ (DI) is one of the most important mechanisms in Angular. This pattern allows for inversion of control by passing instances of requested dependencies to the class instead of creating them inside the class. This approach creates loose coupling and makes testing easier.
+_`Dependency Injection`_ is not only a programming technique, but also an application design philosophy that promotes solutions that are modular, flexible and easy to test.
+Using _`Dependency Injection`_ brings a number of benefits, including increased code readability, easier dependency management and flexibility in modifying applications.
 
 ---
 
@@ -931,7 +931,7 @@ class UserComponent {
 The `inject` function in its current form was introduced in version 14. Aside from bringing a convenient and readable way of declaring dependencies, it also offers the following advantages:
 
 - It allows the omission of explicit typing — let TypeScript do it for you.
-- Class extension is made easier without the necessity of passing every argument to the base class constructor.
+- Class extension is made easier without the necessity of passing every argument to the base class _`constructor`_.
 - Additionally, it lets the programmer move the logic to reusable functions — the downside here, however, is hiding dependencies inside the function.
 
 ```typescript
@@ -945,8 +945,8 @@ const getPageParam = (): Observable<string> =>
 It’s worth remembering that the inject function can only be used inside an injection context. This means
 
 - Within a _`constructor`_,
-- As a definition of a class field,
-- Inside the factory function, as `useFactory` in the Provider interface, `@Injectable` decorator or a factory in the Injection token definition,
+- As a _`definition`_ of a class field,
+- Inside the factory function, as `useFactory` in the _`Provider`_ interface, `@Injectable` decorator or a factory in the Injection token definition,
 - An API within the injection context, such as a router guard or a `runInInjectionContext` function callback.
 
 ---
@@ -1984,7 +1984,7 @@ ngOnInit(): void {
 }
 ```
 
->Ми маємо змогу підписатися на результат виклику _`getRooms()`_ по тій причині, що цей метод повертатиме _`Observable`_.
+> Ми маємо змогу підписатися на результат виклику _`getRooms()`_ по тій причині, що цей метод повертатиме _`Observable`_.
 
 _`subscribing to data with full notation`_
 
@@ -2065,8 +2065,6 @@ Every Subject is an Observable and an Observer. You can subscribe to a Subject, 
 _`Subject`_ дуже схожий на _`Observable`_, його можна створити через оператор `new`, на нього можна підписатись `subscribe`, і його стрім можна змінювати за допомогою `pipe`.
 Відмінність в тому, що його підписник водночас може бути і джерелом стріма.
 
----
-
 Інше порівняння, це YouTube.
 
 `Observable` -> звичайне відео на ютубі.
@@ -2119,20 +2117,59 @@ const source2$ = new ReplaySubject(2);
 const source3$ = new AsyncSubject();
 ```
 
-#### When to use `Observable` or when `Subject`
+### When to use `Observable` or when `Subject`
 
-##### Observable
+#### Observable
 
 - Use an Observable when you want to subscribe to a stream of values emitted over time.
 - Observables are great for scenarios where you need to handle data streams from HTTP requests, WebSocket connections, or other asynchronous operations.
 - You can subscribe to an Observable using the .subscribe() method.
 - Observables are more suitable when you only need to consume data and don't need to emit values yourself.
 
-##### Subject
+#### Subject
 
 - Use a Subject when you need to control the values emitted by the stream.
 - A Subject is both an observable and an observer. You can subscribe to it, but you can also emit values into it.
 - It's useful when you want to manually trigger updates or push new data to subscribers.
+
+### Unsubscribing
+
+- `OnDestroy()`
+
+```typescript
+export class PostsComponent implements OnDestroy {
+  interval$ = interval(1000);
+  intervalSubscription: Subscription;
+
+  constructor() {
+    this.intervalSubscription = this.interval$.subscribe((i) => {
+      console.log(i);
+    });
+  }
+
+  ngOnDestroy() {
+    this.intervalSubscription.unsubscribe();
+  }
+}
+```
+
+- `async pipe`
+
+```html
+<div>{{ interval$ | async }}</div>
+```
+
+> Відписка відбудеться автоматично
+
+- `take(count: number)`
+
+```typescript
+constructor() {
+  this.intervalSubscription = this.interval$.pipe(take(1)).subscribe((i) => {
+    console.log(i);
+  });
+  }
+```
 
 ---
 
