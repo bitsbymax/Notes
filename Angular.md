@@ -1964,7 +1964,7 @@ Represents the idea of an invokable collection of future values or events.
 
 > An _`Observable`_ is the main tool provided by the _`RxJS`_ library whose _`Angular`_ uses extensively. As with a regular _`JavaScript Promise`_, the goal of an Observable is to handle asynchronous events.
 
-_`producing data manually`_
+_`Creating Observable manually`_
 
 ```typescript
 observable = new Observable<number>((observer) => {
@@ -1974,7 +1974,7 @@ observable = new Observable<number>((observer) => {
 });
 ```
 
-`subscribing to data with Happy path callback`
+`Subscribing to data with Happy path callback`
 
 ```typescript
 ngOnInit(): void {
@@ -1986,18 +1986,15 @@ ngOnInit(): void {
 
 > Ми маємо змогу підписатися на результат виклику _`getRooms()`_ по тій причині, що цей метод повертатиме _`Observable`_.
 
-_`subscribing to data with full notation`_
+`Subscribing to data with full notation`
 
 ```typescript
 ngOnInit(): void {
-  // 1 спосіб
   this.observable.subscribe({
     next: (value) => console.log(value),
     error: (error) => console.log(error),
     complete: () => console.log('Completed'),
   });
-  // 2 спосіб
-  this.observable.subscribe((data) => console.log(data));
 }
 ```
 
@@ -2055,12 +2052,14 @@ In other words, making the call and handling the results are separated operation
 
 ---
 
-### Subjects (_BehaviorSubject_, _ReplaySubject_, _AsyncSubject_)
+### Subjects
 
 **`new Subject()`** - is a special type of Observable that allows values to be multicasted to many Observers.
 
 _`Subjects`_ are like _`EventEmitters`_.
-Every Subject is an Observable and an Observer. You can subscribe to a Subject, and you can call next to feed values as well as error and complete.
+
+- Every Subject is an Observable and an Observer.
+- You can subscribe to a Subject, and you can call next to feed values as well as error and complete.
 
 _`Subject`_ дуже схожий на _`Observable`_, його можна створити через оператор `new`, на нього можна підписатись `subscribe`, і його стрім можна змінювати за допомогою `pipe`.
 Відмінність в тому, що його підписник водночас може бути і джерелом стріма.
@@ -2089,10 +2088,10 @@ const sub = new Subject();
 
 sub.subscribe((value) => {
   console.log(value);
-  //після того, як виконається команда sub.next('вода'), в консолі ми побачимо 'вода'
+  //після того, як виконається команда sub.next('вода'), в консолі ми побачимо 'new emitted value'
 });
 
-sub.next('вода');
+sub.next('new emitted value');
 ```
 
 **!ВАЖЛИВО!** - коли нам потрібно використати, наприклад, _`@Output`_ - і кастомну подію, використовуємо _`EventEmitter`_ а не _`Subject`_
@@ -2100,6 +2099,29 @@ sub.next('вода');
 #### BehaviorSubject and ReplaySubject
 
 `BehaviorSubject` — клас, який наслідує методи і властивості класу `Subject`, але з різницею в тому, що він може мати початкові дані\початковий стейт.
+
+Також може надавати початкові дані підписникам незалежно від того, коли вони підписались на нього.
+
+І отримати це значення можна напряму через _`getValue()`_
+
+```typescript
+export class SubjectComponent {
+  users: User[] = [
+    { id: '1', name: 'John', age: 30, isActive: true },
+    { id: '2', name: 'Jack', age: 35, isActive: false },
+    { id: '3', name: 'Mike', age: 25, isActive: true },
+    { id: '3', name: 'Monika', age: 25, isActive: true },
+  ];
+  behaviorSubject$ = new BehaviorSubject<User[]>([]);
+
+  constructor() {
+    this.behaviorSubject$.subscribe((value) => console.log(value)); // спочатку тут буде [], потім вже відповідні дані надані в next()
+    this.behaviorSubject$.next(this.users);
+    const value = this.behaviorSubject$.getValue(); 
+    console.log(value); //отримаємо наших юзерів
+  }
+}
+```
 
 `ReplaySubject` — клас, який наслідує методи і властивості класу `Subject`.
 
