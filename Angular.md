@@ -936,8 +936,8 @@ The `inject` function in its current form was introduced in version 14. Aside fr
 
 ```typescript
 const getPageParam = (): Observable<string> =>
-  inject(ActivatedRoute).  queryParams.pipe(
-    map(params => params[‘page’]),
+  inject(ActivatedRoute).queryParams.pipe(
+    map(params => params['page']),
     filter(pageParam => pageParam !== null)
   )
 ```
@@ -2117,7 +2117,7 @@ export class SubjectComponent {
   constructor() {
     this.behaviorSubject$.subscribe((value) => console.log(value)); // спочатку тут буде [], потім вже відповідні дані надані в next()
     this.behaviorSubject$.next(this.users);
-    const value = this.behaviorSubject$.getValue(); 
+    const value = this.behaviorSubject$.getValue();
     console.log(value); //отримаємо наших юзерів
   }
 }
@@ -2215,10 +2215,8 @@ export class PostsComponent implements OnDestroy {
   unsubscribe$ = new Subject<void>();
 
   constructor() {
-    this.interval$.pipe(takeUntil(this.unsubscribe$))
-    .subscribe((i) => console.log(i)); //1 підписка
-    this.interval$.pipe(takeUntil(this.unsubscribe$))
-    .subscribe((i) => console.log(i)); //2 підписка
+    this.interval$.pipe(takeUntil(this.unsubscribe$)).subscribe((i) => console.log(i)); //1 підписка
+    this.interval$.pipe(takeUntil(this.unsubscribe$)).subscribe((i) => console.log(i)); //2 підписка
   }
 
   ngOnDestroy() {
@@ -2228,9 +2226,9 @@ export class PostsComponent implements OnDestroy {
 }
 ```
 
->В даному способі ми спираємось на те, чи наш _`Subject`_ вже завершився, а завершиться він коли компонент буде розмонтовано.
+> В даному способі ми спираємось на те, чи наш _`Subject`_ вже завершився, а завершиться він коли компонент буде розмонтовано.
 >
->Також цей спосіб зручний тим, що ми можемо використати _`Subject`_ для всіх наших підписників в компоненті. Тоді не потрібно буде створювати для кожної підписки змінну з типом _`Subscription`_ і робити _`unsubscribe()`_.
+> Також цей спосіб зручний тим, що ми можемо використати _`Subject`_ для всіх наших підписників в компоненті. Тоді не потрібно буде створювати для кожної підписки змінну з типом _`Subscription`_ і робити _`unsubscribe()`_.
 >
 > Відписка відбудеться автоматично.
 
@@ -2239,7 +2237,7 @@ export class PostsComponent implements OnDestroy {
 ```typescript
 export abstract class Unsubscribe implements OnDestroy {
   unsubscribe$ = new Subject<void>();
-  
+
   ngOnDestroy() {
     this.unsubscribe$.next();
     this.unsubscribe$.complete();
@@ -2252,13 +2250,11 @@ export abstract class Unsubscribe implements OnDestroy {
 ```typescript
 export class PostsComponent extends Unsubscribe {
   interval$ = interval(1000);
-  
+
   constructor() {
     super(); //для використання власного конструктора
-    this.interval$.pipe(takeUntil(this.unsubscribe$))
-    .subscribe((i) => console.log(i)); //1 підписка
-    this.interval$.pipe(takeUntil(this.unsubscribe$))
-    .subscribe((i) => console.log(i)); //2 підписка
+    this.interval$.pipe(takeUntil(this.unsubscribe$)).subscribe((i) => console.log(i)); //1 підписка
+    this.interval$.pipe(takeUntil(this.unsubscribe$)).subscribe((i) => console.log(i)); //2 підписка
   }
 }
 ```
@@ -2267,7 +2263,7 @@ export class PostsComponent extends Unsubscribe {
 
 ```typescript
 export class PostsComponent {
-  interval$ = interval(1000).pipe(takeUntilDestroyed())
+  interval$ = interval(1000).pipe(takeUntilDestroyed());
 
   constructor() {
     this.interval$.subscribe((i) => console.log(i));
@@ -2275,7 +2271,7 @@ export class PostsComponent {
 }
 ```
 
->Відписка буде зроблена автоматично, коли компонент буде розмонтовано.
+> Відписка буде зроблена автоматично, коли компонент буде розмонтовано.
 
 ---
 
