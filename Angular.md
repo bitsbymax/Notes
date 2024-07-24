@@ -946,7 +946,7 @@ It’s worth remembering that the inject function can only be used inside an inj
 
 - Within a _`constructor`_,
 - As a _`definition`_ of a class field,
-- Inside the factory function, as `useFactory` in the _`Provider`_ interface, `@Injectable` decorator or a factory in the Injection token definition,
+- Inside the factory function, as `useFactory` in the _`Provider`_ interface, `@Injectable` decorator or a factory in the _`Injection token`_ definition,
 - An API within the injection context, such as a router guard or a `runInInjectionContext` function callback.
 
 ---
