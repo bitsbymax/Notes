@@ -1955,14 +1955,29 @@ export class DummyComponent implements NgOnInit {
 
 ---
 
-**`Observable`** is an object that emits a sequence of items over time, either asynchronously or synchronously.
+### Key concepts
+
+- **`Observable`** --> is an object that emits a sequence of items over time, either asynchronously or synchronously. Represents a _`stream`_, or source of data that can arrive over time.
+
+- **`Observer`** --> you write the code which gets executed(Handle Data, Handle Error, Handle Completion). Is a collection of callbacks that knows how to listen to values delivered by the Observable.
+
+- **`Subscription`** --> represents the execution of an Observable, is primarily useful for cancelling the execution.
+
+- **`Operators`** --> are pure functions that enable a functional programming style of dealing with collections with operations like map, filter, concat, reduce, etc.
+
+- **`Subject`** --> is equivalent to an EventEmitter, and the only way of multicasting a value or event to multiple Observers.
+
+- **`Schedulers`** --> are centralized dispatchers to control concurrency, allowing us to coordinate when computation happens on e.g. setTimeout or requestAnimationFrame or others.
+
+---
+
+### Observable
+
+An _`Observable`_ is the main tool provided by the _`RxJS`_ library whose _`Angular`_ uses extensively. As with a regular _`JavaScript Promise`_, the goal of an Observable is to handle asynchronous events.
 
 It can be used to represent data from a server, a UI event, or any other kind of data stream.
+
 An observable can have multiple observers subscribed to it and will notify them whenever new values are emitted.
-
-Represents the idea of an invokable collection of future values or events.
-
-> An _`Observable`_ is the main tool provided by the _`RxJS`_ library whose _`Angular`_ uses extensively. As with a regular _`JavaScript Promise`_, the goal of an Observable is to handle asynchronous events.
 
 _`Creating Observable manually`_
 
@@ -1973,6 +1988,76 @@ observable = new Observable<number>((observer) => {
   observer.complete();
 });
 ```
+
+You can create an _`Observable`_ from nearly anything, but the most common use case in RxJS is from _`events`_. This can be anything from mouse moves, button clicks, input into a text field, or even route changes.
+
+The easiest way to create an observable is through the built in _`creation`_ functions. For example, we can use the _`fromEvent`_ helper function to create an observable of mouse click events:
+
+```typescript
+// import the fromEvent operator
+import { fromEvent } from 'rxjs';
+
+// grab button reference
+const button = document.getElementById('myButton');
+
+// create an observable of button clicks
+const myObservable = fromEvent(button, 'click');
+```
+
+At this point we have an observable but it's not doing anything.
+**This is because observables are cold, or do not activate a producer (like wiring up an event listener), until there is a...**
+
+---
+
+### Subscription
+
+_`Subscriptions`_ are what set everything in motion. You can think of this like a faucet, you have a stream of water ready to be tapped (observable), someone just needs to turn the handle. In the case of observables, that role belongs to the subscriber.
+
+To create a _`Subscription`_, you call the **`subscribe`** method, supplying a function (or object) - also known as an **`observer`**. This is where you can decide how to react(-ive programming) to each event. Let's walk through what happens in the previous scenario when a subscription is created:
+
+```typescript
+// import the fromEvent operator
+import { fromEvent } from 'rxjs';
+
+// grab button reference
+const button = document.getElementById('myButton');
+
+// create an observable of button clicks
+const myObservable = fromEvent(button, 'click');
+
+// for now, let's just log the event on each click
+const subscription = myObservable.subscribe(event => console.log(event));
+```
+
+In the example above, calling _`myObservable.subscribe()`_ will:
+
+1. Set up an event listener on our button for click events.
+
+2. Call the function we passed to the subscribe method (observer) on each click event.
+
+3. Return a subscription object with an unsubscribe which contains clean up logic, like removing appropriate event listeners.
+
+---
+
+It's important to note that each _`Subscription`_ will create a **`new execution context`**. This means calling `subscribe` a second time will create a new event listener:
+
+```typescript
+// addEventListener called
+const subscription = myObservable.subscribe(event => console.log(event));
+
+// addEventListener called again!
+const secondSubscription = myObservable.subscribe(event => console.log(event));
+
+// clean up with unsubscribe
+subscription.unsubscribe();
+secondSubscription.unsubscribe();
+```
+
+By default, a subscription creates a one on one, one-sided conversation between the observable and observer. This is also known as **`unicasting`**.
+
+If we have one observable, many observers - you will take a different approach which includes **`multicasting`** with _`Subjects`_ (either explicitly or behind the scenes).
+
+---
 
 `Subscribing to data with Happy path callback`
 
@@ -2000,55 +2085,79 @@ ngOnInit(): void {
 
 ---
 
-**`Observer`** --> You write the code which gets executed(Handle Data, Handle Error, Handle Completion). Is a collection of callbacks that knows how to listen to values delivered by the Observable.
-
-**`Subscription`** --> represents the execution of an Observable, is primarily useful for cancelling the execution.
-
-**`Operators`** --> are pure functions that enable a functional programming style of dealing with collections with operations like map, filter, concat, reduce, etc.
-
-**`Subject`** --> is equivalent to an EventEmitter, and the only way of multicasting a value or event to multiple Observers.
-
-**`Schedulers`** --> are centralized dispatchers to control concurrency, allowing us to coordinate when computation happens on e.g. setTimeout or requestAnimationFrame or others.
-
----
-
 ### Promise vs Observable
 
-The key difference between an _`Observable`_ and a _`Promise`_ is that Observables are lazy. You can declare how your data should be handled once received, but you will then need to explicitly _`subscribe`_ to trigger the asynchronous call.
+The key difference between an _`Observable`_ and a _`Promise`_ is that Observables are **lazy**. You can declare how your data should be handled once received, but you will then need to explicitly _`subscribe`_ to trigger the asynchronous call.
 
-In other words, making the call and handling the results are separated operations. Whereas with a _`Promise`_, when you call the _`then`_ function, you are actually doing both operations at once. It triggers the call and handles the result.
+In other words, **making the call and handling the results are separated operations**.
 
-> По-перше, після створення нашого стріма (через об'єкт _`Observable`_ або через оператори створення `of`, `from`) потрібно обов'язково підписатись через _`subscribe`_, без підписки стрім не буде працювати і ми опинимось у вічному очікуванні, на відміну від _`Promise`_, якому підписка не потрібна.
->
-> По-друге, _`stream`_ — це довільний набір даних, який можна доповнювати, перезаписувати, трансформувати, фільтрувати, об'єднувати (об'єднувати з іншими стрімами), переривати, що не властиво _`Promise`_, він просто створюється -> і викликається.
->
-> Ну і по-третє, стрім можна уявити як щось з нашого життя, підписка на наш Medium канал, як тільки вийде нова стаття, ви обов'язково про неї дізнаєтесь, звичайно, якщо підпишетесь
->
+Whereas with a _`Promise`_, when you call the _`then`_ function, you are actually doing both operations at once. **It triggers the call and handles the result**.
+
+1. По-перше, після створення нашого стріма (через об'єкт _`Observable`_ або через оператори створення `of`, `from`) потрібно обов'язково підписатись через _`subscribe`_, без підписки стрім не буде працювати і ми опинимось у вічному очікуванні, на відміну від _`Promise`_, якому підписка не потрібна.
+
+2. По-друге, _`stream`_ — це довільний набір даних, який можна доповнювати, перезаписувати, трансформувати, фільтрувати, об'єднувати (об'єднувати з іншими стрімами), переривати, що не властиво _`Promise`_, він просто створюється -> і викликається.
+
+3. Ну і по-третє, стрім можна уявити як щось з нашого життя, підписка на наш Medium канал, як тільки вийде нова стаття, ви обов'язково про неї дізнаєтесь, звичайно, якщо підпишетесь
+
 > > Якщо `Promise` — це константа, то `Observable(stream)` — це **Array<змінних>**
 >
 > Загалом використовувати _`Promise`_ в Angular це _`anti-pattern`_
 
 Як висновок:
 
-1. _`Promise`_ поверне значення лише раз і завершиться
-2. _`Promise`_ не можна відмінити на відміну від _`Observable`_
-3. У _`Promise`_ немає допоміжних методів, які додають зручності для роботи з даними. Вся логіка пишеться в _`then`_
-4. _`Promise`_ не є lazy, тобто він виконається, навіть якщо ми не викликатимемо _`then`_ для нього
-5. З _`Promise`_ помилку ми можемо обробити лише в самому _`Promise`_
+- _`Promise`_ поверне значення лише раз і завершиться
+- `Promise`_ не можна відмінити на відміну від _`Observable`_
+- У _`Promise`_ немає допоміжних методів, які додають зручності для роботи з даними. Вся логіка пишеться в _`then`_
+- `Promise`_ не є lazy, тобто він виконається, навіть якщо ми не викликатимемо _`then`_ для нього
+- _`Promise`_ помилку ми можемо обробити лише в самому _`Promise`_
 
 ---
 
 ### Operators
 
+_`Operators`_ offer a way to manipulate values from a source, returning an observable of the transformed values.
+
 Такі собі посередники, які можна застосовувати до даних, які ми отримуємо від _`Observable`_ перед тим, як ці дані будуть передані через _`Subscription`_ до _`Observer`_ для подальшої робити з ними.
 
-Так як дані в потоці після того, як вони попадають в підписку, модифікувати не можна, для цього і використовуються оператори.
+Їх можна застосовувати до будь-яких _`Observable`_ викликаючи метод **_`pipe()`_**, який є у кожного _`Observable`_.
 
-Їх можна застосовувати до будь-яких _`Observable`_ викликаючи метод **_`pipe()`_** з rxjs, який є у кожного _`Observable`_.
+#### Pipe
 
-Цей метод якраз і використовує чи приймає один з операторів, наприклад _`map()`_, _`filter()`_, _`select()`_, _`merge()`_, _`takeUntil()`_, _`of()`_, _`from()`_, _`shareReplay()`_ - кешує дані, _`tap()`_, _`mergeMap()`_, _`switchMap()`_, _`concatMap()`_, _`exhaustMap()`_ - дають можливість виконати якийсь код не модифікуючи при цьому дані, які ми потім отримаємо в _`subscribe()`_.
+The _`pipe`_ function is the assembly line from your observable data source through your operators. Just like raw material in a factory goes through a series of stops before it becomes a finished product, source data can pass through a _`pipe-line`_ of operators where you can manipulate, filter, and transform the data to fit your use case. It's not uncommon to use 5 (or more) operators within an observable chain, contained within the pipe function.
+
+For instance, a typeahead solution built with observables may use a group of operators to optimize both the request and display process:
+
+```typescript
+// observable of values from a text box, pipe chains operators together
+inputValue
+  .pipe(
+    // wait for a 200ms pause
+    debounceTime(200),
+    // if the value is the same, ignore
+    distinctUntilChanged(),
+    // if an updated value comes through while request is still active cancel previous request and 'switch' to new observable
+    switchMap(searchTerm => typeaheadApi.search(searchTerm))
+  )
+  // create a subscription
+  .subscribe(results => {
+    // update the dom
+  });
+```
+
+Цей метод якраз і використовує чи приймає один з операторів, наприклад _`map()`_, _`filter()`_, _`select()`_, _`merge()`_, _`takeUntil()`_, _`of()`_, _`from()`_, _`shareReplay()`_ - кешує дані, _`tap()`_, _`mergeMap()`_, _`switchMap()`_, _`concatMap()`_, _`exhaustMap()`_.
 
 Кількість операторів, які можна передати - необмежена, вказуються через кому
+
+Всі оператори можна поділити на **8** категорій:
+
+1. Creation operators
+2. Combination operators
+3. Conditional operators
+4. Error handling operators
+5. Filtering operators
+6. Multicasting operators
+7. Transformation operators
+8. Utility operators
 
 ---
 
@@ -2141,7 +2250,7 @@ const source3$ = new AsyncSubject();
 
 ### When to use `Observable` or when `Subject`
 
-#### Observable
+#### Observables
 
 - Use an Observable when you want to subscribe to a stream of values emitted over time.
 - Observables are great for scenarios where you need to handle data streams from HTTP requests, WebSocket connections, or other asynchronous operations.
