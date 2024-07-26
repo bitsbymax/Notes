@@ -10,3 +10,7 @@ git symbolic-ref HEAD refs/heads/${BRANCH_NAME}
 
 "typescript.validate.enable": false,
 "javascript.validate.enable": false,
+
+- To remove all docker volumes
+
+docker volume rm $(docker volume ls -qf dangling=true)
