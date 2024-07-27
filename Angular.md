@@ -1683,12 +1683,15 @@ id$ = this.route.paramMap.pipe(map((params) => params.get('id)))
 
 #### Passing Query parameters and Fragments
 
+Наприклад наша адреса має такий вигляд:
 `<http://localhost:4200/servers/5/edit?allowEdit=1#loading>`:
 
-_`[routerLink]="['/servers', 5, 'edit']"`_
+Сконструювати посилання можна таким чином: _`[routerLink]="['/servers', 5, 'edit']"`_
+
 За додаткові параметри і фрагменти відповідають ці атрибути:
-_`[queryParams]="{ allowEdit: '1' }"`_
-_`[fragment]="'loading'"/fragment="loading"`_
+
+- _`[queryParams]="{ allowEdit: '1' }"`_
+- _`[fragment]="'loading'`_ або _`"fragment="loading"`_
 
 Також ці дані можна передати через метод _`navigate()`_ модуля **`Router`**
 
@@ -1699,9 +1702,9 @@ this.router.navigate(['/servers', id, 'edit'], {
 });
 ```
 
-_`navigate()`_ створює `URL` динамічно з переданих даних.
+- _`navigate()`_ створює `URL` динамічно з переданих даних.
 
-_`navigateByUrl('path')`_ просто отримує вже готову адресу, по якій буде здійснено перехід
+- _`navigateByUrl('path')`_ просто отримує вже готову адресу, по якій буде здійснено перехід
 
 #### Retrieving Query parameters and Fragments
 
