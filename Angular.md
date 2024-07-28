@@ -2130,6 +2130,57 @@ _`Operators`_ offer a way to manipulate values from a source, returning an obser
 
 Їх можна застосовувати до будь-яких _`Observable`_ викликаючи метод **_`pipe()`_**, який є у кожного _`Observable`_.
 
+Всі оператори можна поділити на **8** категорій:
+
+1. Creation operators
+2. Combination operators
+3. Conditional operators
+4. Error handling operators
+5. Filtering operators
+6. Multicasting operators
+7. Transformation operators
+8. Utility operators
+
+#### Map operators difference
+
+```typescript
+const example = (operator: any) => () => {
+  from([0, 1, 2, 3, 4]) //? first is outer Observable
+    .pipe(
+      operator(
+        (x: any) => of(x).pipe(delay(1000)), //? second is inner Observable
+      ),
+    )
+    .subscribe({
+      next: console.log,
+      error: console.error,
+      complete: () => {
+        console.log(`${operator.name} completed`);
+      },
+    });
+};
+```
+
+>from() ітерує значення в масиві і для кожного значення повертає новий Observable
+
+- **`mergeMap()`**
+  - Map to Observable, emit values. Внутрішній і зовнішній Observables не блокують виконання один одного, тобто значення з зовнішнього попадають у внутрішній одразу по мірі їх створення і внутрішній починає працювати одразу ж як отримав перше значення з зовнішнього стріма. Тобто по суті вони відпрацьовують паралельно.
+  - `0, 1, 2, 3, 4, mergeMap completed` - з затримкою в 3 секунди отримаємо одразу всі значення
+
+- **`concatMap()`**
+  - Map values to inner observable, subscribe and emit in order. Оператор чекає на завершення кожного зі створених Observables. Тобто контролюватиме, щоб внутрішній Observable чекав на завершення виконання зовнішнього і навпаки. Тобто по суті observables відпрацьовують в порядку створення, один за одним.
+  - Приклад використання це 2 апі запита де для другого запита (inner observable) нам потрібні дані з першого (outer observable)
+  - `0, 1, 2, 3, 4, concatMap completed` - з затримкою в 3 секунди між кожним значенням отримаємо всі значення
+
+- **`switchMap()`**
+  - Map to observable, complete previous inner observable, emit values. Оператор чекає поки повністю завершиться зовнішній Observable і лише тоді його останнє значення передається у внутрішній Observable
+  - `4, switchMap completed` - з затримкою в 3 секунди отримаємо останнє значення
+
+- **`exhaustMap()`**
+  - Map to inner observable, ignore other values until that observable completes. All next observables are ignored until observable will not be completed. Як тільки зовнішній observable згенерував значення, внутрішній одразу ж почне виконуватися і поки він не завершиться, навіть якщо зовнішній продовжить емітити нові значення, вони будуть просто ігноруватися.
+  - Приклад використання це ігнорування кліків на кнопку, яка робить якийсь запит на сервер, доки цей запит не завершиться
+  - `0, exhaustMap completed` - з затримкою в 3 секунди отримаємо перше значення
+
 #### Pipe
 
 The _`pipe`_ function is the assembly line from your observable data source through your operators. Just like raw material in a factory goes through a series of stops before it becomes a finished product, source data can pass through a _`pipe-line`_ of operators where you can manipulate, filter, and transform the data to fit your use case. It's not uncommon to use 5 (or more) operators within an observable chain, contained within the pipe function.
@@ -2153,20 +2204,7 @@ inputValue
   });
 ```
 
-Цей метод якраз і використовує чи приймає один з операторів, наприклад _`map()`_, _`filter()`_, _`select()`_, _`merge()`_, _`takeUntil()`_, _`of()`_, _`from()`_, _`shareReplay()`_ - кешує дані, _`tap()`_, _`mergeMap()`_, _`switchMap()`_, _`concatMap()`_, _`exhaustMap()`_.
-
-Кількість операторів, які можна передати - необмежена, вказуються через кому
-
-Всі оператори можна поділити на **8** категорій:
-
-1. Creation operators
-2. Combination operators
-3. Conditional operators
-4. Error handling operators
-5. Filtering operators
-6. Multicasting operators
-7. Transformation operators
-8. Utility operators
+> Кількість операторів, які можна передати - необмежена, вказуються через кому.
 
 ---
 
