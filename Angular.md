@@ -921,6 +921,8 @@ class UserComponent {
 
 or using `inject` function:
 
+#### `inject()`
+
 ```typescript
 @Component({ … })
 class UserComponent {
@@ -995,7 +997,7 @@ class Injector {
 
 > _`private`_ - модифікатор доступу, який говорить, що екземпляр цього класу можна буде використати лише в самому класі
 
-During the bootstrapping, Angular creates the Injector and registers dependencies which will be passed to components:
+During the bootstrapping, Angular creates the _`Injector`_ and registers dependencies which will be passed to components:
 
 ```typescript
 const injector = new Injector([SomeService]);
@@ -1004,6 +1006,48 @@ component.service.doSomething();
 ```
 
 ---
+
+### providedIn property of @Injectable({})
+
+In Angular, the _`providedIn`_ property is used in the _`@Injectable`_ decorator to specify where a service should be provided. Here are the possible values for providedIn:
+
+- `'root'`: The service is available throughout the entire application as a singleton. This is the most common and recommended option for services that need to be accessible globally.
+
+```typescript
+@Injectable({
+  providedIn: 'root'
+})
+export class MyService { }
+```
+
+- `'any'`: A new instance of the service is created for each lazy-loaded module that injects it. This can be useful for services that should not be shared across different modules.
+
+```typescript
+@Injectable({
+  providedIn: 'any'
+})
+export class MyService { }
+```
+
+- `Specific Module`: You can specify a particular module where the service should be provided. This means the service will be available only within that module and its child modules.
+
+```typescript
+@Injectable({
+  providedIn: SomeModule
+})
+export class MyService { }
+```
+
+- `null`: If you set providedIn to null, the service will not be provided automatically. You will need to add it to the providers array of a component or module manually.
+
+```typescript
+@Injectable({
+  providedIn: null
+})
+export class MyService { }
+```
+
+These options allow you to control the scope and lifecycle of your services, optimizing your application’s performance and organization.
 
 ### Hierarchical Injectors in Angular
 
@@ -2477,64 +2521,96 @@ export class PostsComponent {
 - Спочатку в `imports[]` додаємо _`FormsModule`_
 - To register child controls with the form, use `NgModel` with a `name` attribute
 - Для відправки даних з форми потрібно додати на тег _`form`_ атрибут `(ngSubmit)="someMethod()"` і передати в нього метод, яким ми будемо виконувати потрібну нам логіку
+
+#### Form structure or input as an object
+
 - Для того, щоб отримати структуру форми як `{}`, потрібно додати в тег _`form`_ template reference **`#f="ngForm"`**, передати його в метод ось так `(ngSubmit)="someMethod(f)"` і в компоненті, у цьому методі отримати форму `someMethod(form: NgForm) {}`. Але при даному варіанті ми отримуємо доступ лише при сабміті форми.
 - Щоб отримати доступ до форми без сабміта, можна використати `@ViewChild('localRefName') propName: NgForm;`. Передавати в метод нічого не потрібно при цьому: `(ngSubmit)="onSubmit()"`
 - Для того, щоб отримати структуру конкретного _`input`_ як `{}`, достатньо додати `template reference` ось так: `#someName="ngModel"`
+
+#### Default input value
+
 - Для встановлення дефолтного значення поля форми, створюємо властивість з потрібним значенням в компоненті, і далі робимо _`property binding`_ на самому input: `[ngModel]="propName"`
+
+#### 2 way binding
+
 - Для того, щоб одразу значення, яке ми вводимо в input, можна було використовувати, потрібно використати _`two-way data binding`_. Додаємо властивість в компонент з потрібним значенням і робимо прив'язку: `[(ngModel)]="propName"`
+
+#### Input groups
+
 - Також можна згрупувати декілька inputs в одну групу, тобто вони будуть додані всередину окремої властивості в середині властивості `value`. Робиться це через атрибут `ngModelGroup="anyName"`. Якщо потрібно отримати доступ до значень inputs і інших властивостей, використовуємо template reference ось так: `#anyName="ngModelGroup"`
-- Для того, або, наприклад, по кліку на кнопку перезаписати всі дані форми або лише деякі, використовуємо методи _`patchValue()`_ і _`setValue()`_. Вони доступні лише на формі, яка обгорнута в `ngForm`. Приклади в коді `forms-td`
-
-> `setValue()` - потребує передачі об'єкту зі всіма властивостями, які ми ми додали, використовуючи `patchValue()` ми можемо передати лише властивості, значення яких хочемо змінити.
-
-- Для очистки полів форми і також всі вбудовані властивості форми, як от `valid`, `invalid`, `touched`, `pristine`, `dirty`, і так далі можна використовувати методи _`reset()`_ і `resetForm()`. В останній також можна передати `{}` з полями форми і з дефолтними значеннями для них.
-- Також для `Template-driven` форм доречно використовувати вбудовані валідатори HTML5, такі як: `email`, `required`, `pattern`, `min`, `max`, `minLength`, `maxLength`
-
-- Також за допомогою `[ngModelOptions]` можна налаштувати на яку подію буде відбуватися оновлення форми чи окремого інпута.
-
-```html
-<input
-  type="text"
-  id="username"
-  class="form-control"
-  name="username"
-  required
-  [ngModel]="defaultUserName"
-  [ngModelOptions]="{updateOn: blur}"
-/>
-```
 
 `app.component.html`
 
 ```html
-<form (ngSubmit)="onSubmit()" #f="ngForm">
-  <div id="user-data" ngModelGroup="userData" #userData="ngModelGroup">
+<form
+  (ngSubmit)="onSubmit()"
+  #f="ngForm"
+>
+  <div
+    id="user-data"
+    ngModelGroup="userData"
+    #userData="ngModelGroup"
+  >
     <div class="form-group">
       <label for="username">Username</label>
-      <input type="text" id="username" class="form-control" name="username" required [ngModel]="defaultUserName" />
+      <input
+        type="text"
+        id="username"
+        class="form-control"
+        name="username"
+        required
+        [ngModel]="defaultUserName" />
     </div>
-    <button class="btn btn-default" type="button" (click)="suggestUserName()">Suggest an Username</button>
+    <button
+      class="btn btn-default"
+      type="button"
+      (click)="suggestUserName()"
+    >Suggest an Username</button>
     <div class="form-group">
       <label for="email">Mail</label>
-      <input type="email" id="email" class="form-control" required email ngModel name="email" #email="ngModel" />
+      <input
+        type="email"
+        id="email"
+        class="form-control"
+        required
+        email
+        ngModel
+        name="email"
+        #email="ngModel" />
       <span class="help-block" *ngIf="!email.valid && email.touched">Please enter a valid email</span>
     </div>
   </div>
   <p *ngIf="!userData.valid && userData.touched">User data is invalid!</p>
   <div class="form-group">
     <label for="secret">Secret Questions</label>
-    <select id="secret" class="form-control" [ngModel]="defaultQuestion" name="secret">
+    <select
+      id="secret"
+      class="form-control"
+      [ngModel]="defaultQuestion"
+      name="secret"
+    >
       <option value="pet">Your first Pet?</option>
       <option value="teacher">Your first teacher?</option>
     </select>
   </div>
   <div class="form-group">
-    <textarea class="form-control" name="questionAnswer" rows="3" [(ngModel)]="answer"> </textarea>
+    <textarea
+      class="form-control"
+      name="questionAnswer"
+      rows="3"
+      [(ngModel)]="answer"></textarea>
   </div>
   <p>Your reply: {{ answer }}</p>
   <div class="radio" *ngFor="let gender of genders">
     <label for="gender">
-      <input type="radio" id="gender" name="gender" required ngModel [value]="gender" />
+      <input
+        type="radio"
+        id="gender"
+        name="gender"
+        required
+        ngModel
+        [value]="gender" />
       {{ gender }}
     </label>
   </div>
@@ -2610,6 +2686,33 @@ export class AppComponent {
     this.signUpForm.reset(); //цей метод не тільки очищає поля форми, а і також всі вбудовані властивості форми, як от valid, touched і так далі
   }
 }
+```
+
+#### Setting and patching input values
+
+- Для того, або, наприклад, по кліку на кнопку перезаписати всі дані форми або лише деякі, використовуємо методи _`patchValue()`_ і _`setValue()`_. Вони доступні лише для форми, на яку додано `local ref` зі значенням `ngForm`.`
+
+> `setValue()` - потребує передачі об'єкту зі всіма властивостями, які ми ми додали, використовуючи `patchValue()` ми можемо передати лише властивості, значення яких хочемо змінити.
+
+#### Resetting input values
+
+- Для очистки полів форми і також всі вбудовані властивості форми, як от `valid`, `invalid`, `touched`, `pristine`, `dirty`, і так далі можна використовувати методи _`reset()`_ і `resetForm()`. В останній також можна передати `{}` з полями форми і з дефолтними значеннями для них.
+- Також для `Template-driven` форм доречно використовувати вбудовані валідатори HTML5, такі як: `email`, `required`, `pattern`, `min`, `max`, `minLength`, `maxLength`
+
+#### Update on options
+
+- Також за допомогою `[ngModelOptions]` можна налаштувати на яку подію буде відбуватися оновлення форми чи окремого інпута:
+
+```html
+<input
+  type="text"
+  id="username"
+  class="form-control"
+  name="username"
+  required
+  [ngModel]="defaultUserName"
+  [ngModelOptions]="{updateOn: blur}"
+/>
 ```
 
 #### Custom validation
