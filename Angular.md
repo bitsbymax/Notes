@@ -1007,7 +1007,7 @@ component.service.doSomething();
 
 ---
 
-### providedIn property of @Injectable({})
+### `providedIn` property of `@Injectable({})`
 
 In Angular, the _`providedIn`_ property is used in the _`@Injectable`_ decorator to specify where a service should be provided. Here are the possible values for providedIn:
 
