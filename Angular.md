@@ -795,14 +795,22 @@ export class BetterHighlightDirective implements OnInit {
 
 > Component instance has lifecycle hooks which can help you to hook into different events on Components. Lifecycle ends when component is destroyed
 
-- **ngOnChanges()** - викликається лише при наявності властивості з декоратором _`@Input()`_ при зміні значення цієї властивості, тобто в будь-якому разі, бо всі властивості по дефолту _`undefined`_, перед _`ngOnInit`_.
-- **ngOnInit()** - хук, який викликатиметься лише **1 раз** після ініціалізації компонента. Викликається він наступним після _`ngOnChanges`_, якщо останній використовується, інакше першим. В цьому хуці як правило відбуваються підписки і робляться запити на отримання даних з бекенду.
-- **ngDoCheck()** - викликається при кожному спрацюванні системи _`change detection`_ в скоупі всього застосунку. Тому майже не використовується, бо може спричиняти падіння продуктивності через дуже часте спрацювання, та і по суті дублює собою хук _`ngOnChanges`_.
-- **ngAfterContentInit()** - викликається **1 раз** після метода _`ngDoCheck()`_ після додавання коду _`html`_ через _`<ng-content></ng-content>`_
-- **ngAfterContentChecked()** - викликається кожного разу, коли контент, доданий через _`<ng-content></ng-content>`_ перевірено системою _`change detection`_
-- **ngAfterViewInit()** - викликається Angular після ініціалізації уявлення (темплейта) компонента. Викликається лише **1 раз** одразу після першого виклику методу _`ngAfterContentChecked()`_
-- **ngAfterViewChecked()** - викликається Angular після того, як стандартний детектор змін закінчив один повний цикл перевірки подання компонента. Викликається після першого виклику методу _`ngAfterViewInit()`_ та після кожного наступного виклику _`ngAfterContentChecked()`_
-- **ngOnDestroy()** - викликається перед тим, як компонент буде прибрано з DOM дерева.
+- **`ngOnChanges()`**
+  - викликається лише при наявності властивості з декоратором _`@Input()`_ при зміні значення цієї властивості, тобто в будь-якому разі, бо всі властивості по дефолту _`undefined`_, перед _`ngOnInit`_.
+- **`ngOnInit()`**
+  - хук, який викликатиметься лише **1 раз** після ініціалізації компонента. Викликається він наступним після _`ngOnChanges`_, якщо останній використовується, інакше першим. В цьому хуці як правило відбуваються підписки і робляться запити на отримання даних з бекенду.
+- **`ngDoCheck()`**
+  - викликається при кожному спрацюванні системи _`change detection`_ в скоупі всього застосунку. Тому майже не використовується, бо може спричиняти падіння продуктивності через дуже часте спрацювання, та і по суті дублює собою хук _`ngOnChanges`_.
+- **`ngAfterContentInit()`**
+  - викликається **1 раз** після метода _`ngDoCheck()`_ після додавання коду _`html`_ через _`<ng-content></ng-content>`_
+- **`ngAfterContentChecked()`**
+  - викликається кожного разу, коли контент, доданий через _`<ng-content></ng-content>`_ перевірено системою _`change detection`_
+- **`ngAfterViewInit()`**
+  - викликається Angular після ініціалізації уявлення (темплейта) компонента. Викликається лише **1 раз** одразу після першого виклику методу _`ngAfterContentChecked()`_
+- **`ngAfterViewChecked()`**
+  - викликається Angular після того, як стандартний детектор змін закінчив один повний цикл перевірки подання компонента. Викликається після першого виклику методу _`ngAfterViewInit()`_ та після кожного наступного виклику _`ngAfterContentChecked()`_
+- **`ngOnDestroy()`**
+  - викликається перед тим, як компонент буде прибрано з DOM дерева.
 
 ---
 
@@ -1015,36 +1023,36 @@ In Angular, the _`providedIn`_ property is used in the _`@Injectable`_ decorator
 
 ```typescript
 @Injectable({
-  providedIn: 'root'
+  providedIn: 'root',
 })
-export class MyService { }
+export class MyService {}
 ```
 
 - `'any'`: A new instance of the service is created for each lazy-loaded module that injects it. This can be useful for services that should not be shared across different modules.
 
 ```typescript
 @Injectable({
-  providedIn: 'any'
+  providedIn: 'any',
 })
-export class MyService { }
+export class MyService {}
 ```
 
 - `Specific Module`: You can specify a particular module where the service should be provided. This means the service will be available only within that module and its child modules.
 
 ```typescript
 @Injectable({
-  providedIn: SomeModule
+  providedIn: SomeModule,
 })
-export class MyService { }
+export class MyService {}
 ```
 
 - `null`: If you set providedIn to null, the service will not be provided automatically. You will need to add it to the providers array of a component or module manually.
 
 ```typescript
 @Injectable({
-  providedIn: null
+  providedIn: null,
 })
-export class MyService { }
+export class MyService {}
 ```
 
 These options allow you to control the scope and lifecycle of your services, optimizing your application’s performance and organization.
@@ -2237,18 +2245,21 @@ const example = (operator: any) => () => {
 };
 ```
 
->from() ітерує значення в масиві і для кожного значення повертає новий Observable
+> from() ітерує значення в масиві і для кожного значення повертає новий Observable
 
 - **`mergeMap()`**
+
   - Map to Observable, emit values. Внутрішній і зовнішній Observables не блокують виконання один одного, тобто значення з зовнішнього попадають у внутрішній одразу по мірі їх створення і внутрішній починає працювати одразу ж як отримав перше значення з зовнішнього стріма. Тобто по суті вони відпрацьовують паралельно.
   - `0, 1, 2, 3, 4, mergeMap completed` - з затримкою в 3 секунди отримаємо одразу всі значення
 
 - **`concatMap()`**
+
   - Map values to inner observable, subscribe and emit in order. Оператор чекає на завершення кожного зі створених Observables. Тобто контролюватиме, щоб внутрішній Observable чекав на завершення виконання зовнішнього і навпаки. Тобто по суті observables відпрацьовують в порядку створення, один за одним.
   - Приклад використання це 2 апі запита де для другого запита (inner observable) нам потрібні дані з першого (outer observable)
   - `0, 1, 2, 3, 4, concatMap completed` - з затримкою в 3 секунди між кожним значенням отримаємо всі значення
 
 - **`switchMap()`**
+
   - Map to observable, complete previous inner observable, emit values. Оператор чекає поки повністю завершиться зовнішній Observable і лише тоді його останнє значення передається у внутрішній Observable
   - `4, switchMap completed` - з затримкою в 3 секунди отримаємо останнє значення
 
@@ -2543,74 +2554,34 @@ export class PostsComponent {
 `app.component.html`
 
 ```html
-<form
-  (ngSubmit)="onSubmit()"
-  #f="ngForm"
->
-  <div
-    id="user-data"
-    ngModelGroup="userData"
-    #userData="ngModelGroup"
-  >
+<form (ngSubmit)="onSubmit()" #f="ngForm">
+  <div id="user-data" ngModelGroup="userData" #userData="ngModelGroup">
     <div class="form-group">
       <label for="username">Username</label>
-      <input
-        type="text"
-        id="username"
-        class="form-control"
-        name="username"
-        required
-        [ngModel]="defaultUserName" />
+      <input type="text" id="username" class="form-control" name="username" required [ngModel]="defaultUserName" />
     </div>
-    <button
-      class="btn btn-default"
-      type="button"
-      (click)="suggestUserName()"
-    >Suggest an Username</button>
+    <button class="btn btn-default" type="button" (click)="suggestUserName()">Suggest an Username</button>
     <div class="form-group">
       <label for="email">Mail</label>
-      <input
-        type="email"
-        id="email"
-        class="form-control"
-        required
-        email
-        ngModel
-        name="email"
-        #email="ngModel" />
+      <input type="email" id="email" class="form-control" required email ngModel name="email" #email="ngModel" />
       <span class="help-block" *ngIf="!email.valid && email.touched">Please enter a valid email</span>
     </div>
   </div>
   <p *ngIf="!userData.valid && userData.touched">User data is invalid!</p>
   <div class="form-group">
     <label for="secret">Secret Questions</label>
-    <select
-      id="secret"
-      class="form-control"
-      [ngModel]="defaultQuestion"
-      name="secret"
-    >
+    <select id="secret" class="form-control" [ngModel]="defaultQuestion" name="secret">
       <option value="pet">Your first Pet?</option>
       <option value="teacher">Your first teacher?</option>
     </select>
   </div>
   <div class="form-group">
-    <textarea
-      class="form-control"
-      name="questionAnswer"
-      rows="3"
-      [(ngModel)]="answer"></textarea>
+    <textarea class="form-control" name="questionAnswer" rows="3" [(ngModel)]="answer"></textarea>
   </div>
   <p>Your reply: {{ answer }}</p>
   <div class="radio" *ngFor="let gender of genders">
     <label for="gender">
-      <input
-        type="radio"
-        id="gender"
-        name="gender"
-        required
-        ngModel
-        [value]="gender" />
+      <input type="radio" id="gender" name="gender" required ngModel [value]="gender" />
       {{ gender }}
     </label>
   </div>
@@ -3244,3 +3215,178 @@ _`Service Worker`_ працює у окремому потоці. Це озна�
 
 > Реалізація описана в ng-elements застосунку.
 > npm install @angular/elements - для інсталяції пакета
+
+---
+
+## Angular Change Detection
+
+[refs](https://justangular.com/blog/a-change-detection-zone-js-zoneless-local-change-detection-and-signals-story)
+
+Як Angular знає, коли потрібно оновити `view`? Як він дізнається, коли дані змінюються? Як він дізнається, коли запускати перевірку змін?
+
+За це і відповідає **`Zone.js`**
+
+### Zone.js
+
+**`Zone.js`** існує з перших днів Angular 2.0. Це бібліотека, яка `monkey patches` (динамічно змінює поведінку коду в `run-time`) **APIs** браузера та дозволяє нам вклинюватися в `event loop`. Що це означає? Це означає, що ми можемо запускати наш код до того, як якийсь виклик буде передано з `call stack` до `WEB API` і після того, який цей виклик покине чергу (`queue`).
+
+```javascript
+setTimeout(() => {
+  console.log('Hello world');
+}, 1000);
+```
+
+Код вище надрукує 'Hello world' через 1 секунду. Але що, якщо ми хочемо запустити якийсь код до або після зворотного виклику `setTimeout`?
+
+`Zone.js` дозволяє нам це робити. Ми можемо створити зону спостереження (**Angular також створює свою власну зону спостереження**) і підключитися до зворотного виклику `setTimeout`.
+
+```typescript
+const zone = Zone.current.fork({
+  onInvokeTask: (delegate, current, target, task, applyThis, applyArgs) => {
+    console.log('Before setTimeout');
+    delegate.invokeTask(target, task, applyThis, applyArgs);
+    console.log('After setTimeout');
+  },
+});
+```
+
+Щоб запустити наш `setTimeout` всередині зони, нам потрібно використати метод `zone.run()`.
+
+```typescript
+zone.run(() => {
+  setTimeout(() => {
+    console.log('Hello world');
+  }, 1000);
+});
+///Before setTimeout
+//Hello world
+//After setTimeout
+```
+
+---
+
+### Zone.js + Angular
+
+Angular за замовчуванням завантажує `zone.js` у кожній програмі та створює зону під назвою **`NgZone`**.
+
+**NgZone** містить `observable` під назвою **`onMicrotaskEmpty`**. Цей **observable** видає значення, коли в черзі більше немає мікрозавдань **(microtasks or _promise based tasks_)** . І це те, що Angular використовує, щоб знати, коли весь асинхронний код закінчено, і він може безпечно запустити `change detection`.
+
+```typescript
+// ng_zone_scheduling.ts NgZoneChangeDetectionScheduler
+this._onMicrotaskEmptySubscription = this.zone.onMicrotaskEmpty.subscribe({
+    next: () => this.zone.run(() => this.applicationRef.tick())
+});
+```
+
+У наведеному коді ми бачимо, що Angular викличе метод `applicationRef.tick()`, коли `observable` `onMicrotaskEmpty` згенерує значення. Що це за метод `tick` 🤔? Саме цей метод запускає механізм виявлення змін для всього дерева компонентів **синхронно**.
+
+І тепер _Angular_ знає, що весь асинхронний код завершено, і він може безпечно запускати `change detection`.
+
+```javascript
+tick(): void {
+  // code removed for brevity
+  for (let view of this._views) {
+    // runs the change detection for a single component
+    view.detectChanges(); 
+  }
+}
+```
+
+Метод `tick` пройдеться по всім кореневим представленням **(здебільшого у нас є лише одне кореневе представлення/компонент, яким є `AppComponent`)** і синхронно запустить `detectChanges`.
+
+---
+
+### Component Dirty marking
+
+Ще одна річ, яку робить _Angular_, полягає в тому, що він позначає компонент як брудний (**dirty**), коли знає, що щось усередині компонента змінилося.
+
+**These are the things that mark the component as dirty**:
+
+- `Events` (click, mouseover, etc.)
+  - Кожного разу, коли ми натискаємо кнопку із слухачем в темплейті, _Angular_ обгортатиме коллбек функцією `wrapListenerIn_markDirtyAndPreventDefault`. І як ми бачимо з назви функції 😅, вона позначатиме компонент як брудний.
+  
+  ```javascript
+  function wrapListener(): EventListener {
+    return function wrapListenerIn_markDirtyAndPreventDefault(e: any) {
+    // ... code removed for brevity
+      markViewDirty(startView); // mark the component as dirty
+    };
+  }  
+  ```
+  
+- `Changed inputs` (properties with `@Input()` decorator)
+  - Крім того, під час запуску `cd` Angular перевірить, чи змінилося вхідне значення компонента (=== сувора перевірка). Якщо він змінився, це позначить компонент як брудний.
+  
+  ```javascript
+  setInput(name: string, value: unknown): void {
+  // Do not set the input if it is the same as the last value
+    if (Object.is(this.previousInputValues.get(name), value)) {
+      return;
+    }
+    // code removed for brevity
+    setInputsForProperty(lView[TVIEW], lView, dataValue, name, value);
+    markViewDirty(childComponentLView); // mark the component as dirty
+  }
+  ```
+  
+- `Output emissions` (properties with `@Output()` decorator)
+  - Щоб слухати вихідні зміни в Angular, ми реєструємо подію в темплейті. Як ми бачили раніше, функція, яку ми назначили обробником буде загорнута у спеціальну обгортку, і коли подія відбудеться, компонент буде позначено як брудний.
+
+---
+
+Поглянемо, що робить функція  `markViewDirty`
+
+```typescript
+/**
+ * Marks current view and all ancestors dirty.
+ */
+export function markViewDirty(lView: LView): LView|null {
+  while (lView) {
+    lView[FLAGS] |= LViewFlags.Dirty;
+    const parent = getLViewParent(lView);
+    // Stop traversing up as soon as you find a root view that wasn't attached to any container
+    if (isRootView(lView) && !parent) {
+      return lView;
+    }
+    // continue otherwise
+    lView = parent!;
+  }
+  return null;
+}
+```
+
+Як ми можемо прочитати з коментаря, функція `markViewDirty` позначить поточний темплейт і всіх предків **(аж до корінного компонента)** брудними.
+
+- Отже, коли ми натискаємо кнопку, Angular викличе функцію-обробник події, і оскільки вона обернута функцією `wrapListenerIn_markDirtyAndPreventDefault`, остання позначить компонент як брудний.
+
+- Як сказано раніше, Angular використовує `zone.js` і загортає в нього всю аплікацію.
+І після того, як `markViewDirty` доходить до корінного компонента і позначає його брудним, `wrapListenerIn_markDirtyAndPreventDefault` завершує виконання та тригерить `zone.js`.
+
+- Оскільки Angular підписаний на `observable` `onMicrotaskEmpty`, і оскільки (клік) реєструє слухача події (доданий нами метод), який `zone` огорнула, остання знатиме, коли обробник події завершить роботу, і вона може згенерувати нове значення в стрім `onMicrotaskEmpty`, на який в свою чергу підписаний Angular, і як тільки останній отримає це значення, він запустить **`cd`**.
+
+### Component binding refresh
+
+У той момент, коли Angular запускає **`cd`,** він перевіряє кожен компонент зверху вниз. Він перевірить усі компоненти (брудні та не брудні) і перевірить їх властивості. Якщо властивість змінилася, Angular оновить темплейт.
+
+Але чому Angular перевіряє всі компоненти 🤔? Чому він не перевіряє лише компоненти, які були позначені як брудні 🤔?
+
+Ну, через стратегію виявлення змін (**change detection strategy**).
+
+### OnPush Change Detection
+
+Angular має стратегію виявлення змін під назвою **`OnPush`**. Коли ми використовуємо цю стратегію, Angular запускатиме виявлення змін лише для компонента, який позначено як брудний.
+
+По-перше, давайте змінимо стратегію виявлення змін на `OnPush`:
+
+```typescript
+@Component({
+  // ...
+  changeDetection: ChangeDetectionStrategy.OnPush
+})
+export class UserCard {}
+```
+
+Відмінність цієї стратегії полягає в тому, що якщо компонент, до якого вона застосована є:
+
+- **OnPush + Non-Dirty -> Skip**
+- **OnPush + Dirty -> Check bindings -> Refresh bindings -> Check children**
