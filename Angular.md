@@ -3449,7 +3449,7 @@ markForCheck(): void {
 
 ### OnPush + Observables + Who is triggering zone.js?
 
-Що якщо дані нашого компонента змінюються без нашої взаємодії (click, mouseover тощо) і, ймовірно, десь під капотом виконується `setTimeout` або `setInterval` або виклик `HTTP`, який тригерить `zone.js`.
+Що якщо дані нашого компонента змінюються без нашої взаємодії (click, mouseover тощо), ймовірно, десь під капотом виконується `setTimeout` або `setInterval` або виклик `HTTP`, який тригерить `zone.js`.
 
 ```typescript
 @Component({
@@ -3508,15 +3508,15 @@ export class TodosComponent {
 
 #### `markForCheck()` проти `detectChanges()` (coalesced run vs sync runs)
 
-**`markForCheck()`**
+- **`markForCheck()`**
 
-- Коли ми використовуємо `markForCheck`, ми просто повідомляємо Angular, що компонент змінений, і більше нічого не відбувається, тому навіть якщо ми викличемо `markForCheck` 1000 разів, це не буде проблемою.
+  - Коли ми використовуємо `markForCheck()`, ми просто повідомляємо Angular, що компонент змінений, і більше нічого не відбувається, тому навіть якщо ми викличемо `markForCheck()` 1000 разів, це не буде проблемою.
 
-**`detectChanges()`**
+- **`detectChanges()`**
 
-- Але коли ми використовуємо `detectChanges`, Angular виконає фактичну роботу, як-от перевірка прив'язок і оновлення темплейта, якщо це необхідно.
+  - Але коли ми використовуємо `detectChanges()`, Angular виконає фактичну роботу, як-от перевірка прив'язок і оновлення темплейта, якщо це необхідно, **для компонента, де відбувся виклик і його дочірніх компонентів** (окрім `OnPush Not Dirty`).
 
-Ось чому ми повинні використовувати `markForCheck` замість `detectChanges`.
+Ось чому ми повинні використовувати `markForCheck()` замість `detectChanges()`.
 
 #### Can’t we schedule detectChanges in the next browser task?
 
