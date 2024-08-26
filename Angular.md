@@ -8,6 +8,8 @@
 ## Decorators
 
 > - Декоратори модифікують поведінку класів в Angular
+>
+[Example of custom decorators usage](https://medium.com/@ddmytro787/practical-angular-decorators-2d516be1feb8)
 
 Приклад декораторів:
 
@@ -51,6 +53,7 @@
 ```html
 <button type="button" [disabled]="!active">-</button>
 <p [innerText]="hotelName"></p>
+<image [src]="'assets/users/' + selectedUser.avatar"></image>
 ```
 
 Через таку прив'язку ми можемо для будь-якої властивості елемента, через його атрибут, встановити значення будь-якої властивості нашого компонента
@@ -530,7 +533,53 @@ export class AppComponent {
 > Communication between components
 
 - **`@Input()`** - дає можливість компоненту приймати і використовувати дані батьківського компонента
+
+```typescript
+@Component({
+  selector: 'app-customer-detail',
+  templateUrl: './customer-detail.component.html',
+  styleUrls: ['./customer-detail.component.css']
+})
+export class CustomerDetailComponent implements OnInit {
+  @Input({ required: true}) customer!: Customer; // Input property
+}
+```
+
+де `{ required: true }` - вказує про те, що ця властивість обов'язкова
+
+В батьківському компоненті:
+
+```html
+<app-customer-detail [customer]="selectedCustomer"></app-customer-detail>
+```
+
 - **`@Output()`** - дає можливість компоненту передавати дані наверх батьківському компоненту
+
+```typescript
+@Component({
+  selector: 'app-customer-detail',
+  templateUrl: './customer-detail.component.html',
+  styleUrls: ['./customer-detail.component.css']
+})
+export class CustomerDetailComponent implements OnInit {
+  @Output() customerChange: EventEmitter<Customer> = new EventEmitter<Customer>(); // Output property
+
+  update() {
+    this.customerChange.emit(this.customer); // Raise the event
+  }
+}
+```
+
+В батьківському компоненті:
+
+```html
+<app-customer-detail
+  [customer]="selectedCustomer"
+  (customerChange)="update($event)">
+</app-customer-detail>
+
+```
+
 - **`@ViewChild()`** - дає доступ до подання компонента, де ми в свою чергу можемо отримати доступ до елементів темплейта через _`#template reference`_ або навіть дочірніх компонентів. Також через цей декоратор можна в класі компонента динамічно отримати екземпляр іншого компонента і вставити його в наш темплейт
 
 > Html element access
@@ -2541,15 +2590,15 @@ export class PostsComponent {
 
 #### Default input value
 
-- Для встановлення дефолтного значення поля форми, створюємо властивість з потрібним значенням в компоненті, і далі робимо _`property binding`_ на самому input: `[ngModel]="propName"`
+- Для встановлення дефолтного значення поля форми, створюємо властивість з потрібним значенням в компоненті, і далі робимо _`property binding`_ на самому _`input`_: `[ngModel]="propName"`
 
-#### 2 way binding
+#### Two-way binding
 
-- Для того, щоб одразу значення, яке ми вводимо в input, можна було використовувати, потрібно використати _`two-way data binding`_. Додаємо властивість в компонент з потрібним значенням і робимо прив'язку: `[(ngModel)]="propName"`
+- Для того, щоб одразу значення, яке ми вводимо в _`input`_, можна було використовувати, потрібно використати _`two-way data binding`_. Додаємо властивість в компонент з потрібним значенням і робимо прив'язку: `[(ngModel)]="propName"`
 
 #### Input groups
 
-- Також можна згрупувати декілька inputs в одну групу, тобто вони будуть додані всередину окремої властивості в середині властивості `value`. Робиться це через атрибут `ngModelGroup="anyName"`. Якщо потрібно отримати доступ до значень inputs і інших властивостей, використовуємо template reference ось так: `#anyName="ngModelGroup"`
+- Також можна згрупувати декілька _`inputs`_ в одну групу, тобто вони будуть додані всередину окремої властивості в середині властивості `value`. Робиться це через атрибут `ngModelGroup="anyName"`. Якщо потрібно отримати доступ до значень _`inputs`_ і інших властивостей, використовуємо template reference ось так: `#anyName="ngModelGroup"`
 
 `app.component.html`
 
