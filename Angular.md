@@ -534,302 +534,302 @@ export class AppComponent {
 
 - **`@Input()`** - дає можливість компоненту приймати і використовувати дані батьківського компонента
 
-```typescript
-@Component({
-  selector: 'app-customer-detail',
-  templateUrl: './customer-detail.component.html',
-  styleUrls: ['./customer-detail.component.css']
-})
-export class CustomerDetailComponent implements OnInit {
-  @Input({ required: true}) customer!: Customer; // Input property
-}
-```
+  ```typescript
+  @Component({
+    selector: 'app-customer-detail',
+    templateUrl: './customer-detail.component.html',
+    styleUrls: ['./customer-detail.component.css']
+  })
+  export class CustomerDetailComponent implements OnInit {
+    @Input({ required: true}) customer!: Customer; // Input property
+  }
+  ```
 
-де `{ required: true }` - вказує про те, що ця властивість обов'язкова
-
-В батьківському компоненті:
-
-```html
-<app-customer-detail [customer]="selectedCustomer"></app-customer-detail>
-```
+  де `{ required: true }` - вказує про те, що ця властивість обов'язкова
+  
+  В батьківському компоненті:
+  
+  ```html
+  <app-customer-detail [customer]="selectedCustomer"></app-customer-detail>
+  ```
 
 - **`@Output()`** - дає можливість компоненту передавати дані наверх батьківському компоненту
-
-```typescript
-@Component({
-  selector: 'app-customer-detail',
-  templateUrl: './customer-detail.component.html',
-  styleUrls: ['./customer-detail.component.css']
-})
-export class CustomerDetailComponent implements OnInit {
-  @Output() customerChange: EventEmitter<Customer> = new EventEmitter<Customer>(); // Output property
-
-  update() {
-    this.customerChange.emit(this.customer); // Raise the event
+  
+  ```typescript
+  @Component({
+    selector: 'app-customer-detail',
+    templateUrl: './customer-detail.component.html',
+    styleUrls: ['./customer-detail.component.css']
+  })
+  export class CustomerDetailComponent implements OnInit {
+    @Output() customerChange: EventEmitter<Customer> = new EventEmitter<Customer>(); // Output property
+  
+    update() {
+      this.customerChange.emit(this.customer); // Raise the event
+    }
   }
-}
-```
-
-В батьківському компоненті:
-
-```html
-<app-customer-detail
-  [customer]="selectedCustomer"
-  (customerChange)="update($event)">
-</app-customer-detail>
-
-```
+  ```
+  
+  В батьківському компоненті:
+  
+  ```html
+  <app-customer-detail
+    [customer]="selectedCustomer"
+    (customerChange)="update($event)">
+  </app-customer-detail>
+  
+  ```
 
 - **`@ViewChild()`** - дає доступ до подання компонента, де ми в свою чергу можемо отримати доступ до елементів темплейта через _`#template reference`_ або навіть дочірніх компонентів. Також через цей декоратор можна в класі компонента динамічно отримати екземпляр іншого компонента і вставити його в наш темплейт
 
-> Html element access
-
-Для доступу до елемента темплейта, додаємо на нього _`#template reference`_
-
-```html
-<p #description></p>
-```
-
-І далі в класі можемо його зчитати і модифікувати. Він буде доступний за посиланням: _`propertyName.nativeElement`_, посилання зберігатиме об'єкт _`ElementRef {nativeElement: p}`_, де будуть всі вбудовані властивості конкретного _`html`_ елемента.
-
-```javascript
-@Component({
-  selector: 'app-rooms',
-  standalone: true,
-  imports: [CommonModule],
-  templateUrl: './rooms.component.html',
-  styleUrl: './rooms.component.scss',
-})
-export class RoomsComponent implements OnInit
-{
-  @ViewChild('description', { static: true }) description!: ElementRef;
-
-  ngOnInit(): void {
-    this.description.nativeElement.innerText = 'Our goal is to provide best service';
+  > Html element access
+  
+  Для доступу до елемента темплейта, додаємо на нього _`#template reference`_
+  
+  ```html
+  <p #description></p>
+  ```
+  
+  І далі в класі можемо його зчитати і модифікувати. Він буде доступний за посиланням: _`propertyName.nativeElement`_, посилання зберігатиме об'єкт _`ElementRef {nativeElement: p}`_, де будуть всі вбудовані властивості конкретного _`html`_ елемента.
+  
+  ```javascript
+  @Component({
+    selector: 'app-rooms',
+    standalone: true,
+    imports: [CommonModule],
+    templateUrl: './rooms.component.html',
+    styleUrl: './rooms.component.scss',
+  })
+  export class RoomsComponent implements OnInit
+  {
+    @ViewChild('description', { static: true }) description!: ElementRef;
+  
+    ngOnInit(): void {
+      this.description.nativeElement.innerText = 'Our goal is to provide best service';
+    }
   }
-}
-```
-
----
-
-> Child component access
-
-Якщо нам потрібно отримати доступ до дочірнього компонента який рендериться всередині нашого темплейта таким чином:
-
-```html
-<h1>Welcome to the {{ hotelName }}</h1>
-<app-header></app-header> --> Дочірній компонент
-<p>Available rooms</p>
-{{ rooms.availableRooms ?? "No rooms available" }}
-```
-
-це можна зробити за допомогою _`@ViewChild()`_ через використання _lifecycle hook_ _`ngAfterViewInit`_ або _`ngAfterViewChecked`_
-
-```javascript
-export class RoomsComponent implements AfterViewInit, AfterViewChecked {
-  @ViewChild(HeaderComponent) header!: HeaderComponent;
-
-  constructor(private cdr: ChangeDetectorRef) {}
+  ```
+  
+  ---
+  
+  > Child component access
+  
+  Якщо нам потрібно отримати доступ до дочірнього компонента який рендериться всередині нашого темплейта таким чином:
+  
+  ```html
+  <h1>Welcome to the {{ hotelName }}</h1>
+  <app-header></app-header> --> Дочірній компонент
+  <p>Available rooms</p>
+  {{ rooms.availableRooms ?? "No rooms available" }}
+  ```
+  
+  це можна зробити за допомогою _`@ViewChild()`_ через використання _lifecycle hook_ _`ngAfterViewInit`_ або _`ngAfterViewChecked`_
+  
+  ```javascript
+  export class RoomsComponent implements AfterViewInit, AfterViewChecked {
+    @ViewChild(HeaderComponent) header!: HeaderComponent;
+  
+    constructor(private cdr: ChangeDetectorRef) {}
+    ngAfterViewInit(): void {
+      this.header.title = 'Hotel inventory'; //- тут це значення зміниться лише на наступному циклі change детектора
+      //щоб відобразити зміни одразу
+      this.cdr.detectChanges();
+    }
+    //або
+    ngAfterViewChecked(): void {
+      this.header.title = 'Hotel inventory'; //- тут це значення зміниться лише на наступному циклі change детектора
+      //щоб відобразити зміни одразу
+      this.cdr.detectChanges();
+    }
+  }
+  ```
+  
+  Якщо ж нам потрібно отримати дані цього дочірнього компонента в _`ngOnInit`_, ми маємо вказати про це декоратору через спеціальну властивість _`static`_.
+  По дефолту це значення _`false`_, щоб попередити можливі баги чи затримки у випадку, наприклад, коли у нашому вкладеному компоненті є асинхронні операції, які блокуватимуть _`execution flow`_ і відповідно ініціалізацію нашого батьківського компонента.
+  
+  ```javascript
+  export class RoomsComponent implements OnInit, AfterViewInit, AfterViewChecked {
+    @ViewChild(HeaderComponent, { static: true }) header!: HeaderComponent;
+  
+    ngOnInit(): void {
+      this.header.title = 'Hotel inventory';// - ми можемо змінити значення властивості title компонента HeaderComponent з середини RoomsComponent в ngOnInit лише якщо вказано { static: true }.
+    }
+    ngAfterViewInit(): void {}
+    // або
+    ngAfterViewChecked(): void {}
+  }
+  ```
+  
+  ---
+  
+  Також ми можемо динамічно рендерити компонент всередині нашого темплейта за допомогою цього декоратора.
+  Додамо в наш темплейт тег _`ng-template`_ з _`#template reference`_
+  
+  ```html
+  <ng-template #bookRoom></ng-template>
+  ```
+  
+  Далі через _`@ViewChild()`_ ми в нашому класі можемо екземпляр потрібного компонента отримати і вставити в наш темплейт:
+  
+  ```javascript
+  import { BookButtonComponent } from '../book-button/book-button.component';
+  
+  export class RoomsComponent implements AfterViewInit, AfterViewChecked
+  {
+    @ViewChild('bookRoom', { read: ViewContainerRef }) vcr!: ViewContainerRef;
+  
+    ngAfterViewInit() {
+      const componentRef = this.vcr.createComponent(BookButtonComponent); //тут ми отримуємо екземпляр нашого компонента який і буде відмальовано всередині ng-template
+    }
+  }
+  ```
+  
+  Також за потреби ми можемо отримати доступ до властивостей класу компонента і модифікувати їх
+  
+  ```javascript
   ngAfterViewInit(): void {
-    this.header.title = 'Hotel inventory'; //- тут це значення зміниться лише на наступному циклі change детектора
-    //щоб відобразити зміни одразу
-    this.cdr.detectChanges();
+    const componentRef = this.vcr.createComponent(BookButtonComponent);
+    componentRef.instance.buttonLabel = 'Book new room'; //тут змінюємо значення потрібної властивості
   }
-  //або
-  ngAfterViewChecked(): void {
-    this.header.title = 'Hotel inventory'; //- тут це значення зміниться лише на наступному циклі change детектора
-    //щоб відобразити зміни одразу
-    this.cdr.detectChanges();
-  }
-}
-```
-
-Якщо ж нам потрібно отримати дані цього дочірнього компонента в _`ngOnInit`_, ми маємо вказати про це декоратору через спеціальну властивість _`static`_.
-По дефолту це значення _`false`_, щоб попередити можливі баги чи затримки у випадку, наприклад, коли у нашому вкладеному компоненті є асинхронні операції, які блокуватимуть _`execution flow`_ і відповідно ініціалізацію нашого батьківського компонента.
-
-```javascript
-export class RoomsComponent implements OnInit, AfterViewInit, AfterViewChecked {
-  @ViewChild(HeaderComponent, { static: true }) header!: HeaderComponent;
-
-  ngOnInit(): void {
-    this.header.title = 'Hotel inventory';// - ми можемо змінити значення властивості title компонента HeaderComponent з середини RoomsComponent в ngOnInit лише якщо вказано { static: true }.
-  }
-  ngAfterViewInit(): void {}
-  // або
-  ngAfterViewChecked(): void {}
-}
-```
-
----
-
-Також ми можемо динамічно рендерити компонент всередині нашого темплейта за допомогою цього декоратора.
-Додамо в наш темплейт тег _`ng-template`_ з _`#template reference`_
-
-```html
-<ng-template #bookRoom></ng-template>
-```
-
-Далі через _`@ViewChild()`_ ми в нашому класі можемо екземпляр потрібного компонента отримати і вставити в наш темплейт:
-
-```javascript
-import { BookButtonComponent } from '../book-button/book-button.component';
-
-export class RoomsComponent implements AfterViewInit, AfterViewChecked
-{
-  @ViewChild('bookRoom', { read: ViewContainerRef }) vcr!: ViewContainerRef;
-
-  ngAfterViewInit() {
-    const componentRef = this.vcr.createComponent(BookButtonComponent); //тут ми отримуємо екземпляр нашого компонента який і буде відмальовано всередині ng-template
-  }
-}
-```
-
-Також за потреби ми можемо отримати доступ до властивостей класу компонента і модифікувати їх
-
-```javascript
-ngAfterViewInit(): void {
-  const componentRef = this.vcr.createComponent(BookButtonComponent);
-  componentRef.instance.buttonLabel = 'Book new room'; //тут змінюємо значення потрібної властивості
-}
-```
-
+  ```
+  
 - **`@ViewChildren()`** - декоратор, який дає можливість отримати доступ до дочірніх компонентів темплейту, які ми використовуємо більше ніж один раз:
 
-```html
-<h1>Welcome to the {{ hotelName }}</h1>
-<p #description></p>
-// як приклад
-<app-header></app-header>
-<app-header></app-header>
-```
-
-Далі в класі створюємо властивість з цим декоратором:
-
-```javascript
-export class RoomsComponent implements AfterViewInit, AfterViewChecked
-{
-  @ViewChildren(HeaderComponent) headerChildren!: QueryList<HeaderComponent>;
-}
-```
-
-У властивості _`headerChildren`_ буде ось таке посилання на об'єкт:
-
-```javascript
-_QueryList
-dirty: false
-first: _HeaderComponent {title: 'Hotel inventory', __ngContext__: 3}
-last: _HeaderComponent {title: '', __ngContext__: 3}
-length: 3
-_changes: undefined
-_changesDetected: true
-_emitDistinctChangesOnly: true
-_onDirty: undefined
-_results: Array(3)
-  0: _HeaderComponent {title: 'Hotel inventory', __ngContext__: 3}
-  1: _HeaderComponent {title: '', __ngContext__: 3}
-  2: _HeaderComponent {title: '', __ngContext__: 3}
+  ```html
+  <h1>Welcome to the {{ hotelName }}</h1>
+  <p #description></p>
+  // як приклад
+  <app-header></app-header>
+  <app-header></app-header>
+  ```
+  
+  Далі в класі створюємо властивість з цим декоратором:
+  
+  ```javascript
+  export class RoomsComponent implements AfterViewInit, AfterViewChecked
+  {
+    @ViewChildren(HeaderComponent) headerChildren!: QueryList<HeaderComponent>;
+  }
+  ```
+  
+  У властивості _`headerChildren`_ буде ось таке посилання на об'єкт:
+  
+  ```javascript
+  _QueryList
+  dirty: false
+  first: _HeaderComponent {title: 'Hotel inventory', __ngContext__: 3}
+  last: _HeaderComponent {title: '', __ngContext__: 3}
   length: 3
-  [[Prototype]]: Array(0)
-  changes: (...)
-[[Prototype]]: Object
-```
-
-І далі в _`ngAfterViewInit`_ ми вже маємо можливість працювати з кожним з цих компонентів:
-
-```javascript
-ngAfterViewInit(): void {
-  this.headerChildren.last.title = 'Hotel inventory 2';
-}
-```
-
-> Для цього декоратора по дефолту _`{ static: false }`_ і змінити це значення не можна.
-
-- **`@ContentChild()`** - дає доступ до елементів з атрибутом _`#someName`_ в темплейті, але тих, що додані через _`<ng-content></ng-content>`_, тобто шляхом `content projection`
-
-```html
-<app-rooms [hotelName]="hotelName">
-  <!-- passing ng-content -->
-  <h4>Employee data:</h4>
-  <app-employee></app-employee>
-</app-rooms>
-```
-
-`rooms.component.ts`
-
-```javascript
-export class RoomsComponent implements AfterContentInit, AfterContentChecked
-{
-  @ContentChild(EmployeeComponent) employee!: EmployeeComponent;
-
-  ngAfterContentInit(): void {
-    this.employee.empName = 'Rick';
-    this.empName = this.employee.employeeName;
+  _changes: undefined
+  _changesDetected: true
+  _emitDistinctChangesOnly: true
+  _onDirty: undefined
+  _results: Array(3)
+    0: _HeaderComponent {title: 'Hotel inventory', __ngContext__: 3}
+    1: _HeaderComponent {title: '', __ngContext__: 3}
+    2: _HeaderComponent {title: '', __ngContext__: 3}
+    length: 3
+    [[Prototype]]: Array(0)
+    changes: (...)
+  [[Prototype]]: Object
+  ```
+  
+  І далі в _`ngAfterViewInit`_ ми вже маємо можливість працювати з кожним з цих компонентів:
+  
+  ```javascript
+  ngAfterViewInit(): void {
+    this.headerChildren.last.title = 'Hotel inventory 2';
   }
-}
-```
-
-`rooms.component.html`
-
-```html
-<!-- ng-content displaying -->
-<ng-content select="[data]"></ng-content>
-<ng-content select="app-employee"></ng-content>
-```
-
-`employee.component.ts`
-
-```javascript
-export class EmployeeComponent {
-  empName: string = 'John Doe';
-
-  get employeeName(): string {
-    return this.empName;
+  ```
+  
+  > Для цього декоратора по дефолту _`{ static: false }`_ і змінити це значення не можна.
+  
+  - **`@ContentChild()`** - дає доступ до елементів з атрибутом _`#someName`_ в темплейті, але тих, що додані через _`<ng-content></ng-content>`_, тобто шляхом `content projection`
+  
+  ```html
+  <app-rooms [hotelName]="hotelName">
+    <!-- passing ng-content -->
+    <h4>Employee data:</h4>
+    <app-employee></app-employee>
+  </app-rooms>
+  ```
+  
+  `rooms.component.ts`
+  
+  ```javascript
+  export class RoomsComponent implements AfterContentInit, AfterContentChecked
+  {
+    @ContentChild(EmployeeComponent) employee!: EmployeeComponent;
+  
+    ngAfterContentInit(): void {
+      this.employee.empName = 'Rick';
+      this.empName = this.employee.employeeName;
+    }
   }
-}
-```
-
+  ```
+  
+  `rooms.component.html`
+  
+  ```html
+  <!-- ng-content displaying -->
+  <ng-content select="[data]"></ng-content>
+  <ng-content select="app-employee"></ng-content>
+  ```
+  
+  `employee.component.ts`
+  
+  ```javascript
+  export class EmployeeComponent {
+    empName: string = 'John Doe';
+  
+    get employeeName(): string {
+      return this.empName;
+    }
+  }
+  ```
+  
 - **`ContentChildren()`** - використовується по аналогії з _`@ViewChildren`_, коли нам потрібен доступ до усього _`projected content`_.
 
 - **`HostListener('any supported event')`** - дає можливість слухати будь-яку подію, яка підтримується JS і виконувати потрібну нам функцію, яка приймає _`eventData`_ в момент спрацювання події.
 
 - **`HostBinding('property.subProperty')`** - в прикладі нижче ми говоримо Angular на елементі, де застосовується ця директива, звернутися до властивості _`style`_ під властивості _`backgroundColor`_ і встановити значення _`'red'`_. Пізніше через _`this.backgroundColor`_ можна встановити інше значення
-
-```typescript
-@Directive({
-  selector: '[appBetterHighlight]',
-})
-export class BetterHighlightDirective implements OnInit {
-  @Input() defaultColor: string = 'transparent';
-  @Input('appBetterHighlight') highlightColor: string = 'blue';
-  @HostBinding('style.backgroundColor') backgroundColor: string;
-
-  constructor(private elRef: ElementRef, private renderer: Renderer2) {
-    console.log('appBetterHighlight directive created');
+  
+  ```typescript
+  @Directive({
+    selector: '[appBetterHighlight]',
+  })
+  export class BetterHighlightDirective implements OnInit {
+    @Input() defaultColor: string = 'transparent';
+    @Input('appBetterHighlight') highlightColor: string = 'blue';
+    @HostBinding('style.backgroundColor') backgroundColor: string;
+  
+    constructor(private elRef: ElementRef, private renderer: Renderer2) {
+      console.log('appBetterHighlight directive created');
+    }
+  
+    ngOnInit() {
+      this.backgroundColor = this.defaultColor;
+      // this.renderer.setStyle(this.elRef.nativeElement, 'background-color', 'blue');
+    }
+  
+    @HostListener('mouseenter') mouseover(eventData: Event) {
+      // this.renderer.setStyle(this.elRef.nativeElement, 'background-color', 'blue');
+      this.backgroundColor = this.highlightColor;
+    }
+  
+    @HostListener('mouseleave') mouseleave(eventData: Event) {
+      // this.renderer.setStyle(this.elRef.nativeElement, 'background-color', 'transparent');
+      this.backgroundColor = this.defaultColor;
+    }
   }
-
-  ngOnInit() {
-    this.backgroundColor = this.defaultColor;
-    // this.renderer.setStyle(this.elRef.nativeElement, 'background-color', 'blue');
-  }
-
-  @HostListener('mouseenter') mouseover(eventData: Event) {
-    // this.renderer.setStyle(this.elRef.nativeElement, 'background-color', 'blue');
-    this.backgroundColor = this.highlightColor;
-  }
-
-  @HostListener('mouseleave') mouseleave(eventData: Event) {
-    // this.renderer.setStyle(this.elRef.nativeElement, 'background-color', 'transparent');
-    this.backgroundColor = this.defaultColor;
-  }
-}
-```
-
-```html
-<p [appBetterHighlight]="'red'" defaultColor="yellow">Style me with a better directive!</p>
-```
-
-> Варто зауважити, що на прикладі вище ми поєднуємо селектор директиви з _`property-binding`_, тобто цей запис `[appBetterHighlight]="'red'"` означає, що ми до елементу додаємо директиву і одночасно прив'язуємось до відповідної властивості в директиві.
-
+  ```
+  
+  ```html
+  <p [appBetterHighlight]="'red'" defaultColor="yellow">Style me with a better directive!</p>
+  ```
+  
+  > Варто зауважити, що на прикладі вище ми поєднуємо селектор директиви з _`property-binding`_, тобто цей запис `[appBetterHighlight]="'red'"` означає, що ми до елементу додаємо директиву і одночасно прив'язуємось до відповідної властивості в директиві.
+  
 ---
 
 ## Template Reference
@@ -3275,7 +3275,7 @@ _`Service Worker`_ працює у окремому потоці. Це озна�
 
 - Виявлення змін в **Angular** є ключовим процесом, який забезпечує синхронізацію стану програми та інтерфейсу користувача. Саме так **Angular** забезпечує оновлення інтерфейсу користувача, коли змінюються основні дані.
 - Без цього будь-які зміни у програмі не відображатимуться в інтерфейсі користувача автоматично, що робить програму непослідовною та ненадійною.
-- Виявлення змін важливе, оскільки воно забезпечує точність інтерфейсу користувача, забезпечуючи коректне відображення кожної дії користувача, отримання даних або події, що робить програму чутливою та зручною для користувача.
+- Виявлення змін важливе, оскільки воно забезпечує точність інтерфейсу користувача, забезпечуючи коректне відображення кожної дії користувача, отримання даних або події, що робить програму чуйною та зручною для користувача.
 - Як **Angular** знає, коли потрібно оновити `view`? Як він дізнається, що якісь дані в компоненті змінились? Як він дізнається, коли запускати перевірку змін?
 
 - Для синхронних оновлень це не проблема, але для комплексних програм нам все одно прийдеться використовувати якісь `APIs`, де будуть потрібні асинхронні дії, на які потрібно реагувати і відповідно запускати механізм перевірки змін.
@@ -3360,9 +3360,8 @@ tick(): void {
 
 >Each Angular component has an associated change detector, which is created at application startup time
 >
-- Також потрібно пам'ятати, що якщо під час розробки використовується `production mode`, `cd` механізм буде спрацьовувати лише раз при кожному виклику `tick()`. І інколи, якщо наприклад в коді допустити певні помилку, виключення не буде зловлене і показане в терміналі. Тому always use development mode during the development phase, as that will avoid the problem.
->
->This guarantee comes at the expense of Angular always running change detection twice, the second time for detecting this type of cases. In production mode change detection is only run once.
+- Також потрібно пам'ятати, що якщо під час розробки використовується `production mode`, `cd` механізм буде спрацьовувати лише раз при кожному виклику `tick()`, що не рекомендується, так як є шанс пропустити якусь помилку, наприклад при `change detection loop`.
+- Тому always use `development mode` during the development phase, as that will avoid the problem because Angular always running change detection **twice** in development mode.
 
 ---
 
@@ -3376,32 +3375,43 @@ tick(): void {
 
   - Кожного разу, коли ми натискаємо кнопку із слухачем в темплейті, **Angular** обгортатиме коллбек функцією `wrapListenerIn_markDirtyAndPreventDefault()`. І як ми бачимо з назви функції 😅, вона позначатиме компонент як змінений.
 
-  ```javascript
-  function wrapListener(): EventListener {
-    return function wrapListenerIn_markDirtyAndPreventDefault(e: any) {
-      // ... code removed for brevity
-      markViewDirty(startView); // mark the component as dirty
-    };
-  }
-  ```
+    ```javascript
+    function wrapListener(): EventListener {
+      return function wrapListenerIn_markDirtyAndPreventDefault(e: any) {
+        // ... code removed for brevity
+        markViewDirty(startView); // mark the component as dirty
+      };
+    }
+    ```
 
 - **`Changed inputs`** (properties with `@Input()` decorator)
 
-  - Також, в процесі роботи механізму `cd`, **Angular** перевірить, чи змінилося вхідне значення компонента (=== сувора перевірка). Якщо воно змінилося, це позначить компонент як змінений (dirty).
+  - Також, в процесі роботи механізму `cd`, **Angular** перевірить, чи змінилося вхідне значення компонента.
+    - It's comparing values by using a method called
+  `looseNotIdentical()`, which is really just a **===** comparison with special logic for the `NaN` case:
 
-  ```javascript
-  setInput(name: string, value: unknown): void {
-  // Do not set the input if it is the same as the last value
-    if (Object.is(this.previousInputValues.get(name), value)) {
-      return;
+    ```typescript
+    export function looseIdentical(a, b): boolean {
+      return a === b || typeof a === "number" && typeof b === "number"
+        && isNaN(a) && isNaN(b);
     }
-    // code removed for brevity
-    setInputsForProperty(lView[TVIEW], lView, dataValue, name, value);
-    markViewDirty(childComponentLView); // mark the component as dirty
-  }
-  ```
+    ```
 
-> Також по дефолту, Angular Change Detection в процесі перевірки, наприклад якщо ми передаємо в `@Input` об'єкт, порівнюватиме лише ті властивості, які використовуються в темплейті компонента.
+    - Якщо воно змінилося, це позначить компонент як змінений (dirty).
+
+    ```javascript
+    setInput(name: string, value: unknown): void {
+    // Do not set the input if it is the same as the last value
+      if (Object.is(this.previousInputValues.get(name), value)) {
+        return;
+      }
+      // code removed for brevity
+      setInputsForProperty(lView[TVIEW], lView, dataValue, name, value);
+      markViewDirty(childComponentLView); // mark the component as dirty
+    }
+    ```
+
+> Також по дефолту, Angular Change Detection в процесі перевірки, наприклад якщо ми передаємо в `@Input` об'єкт, порівнюватиме лише ті властивості об'єкта, які використовуються в темплейті компонента.
 
 - **`Output emissions`** (properties with `@Output()` decorator)
   - Щоб слухати вихідні зміни в **Angular**, ми реєструємо подію в темплейті. Відповідно, функція, яку ми назначили обробником цієї події, буде загорнута у `wrapListenerIn_markDirtyAndPreventDefault()`, і коли подія відбудеться, компонент буде позначено як змінений.
@@ -3457,14 +3467,14 @@ export function markViewDirty(lView: LView): LView | null {
 
 - There could be special occasions where we do want to turn off change detection. Imagine a situation where a lot of data arrives from the backend via a _websocket_. We might want to update a certain part of the UI only once every 5 seconds. To do so, we start by injecting the change detector into the component:
 
-```typescript
-constructor(private ref: ChangeDetectorRef) {
-  ref.detach();
-  setInterval(() => {
-    this.ref.detectChanges();
-  }, 5000);
-}
-```
+  ```typescript
+  constructor(private ref: ChangeDetectorRef) {
+    ref.detach();
+    setInterval(() => {
+      this.ref.detectChanges();
+    }, 5000);
+  }
+  ```
 
 - As we can see, we just **detach** the change detector with `detach()` method , which effectively turns off change detection. Then we simply trigger it manually every 5 seconds by calling `detectChanges()`.
 
@@ -3609,11 +3619,11 @@ export class TodosComponent {
 
 ---
 
-### Signals
+### Signals and Change detection
 
 Світ фронтенду рухається до використання `signals`. _`Solid.js`_, _`Svelte`_, _`Vue`_ і _`Angular`_ створюють свої реалізації сигналів. І це тому, що сигнали є кращим способом керування станом і змінами стану.
 
-- Сигнали в Angular принесли багато переваг `DX`. Ми можемо легко створювати та шерити стан, а також виконувати побічні дії, коли стан змінюється, за допомогою ефектів (`effects`).
+- Сигнали в Angular принесли багато переваг. Ми можемо легко створювати та шерити стан, а також виконувати побічні дії, коли стан змінюється, за допомогою ефектів (`effects`).
 - Нам не потрібно підписуватися на них, нам не потрібно скасовувати підписку на них і нам не потрібно турбуватися про витік пам'яті 🧯.
 - Ми можемо просто викликати їх, і вони повернуть своє поточне значення.
 
