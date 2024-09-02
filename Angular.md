@@ -3365,7 +3365,16 @@ tick(): void {
 
 ---
 
-### Component Dirty marking
+### Change detection process in Angular
+
+The change detection process in Angular involves **two** main stages:
+
+- **Marking the Component as Dirty**
+- **Refreshing the View**
+
+---
+
+#### Component Dirty marking
 
 Ще одна річ, яку робить **Angular**, полягає в тому, що він позначає компонент як змінений (**dirty**), коли знає, що щось усередині компонента змінилося.
 
@@ -3397,7 +3406,7 @@ tick(): void {
     }
     ```
 
-    - Якщо воно змінилося, це позначить компонент як змінений (dirty).
+    - Якщо воно змінилося, це позначить компонент як змінений (**dirty**).
 
     ```javascript
     setInput(name: string, value: unknown): void {
@@ -3452,31 +3461,35 @@ export function markViewDirty(lView: LView): LView | null {
 
 ---
 
-### Component binding refresh
+#### Component binding refresh
 
 - Під час роботи механізму **`cd`**, він перевіряє кожен компонент зверху вниз по дереву (від кореневого).
-- Він перевірить усі компоненти (змінені та незмінені) і перевірить їх властивості. Якщо властивість змінилася, **Angular** оновить темплейт.
+- Він перевірить усі компоненти (змінені та незмінені) і перевірить їх властивості. Якщо властивість змінилася, **Angular** оновить темплейт викликавши `refreshView()` method.
 
 Але чому **Angular** перевіряє всі компоненти 🤔? Чому він не перевіряє лише компоненти, які були позначені як брудні 🤔?
 
-Ну, тому що так працює стандартна стратегія виявлення змін (**change detection strategy**).
+Ну, тому що так працює стандартна стратегія виявлення змін (**default change detection strategy**).
 
 ---
 
-### turning on/off change detection, and triggering it manually
+#### turning on/off change detection, and triggering it manually
 
-- There could be special occasions where we do want to turn off change detection. Imagine a situation where a lot of data arrives from the backend via a _websocket_. We might want to update a certain part of the UI only once every 5 seconds. To do so, we start by injecting the change detector into the component:
+- **`detach()`**
+  - There could be special occasions where we do want to **turn off** change detection. Imagine a situation where a lot of data arrives from the backend via a _websocket_. We might want to update a certain part of the UI only once every 5 seconds. To do so, we start by injecting the change detector into the component:
+  
+    ```typescript
+    constructor(private ref: ChangeDetectorRef) {
+      ref.detach();
+      setInterval(() => {
+        this.ref.detectChanges();
+      }, 5000);
+    }
+    ```
 
-  ```typescript
-  constructor(private ref: ChangeDetectorRef) {
-    ref.detach();
-    setInterval(() => {
-      this.ref.detectChanges();
-    }, 5000);
-  }
-  ```
+  - As we can see, we just **detach** the change detector with `detach()` method , which effectively turns off change detection. Then we simply trigger it manually every 5 seconds by calling `detectChanges()`.
 
-- As we can see, we just **detach** the change detector with `detach()` method , which effectively turns off change detection. Then we simply trigger it manually every 5 seconds by calling `detectChanges()`.
+- **`reattach()`**
+  - Відповідно робить зворотну дію, тобто включає компонент назад в загальне дерево компонентів, яке буде перевіряти механізмом `cd`.
 
 ---
 
