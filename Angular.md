@@ -9,7 +9,7 @@
 
 > - Декоратори модифікують поведінку класів в Angular
 >
-[Example of custom decorators usage](https://medium.com/@ddmytro787/practical-angular-decorators-2d516be1feb8)
+> [Example of custom decorators usage](https://medium.com/@ddmytro787/practical-angular-decorators-2d516be1feb8)
 
 Приклад декораторів:
 
@@ -538,60 +538,56 @@ export class AppComponent {
   @Component({
     selector: 'app-customer-detail',
     templateUrl: './customer-detail.component.html',
-    styleUrls: ['./customer-detail.component.css']
+    styleUrls: ['./customer-detail.component.css'],
   })
   export class CustomerDetailComponent implements OnInit {
-    @Input({ required: true}) customer!: Customer; // Input property
+    @Input({ required: true }) customer!: Customer; // Input property
   }
   ```
 
   де `{ required: true }` - вказує про те, що ця властивість обов'язкова
-  
+
   В батьківському компоненті:
-  
+
   ```html
   <app-customer-detail [customer]="selectedCustomer"></app-customer-detail>
   ```
 
 - **`@Output()`** - дає можливість компоненту передавати дані наверх батьківському компоненту
-  
+
   ```typescript
   @Component({
     selector: 'app-customer-detail',
     templateUrl: './customer-detail.component.html',
-    styleUrls: ['./customer-detail.component.css']
+    styleUrls: ['./customer-detail.component.css'],
   })
   export class CustomerDetailComponent implements OnInit {
     @Output() customerChange: EventEmitter<Customer> = new EventEmitter<Customer>(); // Output property
-  
+
     update() {
       this.customerChange.emit(this.customer); // Raise the event
     }
   }
   ```
-  
+
   В батьківському компоненті:
-  
+
   ```html
-  <app-customer-detail
-    [customer]="selectedCustomer"
-    (customerChange)="update($event)">
-  </app-customer-detail>
-  
+  <app-customer-detail [customer]="selectedCustomer" (customerChange)="update($event)"> </app-customer-detail>
   ```
 
 - **`@ViewChild()`** - дає доступ до подання компонента, де ми в свою чергу можемо отримати доступ до елементів темплейта через _`#template reference`_ або навіть дочірніх компонентів. Також через цей декоратор можна в класі компонента динамічно отримати екземпляр іншого компонента і вставити його в наш темплейт
 
   > Html element access
-  
+
   Для доступу до елемента темплейта, додаємо на нього _`#template reference`_
-  
+
   ```html
   <p #description></p>
   ```
-  
+
   І далі в класі можемо його зчитати і модифікувати. Він буде доступний за посиланням: _`propertyName.nativeElement`_, посилання зберігатиме об'єкт _`ElementRef {nativeElement: p}`_, де будуть всі вбудовані властивості конкретного _`html`_ елемента.
-  
+
   ```javascript
   @Component({
     selector: 'app-rooms',
@@ -603,32 +599,32 @@ export class AppComponent {
   export class RoomsComponent implements OnInit
   {
     @ViewChild('description', { static: true }) description!: ElementRef;
-  
+
     ngOnInit(): void {
       this.description.nativeElement.innerText = 'Our goal is to provide best service';
     }
   }
   ```
-  
-  ---
-  
+
+  ***
+
   > Child component access
-  
+
   Якщо нам потрібно отримати доступ до дочірнього компонента який рендериться всередині нашого темплейта таким чином:
-  
+
   ```html
   <h1>Welcome to the {{ hotelName }}</h1>
   <app-header></app-header> --> Дочірній компонент
   <p>Available rooms</p>
   {{ rooms.availableRooms ?? "No rooms available" }}
   ```
-  
+
   це можна зробити за допомогою _`@ViewChild()`_ через використання _lifecycle hook_ _`ngAfterViewInit`_ або _`ngAfterViewChecked`_
-  
+
   ```javascript
   export class RoomsComponent implements AfterViewInit, AfterViewChecked {
     @ViewChild(HeaderComponent) header!: HeaderComponent;
-  
+
     constructor(private cdr: ChangeDetectorRef) {}
     ngAfterViewInit(): void {
       this.header.title = 'Hotel inventory'; //- тут це значення зміниться лише на наступному циклі change детектора
@@ -643,14 +639,14 @@ export class AppComponent {
     }
   }
   ```
-  
+
   Якщо ж нам потрібно отримати дані цього дочірнього компонента в _`ngOnInit`_, ми маємо вказати про це декоратору через спеціальну властивість _`static`_.
   По дефолту це значення _`false`_, щоб попередити можливі баги чи затримки у випадку, наприклад, коли у нашому вкладеному компоненті є асинхронні операції, які блокуватимуть _`execution flow`_ і відповідно ініціалізацію нашого батьківського компонента.
-  
+
   ```javascript
   export class RoomsComponent implements OnInit, AfterViewInit, AfterViewChecked {
     @ViewChild(HeaderComponent, { static: true }) header!: HeaderComponent;
-  
+
     ngOnInit(): void {
       this.header.title = 'Hotel inventory';// - ми можемо змінити значення властивості title компонента HeaderComponent з середини RoomsComponent в ngOnInit лише якщо вказано { static: true }.
     }
@@ -659,40 +655,40 @@ export class AppComponent {
     ngAfterViewChecked(): void {}
   }
   ```
-  
-  ---
-  
+
+  ***
+
   Також ми можемо динамічно рендерити компонент всередині нашого темплейта за допомогою цього декоратора.
   Додамо в наш темплейт тег _`ng-template`_ з _`#template reference`_
-  
+
   ```html
   <ng-template #bookRoom></ng-template>
   ```
-  
+
   Далі через _`@ViewChild()`_ ми в нашому класі можемо екземпляр потрібного компонента отримати і вставити в наш темплейт:
-  
+
   ```javascript
   import { BookButtonComponent } from '../book-button/book-button.component';
-  
+
   export class RoomsComponent implements AfterViewInit, AfterViewChecked
   {
     @ViewChild('bookRoom', { read: ViewContainerRef }) vcr!: ViewContainerRef;
-  
+
     ngAfterViewInit() {
       const componentRef = this.vcr.createComponent(BookButtonComponent); //тут ми отримуємо екземпляр нашого компонента який і буде відмальовано всередині ng-template
     }
   }
   ```
-  
+
   Також за потреби ми можемо отримати доступ до властивостей класу компонента і модифікувати їх
-  
+
   ```javascript
   ngAfterViewInit(): void {
     const componentRef = this.vcr.createComponent(BookButtonComponent);
     componentRef.instance.buttonLabel = 'Book new room'; //тут змінюємо значення потрібної властивості
   }
   ```
-  
+
 - **`@ViewChildren()`** - декоратор, який дає можливість отримати доступ до дочірніх компонентів темплейту, які ми використовуємо більше ніж один раз:
 
   ```html
@@ -702,18 +698,18 @@ export class AppComponent {
   <app-header></app-header>
   <app-header></app-header>
   ```
-  
+
   Далі в класі створюємо властивість з цим декоратором:
-  
+
   ```javascript
   export class RoomsComponent implements AfterViewInit, AfterViewChecked
   {
     @ViewChildren(HeaderComponent) headerChildren!: QueryList<HeaderComponent>;
   }
   ```
-  
+
   У властивості _`headerChildren`_ буде ось таке посилання на об'єкт:
-  
+
   ```javascript
   _QueryList
   dirty: false
@@ -733,19 +729,19 @@ export class AppComponent {
     changes: (...)
   [[Prototype]]: Object
   ```
-  
+
   І далі в _`ngAfterViewInit`_ ми вже маємо можливість працювати з кожним з цих компонентів:
-  
+
   ```javascript
   ngAfterViewInit(): void {
     this.headerChildren.last.title = 'Hotel inventory 2';
   }
   ```
-  
+
   > Для цього декоратора по дефолту _`{ static: false }`_ і змінити це значення не можна.
-  
+
   - **`@ContentChild()`** - дає доступ до елементів з атрибутом _`#someName`_ в темплейті, але тих, що додані через _`<ng-content></ng-content>`_, тобто шляхом `content projection`
-  
+
   ```html
   <app-rooms [hotelName]="hotelName">
     <!-- passing ng-content -->
@@ -753,47 +749,47 @@ export class AppComponent {
     <app-employee></app-employee>
   </app-rooms>
   ```
-  
+
   `rooms.component.ts`
-  
+
   ```javascript
   export class RoomsComponent implements AfterContentInit, AfterContentChecked
   {
     @ContentChild(EmployeeComponent) employee!: EmployeeComponent;
-  
+
     ngAfterContentInit(): void {
       this.employee.empName = 'Rick';
       this.empName = this.employee.employeeName;
     }
   }
   ```
-  
+
   `rooms.component.html`
-  
+
   ```html
   <!-- ng-content displaying -->
   <ng-content select="[data]"></ng-content>
   <ng-content select="app-employee"></ng-content>
   ```
-  
+
   `employee.component.ts`
-  
+
   ```javascript
   export class EmployeeComponent {
     empName: string = 'John Doe';
-  
+
     get employeeName(): string {
       return this.empName;
     }
   }
   ```
-  
+
 - **`ContentChildren()`** - використовується по аналогії з _`@ViewChildren`_, коли нам потрібен доступ до усього _`projected content`_.
 
 - **`HostListener('any supported event')`** - дає можливість слухати будь-яку подію, яка підтримується JS і виконувати потрібну нам функцію, яка приймає _`eventData`_ в момент спрацювання події.
 
 - **`HostBinding('property.subProperty')`** - в прикладі нижче ми говоримо Angular на елементі, де застосовується ця директива, звернутися до властивості _`style`_ під властивості _`backgroundColor`_ і встановити значення _`'red'`_. Пізніше через _`this.backgroundColor`_ можна встановити інше значення
-  
+
   ```typescript
   @Directive({
     selector: '[appBetterHighlight]',
@@ -802,34 +798,34 @@ export class AppComponent {
     @Input() defaultColor: string = 'transparent';
     @Input('appBetterHighlight') highlightColor: string = 'blue';
     @HostBinding('style.backgroundColor') backgroundColor: string;
-  
+
     constructor(private elRef: ElementRef, private renderer: Renderer2) {
       console.log('appBetterHighlight directive created');
     }
-  
+
     ngOnInit() {
       this.backgroundColor = this.defaultColor;
       // this.renderer.setStyle(this.elRef.nativeElement, 'background-color', 'blue');
     }
-  
+
     @HostListener('mouseenter') mouseover(eventData: Event) {
       // this.renderer.setStyle(this.elRef.nativeElement, 'background-color', 'blue');
       this.backgroundColor = this.highlightColor;
     }
-  
+
     @HostListener('mouseleave') mouseleave(eventData: Event) {
       // this.renderer.setStyle(this.elRef.nativeElement, 'background-color', 'transparent');
       this.backgroundColor = this.defaultColor;
     }
   }
   ```
-  
+
   ```html
   <p [appBetterHighlight]="'red'" defaultColor="yellow">Style me with a better directive!</p>
   ```
-  
+
   > Варто зауважити, що на прикладі вище ми поєднуємо селектор директиви з _`property-binding`_, тобто цей запис `[appBetterHighlight]="'red'"` означає, що ми до елементу додаємо директиву і одночасно прив'язуємось до відповідної властивості в директиві.
-  
+
 ---
 
 ## Template Reference
@@ -2195,9 +2191,9 @@ subscription.unsubscribe();
 secondSubscription.unsubscribe();
 ```
 
-By default, a subscription creates a one on one, one-sided conversation between the observable and observer. This is also known as **`unicasting`**.
+- By default, a subscription creates a one on one, one-sided conversation between the observable and observer. This is also known as **`unicasting`**.
 
-If we have one observable, many observers - you will take a different approach which includes **`multicasting`** with _`Subjects`_ (either explicitly or behind the scenes).
+- If we have one observable, many observers - you will take a different approach which includes **`multicasting`** with _`Subjects`_ (either explicitly or behind the scenes).
 
 ---
 
@@ -2241,7 +2237,7 @@ Whereas with a _`Promise`_, when you call the _`then`_ function, you are actuall
 
 3. Ну і по-третє, стрім можна уявити як щось з нашого життя, підписка на наш Medium канал, як тільки вийде нова стаття, ви обов'язково про неї дізнаєтесь, звичайно, якщо підпишетесь
 
-> > Якщо `Promise` — це константа, то `Observable(stream)` — це **Array<змінних>**
+> Якщо `Promise` — це константа, то `Observable(stream)` — це **Array<змінних>**
 >
 > Загалом використовувати _`Promise`_ в Angular це _`anti-pattern`_
 
@@ -2292,34 +2288,42 @@ const example = (operator: any) => () => {
       },
     });
 };
+example(mergeMap)();
+example(concatMap)();
+example(switchMap)();
+example(exhaustMap)();
 ```
 
-> from() ітерує значення в масиві і для кожного значення повертає новий Observable
+>**`from()`** ітерує значення в масиві і для кожного значення повертає новий Observable
 
 - **`mergeMap()`**
 
-  - Map to Observable, emit values. Внутрішній і зовнішній Observables не блокують виконання один одного, тобто значення з зовнішнього попадають у внутрішній одразу по мірі їх створення і внутрішній починає працювати одразу ж як отримав перше значення з зовнішнього стріма. Тобто по суті вони відпрацьовують паралельно.
+  - _Map to Observable, emit values_.
+    Внутрішній і зовнішній Observables не блокують виконання один одного, тобто значення з зовнішнього попадають у внутрішній одразу по мірі їх створення і внутрішній починає працювати одразу ж як отримав перше значення з зовнішнього стріма. Тобто по суті вони відпрацьовують паралельно.
   - `0, 1, 2, 3, 4, mergeMap completed` - з затримкою в 3 секунди отримаємо одразу всі значення
 
 - **`concatMap()`**
 
-  - Map values to inner observable, subscribe and emit in order. Оператор чекає на завершення кожного зі створених Observables. Тобто контролюватиме, щоб внутрішній Observable чекав на завершення виконання зовнішнього і навпаки. Тобто по суті observables відпрацьовують в порядку створення, один за одним.
-  - Приклад використання це 2 апі запита де для другого запита (inner observable) нам потрібні дані з першого (outer observable)
-  - `0, 1, 2, 3, 4, concatMap completed` - з затримкою в 3 секунди між кожним значенням отримаємо всі значення
+  - _Map values to inner observable, subscribe and emit in order._
+    - Оператор чекає на завершення кожного зі створених Observables. Тобто контролюватиме, щоб внутрішній Observable чекав на завершення виконання зовнішнього і навпаки. По суті observables відпрацьовують в порядку створення, один за одним.
+    - Приклад використання це 2 апі запита де для другого запита (inner observable) нам потрібні дані з першого (outer observable)
+    - `0, 1, 2, 3, 4, concatMap completed` - з затримкою в 3 секунди між кожним значенням отримаємо всі значення
 
 - **`switchMap()`**
 
-  - Map to observable, complete previous inner observable, emit values. Оператор чекає поки повністю завершиться зовнішній Observable і лише тоді його останнє значення передається у внутрішній Observable
-  - `4, switchMap completed` - з затримкою в 3 секунди отримаємо останнє значення
+  - _Map to observable, complete previous inner observable, emit values_.
+    - Оператор чекає поки повністю завершиться зовнішній Observable і лише тоді його останнє значення передається у внутрішній Observable
+    - `4, switchMap completed` - з затримкою в 3 секунди отримаємо останнє значення
 
 - **`exhaustMap()`**
-  - Map to inner observable, ignore other values until that observable completes. All next observables are ignored until observable will not be completed. Як тільки зовнішній observable згенерував значення, внутрішній одразу ж почне виконуватися і поки він не завершиться, навіть якщо зовнішній продовжить емітити нові значення, вони будуть просто ігноруватися.
-  - Приклад використання це ігнорування кліків на кнопку, яка робить якийсь запит на сервер, доки цей запит не завершиться
-  - `0, exhaustMap completed` - з затримкою в 3 секунди отримаємо перше значення
+  - _Map to inner observable, ignore other values until that observable completes. All next observables are ignored until observable will not be completed._
+    - Як тільки зовнішній observable згенерував значення, внутрішній одразу ж почне виконуватися і поки він не завершиться, навіть якщо зовнішній продовжить емітити нові значення, вони будуть просто ігноруватися.
+    - Приклад використання це ігнорування кліків на кнопку, яка робить якийсь запит на сервер, доки цей запит не завершиться
+    - `0, exhaustMap completed` - з затримкою в 3 секунди отримаємо перше значення
 
 #### Pipe
 
-The _`pipe`_ function is the assembly line from your observable data source through your operators. Just like raw material in a factory goes through a series of stops before it becomes a finished product, source data can pass through a _`pipe-line`_ of operators where you can manipulate, filter, and transform the data to fit your use case. It's not uncommon to use 5 (or more) operators within an observable chain, contained within the pipe function.
+The _`pipe`_ function is the assembly line from your observable data source through your operators. Just like raw material in a factory goes through a series of stops before it becomes a finished product, source data can pass through a _`pipe-line`_ of operators where you can _manipulate_, _filter_, and _transform_ the data to fit your use case. It's not uncommon to use 5 (or more) operators within an observable chain, contained within the pipe function.
 
 For instance, a typeahead solution built with observables may use a group of operators to optimize both the request and display process:
 
@@ -2346,7 +2350,7 @@ inputValue
 
 ### Subjects
 
-**`new Subject()`** - is a special type of Observable that allows values to be multicasted to many Observers.
+**`new Subject()`** - is a special type of Observable that allows values to be _**multicasted**_ to many Observers.
 
 _`Subjects`_ are like _`EventEmitters`_.
 
@@ -2380,7 +2384,7 @@ const sub = new Subject();
 
 sub.subscribe((value) => {
   console.log(value);
-  //після того, як виконається команда sub.next('вода'), в консолі ми побачимо 'new emitted value'
+  //після того, як виконається команда sub.next('new emitted value'), в консолі ми побачимо це нове значення
 });
 
 sub.next('new emitted value');
@@ -2417,7 +2421,7 @@ export class SubjectComponent {
 
 `ReplaySubject` — клас, який наслідує методи і властивості класу `Subject`.
 
-Зберігає в буфер значення потоку. Розмір буферу задається в функції конструкторі. Нова підписка миттєво отримає вміст буферу.
+Зберігає в буфер значення потоку. Розмір буферу задається в функції конструкторі. Нова підписка миттєво отримає вміст буферу. Простіше кажучи цей тип Subject буде емітити всі згенеровані значення для всіх підписників, неважливо коли ці значення були згенеровані і коли відбулась підписка
 
 #### AsyncSubject
 
@@ -2437,7 +2441,7 @@ const source3$ = new AsyncSubject();
 
 - Use an Observable when you want to subscribe to a stream of values emitted over time.
 - Observables are great for scenarios where you need to handle data streams from HTTP requests, WebSocket connections, or other asynchronous operations.
-- You can subscribe to an Observable using the .subscribe() method.
+- You can subscribe to an Observable using the `subscribe()` method.
 - Observables are more suitable when you only need to consume data and don't need to emit values yourself.
 
 #### Subject
@@ -2450,120 +2454,120 @@ const source3$ = new AsyncSubject();
 
 - `Subscription` with `OnDestroy()`
 
-```typescript
-export class PostsComponent implements OnDestroy {
-  interval$ = interval(1000);
-  intervalSubscription: Subscription;
-
-  constructor() {
-    this.intervalSubscription = this.interval$.subscribe((i) => {
-      console.log(i);
-    });
+  ```typescript
+  export class PostsComponent implements OnDestroy {
+    interval$ = interval(1000);
+    intervalSubscription: Subscription;
+  
+    constructor() {
+      this.intervalSubscription = this.interval$.subscribe((i) => {
+        console.log(i);
+      });
+    }
+  
+    ngOnDestroy() {
+      this.intervalSubscription.unsubscribe();
+    }
   }
-
-  ngOnDestroy() {
-    this.intervalSubscription.unsubscribe();
-  }
-}
-```
+  ```
 
 - `async pipe`
 
-```html
-<div>{{ interval$ | async }}</div>
-```
+  ```html
+  <div>{{ interval$ | async }}</div>
+  ```
 
-> Відписка відбудеться автоматично.
+  > Відписка відбудеться автоматично.
 
 - `take(count: number)` RxJS operator
 
-```typescript
-constructor() {
-  this.intervalSubscription = this.interval$.pipe(take(1)).subscribe((i) => {
-    console.log(i);
-  });
-}
-```
+  ```typescript
+  constructor() {
+    this.intervalSubscription = this.interval$.pipe(take(1)).subscribe((i) => {
+      console.log(i);
+    });
+  }
+  ```
 
-> Відписка відбудеться автоматично.
+  > Відписка відбудеться автоматично.
 
 - `takeWhile(predicate)` RxJS operator
 
-```typescript
-constructor() {
-  this.intervalSubscription = this.interval$.pipe(takeWhile((i) => i < 5>)).subscribe((i) => {
-    console.log(i);
-  });
-}
-```
+  ```typescript
+  constructor() {
+    this.intervalSubscription = this.interval$.pipe(takeWhile((i) => i < 5>)).subscribe((i) => {
+      console.log(i);
+    });
+  }
+  ```
 
-> Відписка відбудеться автоматично.
+  > Відписка відбудеться автоматично.
 
 - `takeUntil()` with `Subject` and `OnDestroy` RxJS operator
 
-```typescript
-export class PostsComponent implements OnDestroy {
-  interval$ = interval(1000);
-  unsubscribe$ = new Subject<void>();
-
-  constructor() {
-    this.interval$.pipe(takeUntil(this.unsubscribe$)).subscribe((i) => console.log(i)); //1 підписка
-    this.interval$.pipe(takeUntil(this.unsubscribe$)).subscribe((i) => console.log(i)); //2 підписка
+  ```typescript
+  export class PostsComponent implements OnDestroy {
+    interval$ = interval(1000);
+    unsubscribe$ = new Subject<void>();
+  
+    constructor() {
+      this.interval$.pipe(takeUntil(this.unsubscribe$)).subscribe((i) => console.log(i)); //1 підписка
+      this.interval$.pipe(takeUntil(this.unsubscribe$)).subscribe((i) => console.log(i)); //2 підписка
+    }
+  
+    ngOnDestroy() {
+      this.unsubscribe$.next();
+      this.unsubscribe$.complete();
+    }
   }
+  ```
 
-  ngOnDestroy() {
-    this.unsubscribe$.next();
-    this.unsubscribe$.complete();
+  > В даному способі ми спираємось на те, чи наш _`Subject`_ вже завершився, а завершиться він коли компонент буде розмонтовано.
+  >
+  > Також цей спосіб зручний тим, що ми можемо використати _`Subject`_ для всіх наших підписників в компоненті. Тоді не потрібно буде створювати для кожної підписки змінну з типом _`Subscription`_ і робити _`unsubscribe()`_.
+  >
+  > Відписка відбудеться автоматично.
+  
+  Цей спосіб можна покращити, використавши клас, який буде шерити загальну логіку:
+
+  ```typescript
+  export abstract class Unsubscribe implements OnDestroy {
+    unsubscribe$ = new Subject<void>();
+  
+    ngOnDestroy() {
+      this.unsubscribe$.next();
+      this.unsubscribe$.complete();
+    }
   }
-}
-```
+  ```
+  
+  І далі розширити наш основний клас:
 
-> В даному способі ми спираємось на те, чи наш _`Subject`_ вже завершився, а завершиться він коли компонент буде розмонтовано.
->
-> Також цей спосіб зручний тим, що ми можемо використати _`Subject`_ для всіх наших підписників в компоненті. Тоді не потрібно буде створювати для кожної підписки змінну з типом _`Subscription`_ і робити _`unsubscribe()`_.
->
-> Відписка відбудеться автоматично.
-
-Цей спосіб можна покращити, використавши клас, який буде шерити загальну логіку:
-
-```typescript
-export abstract class Unsubscribe implements OnDestroy {
-  unsubscribe$ = new Subject<void>();
-
-  ngOnDestroy() {
-    this.unsubscribe$.next();
-    this.unsubscribe$.complete();
+  ```typescript
+  export class PostsComponent extends Unsubscribe {
+    interval$ = interval(1000);
+  
+    constructor() {
+      super(); //для використання власного конструктора
+      this.interval$.pipe(takeUntil(this.unsubscribe$)).subscribe((i) => console.log(i)); //1 підписка
+      this.interval$.pipe(takeUntil(this.unsubscribe$)).subscribe((i) => console.log(i)); //2 підписка
+    }
   }
-}
-```
-
-І далі розширити наш основний клас:
-
-```typescript
-export class PostsComponent extends Unsubscribe {
-  interval$ = interval(1000);
-
-  constructor() {
-    super(); //для використання власного конструктора
-    this.interval$.pipe(takeUntil(this.unsubscribe$)).subscribe((i) => console.log(i)); //1 підписка
-    this.interval$.pipe(takeUntil(this.unsubscribe$)).subscribe((i) => console.log(i)); //2 підписка
-  }
-}
-```
+  ```
 
 - `takeUntilDestroyed` from @angular/core
 
-```typescript
-export class PostsComponent {
-  interval$ = interval(1000).pipe(takeUntilDestroyed());
-
-  constructor() {
-    this.interval$.subscribe((i) => console.log(i));
+  ```typescript
+  export class PostsComponent {
+    interval$ = interval(1000).pipe(takeUntilDestroyed());
+  
+    constructor() {
+      this.interval$.subscribe((i) => console.log(i));
+    }
   }
-}
-```
+  ```
 
-> Відписка буде зроблена автоматично, коли компонент буде розмонтовано.
+  > Відписка буде зроблена автоматично, коли компонент буде розмонтовано.
 
 ---
 
@@ -3358,8 +3362,8 @@ tick(): void {
 
 Метод `tick()` пройдеться по всім представленням компонентів починаючи з кореневого **(здебільшого у нас є лише одне кореневе представлення/компонент, яким є `AppComponent`)** і синхронно запустить `detectChanges()`.
 
->Each Angular component has an associated change detector, which is created at application startup time
->
+> Each Angular component has an associated change detector, which is created at application startup time
+
 - Також потрібно пам'ятати, що якщо під час розробки використовується `production mode`, `cd` механізм буде спрацьовувати лише раз при кожному виклику `tick()`, що не рекомендується, так як є шанс пропустити якусь помилку, наприклад при `change detection loop`.
 - Тому always use `development mode` during the development phase, as that will avoid the problem because Angular always running change detection **twice** in development mode.
 
@@ -3396,13 +3400,13 @@ The change detection process in Angular involves **two** main stages:
 - **`Changed inputs`** (properties with `@Input()` decorator)
 
   - Також, в процесі роботи механізму `cd`, **Angular** перевірить, чи змінилося вхідне значення компонента.
+
     - It's comparing values by using a method called
-  `looseNotIdentical()`, which is really just a **===** comparison with special logic for the `NaN` case:
+      `looseNotIdentical()`, which is really just a **===** comparison with special logic for the `NaN` case:
 
     ```typescript
     export function looseIdentical(a, b): boolean {
-      return a === b || typeof a === "number" && typeof b === "number"
-        && isNaN(a) && isNaN(b);
+      return a === b || (typeof a === 'number' && typeof b === 'number' && isNaN(a) && isNaN(b));
     }
     ```
 
@@ -3423,6 +3427,7 @@ The change detection process in Angular involves **two** main stages:
 > Також по дефолту, Angular Change Detection в процесі перевірки, наприклад якщо ми передаємо в `@Input` об'єкт, порівнюватиме лише ті властивості об'єкта, які використовуються в темплейті компонента.
 
 - **`Output emissions`** (properties with `@Output()` decorator)
+
   - Щоб слухати вихідні зміни в **Angular**, ми реєструємо подію в темплейті. Відповідно, функція, яку ми назначили обробником цієї події, буде загорнута у `wrapListenerIn_markDirtyAndPreventDefault()`, і коли подія відбудеться, компонент буде позначено як змінений.
 
 - **Async** pipe
@@ -3475,8 +3480,9 @@ export function markViewDirty(lView: LView): LView | null {
 #### turning on/off change detection, and triggering it manually
 
 - **`detach()`**
+
   - There could be special occasions where we do want to **turn off** change detection. Imagine a situation where a lot of data arrives from the backend via a _websocket_. We might want to update a certain part of the UI only once every 5 seconds. To do so, we start by injecting the change detector into the component:
-  
+
     ```typescript
     constructor(private ref: ChangeDetectorRef) {
       ref.detach();
