@@ -526,6 +526,8 @@ export class AppComponent {
 [ngClass]="even ? 'even' : 'odd'"
 ```
 
+`[(ngModel)]`
+
 ---
 
 ## Decorators types
@@ -736,7 +738,7 @@ export class AppComponent {
 
   > Для цього декоратора по дефолту _`{ static: false }`_ і змінити це значення не можна.
 
-  - **`@ContentChild()`** - дає доступ до елементів з атрибутом _`#someName`_ в темплейті, але тих, що додані через _`<ng-content></ng-content>`_, тобто шляхом `content projection`
+- **`@ContentChild()`** - дає доступ до елементів з атрибутом _`#someName`_ в темплейті, але тих, що додані через _`<ng-content></ng-content>`_, тобто шляхом `content projection`
 
   ```html
   <app-rooms [hotelName]="hotelName">
