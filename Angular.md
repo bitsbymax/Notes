@@ -399,11 +399,11 @@ _Angular_ вже використовує _`ng-template`_ під капотом 
 
 І це очікувана поведінка, бо використовуючи _`ng-template`_ ми лише визначаємо темплейт але ще не використовуємо ніде.
 
-We use the _`<ng-template>`_ because much like it's HTML5 counterpart `<template>`, it's also considered “virtual”.
+- We use the _`<ng-template>`_ because much like it's HTML5 counterpart `<template>`, it's also considered “virtual”.
 
-Being “virtual” means the _`<ng-template>`_ contents won't actually exist in the compiled DOM, until it's needed (you will never see it until Angular renders it).
+- Being “virtual” means the _`<ng-template>`_ contents won't actually exist in the compiled DOM, until it's needed (you will never see it until Angular renders it).
 
-When it's needed (for example the “else” expression kicks into play), Angular will grab the contents of the _`<ng-template>`_ tag, and replace the _`*ngIf`_ contents with it. That's it.
+- When it's needed (for example the “else” expression kicks into play), Angular will grab the contents of the _`<ng-template>`_ tag, and replace the _`*ngIf`_ contents with it. That's it.
 
 ---
 
@@ -866,19 +866,19 @@ export class AppComponent {
 - Створити файл, де назва слідує такому паттерну `some-name.directive.ts`
 - В файлі:
 
-```javascript
-  import { Directive } from '@angular/core'
-  @Directive({
-  selector: '[someName]'
-  })
-  export class SomeBasicDirective implements OnInit {
-    constructor(private elementReference: ElementRef) {}
-    ngOnInit() {
-      this.elementReference.nativeElement.style.color = 'red';
+  ```javascript
+    import { Directive } from '@angular/core'
+    @Directive({
+    selector: '[someName]'
+    })
+    export class SomeBasicDirective implements OnInit {
+      constructor(private elementReference: ElementRef) {}
+      ngOnInit() {
+        this.elementReference.nativeElement.style.color = 'red';
+      }
     }
-  }
-```
-
+  ```
+  
 - В _`NgModule`_ в _`declarations`_ додати `SomeBasicDirective`
 - В потрібний елемент DOM додати атрибут _`someName`_, назва якого має відповідати тій, що у властивості `selector` нашої директиви - таким чином на прикладі вище ми задамо колір нашому елементу
 
@@ -886,20 +886,20 @@ export class AppComponent {
 
 - Ще один доступний `API` для роботи з DOM елементами це **`Renderer2`**:
 
-```typescript
-import { Renderer2 } from '@angular/core';
-@Directive({
-  selector: '[someName]',
-})
-export class SomeBasicDirective implements OnInit {
-  constructor(private elementReference: ElementRef, private renderer: Renderer2) {}
-  ngOnInit() {
-    this.renderer.setStyle(this.elementReference.nativeElement, 'background-color', 'blue');
+  ```typescript
+  import { Renderer2 } from '@angular/core';
+  @Directive({
+    selector: '[someName]',
+  })
+  export class SomeBasicDirective implements OnInit {
+    constructor(private elementReference: ElementRef, private renderer: Renderer2) {}
+    ngOnInit() {
+      this.renderer.setStyle(this.elementReference.nativeElement, 'background-color', 'blue');
+    }
   }
-}
-```
-
-> [https://angular.io/api/core/Renderer2](https://angular.io/api/core/Renderer2) - тут більше методів класу **Renderer2**
+  ```
+  
+  > [https://angular.io/api/core/Renderer2](https://angular.io/api/core/Renderer2) - тут більше методів класу **Renderer2**
 
 ---
 
@@ -1064,83 +1064,83 @@ In Angular, the _`providedIn`_ property is used in the _`@Injectable`_ decorator
 
 - `'root'`: The service is available throughout the entire application as a singleton. This is the most common and recommended option for services that need to be accessible globally.
 
-```typescript
-@Injectable({
-  providedIn: 'root',
-})
-export class MyService {}
-```
+  ```typescript
+  @Injectable({
+    providedIn: 'root',
+  })
+  export class MyService {}
+  ```
 
 - `'any'`: A new instance of the service is created for each lazy-loaded module that injects it. This can be useful for services that should not be shared across different modules.
 
-```typescript
-@Injectable({
-  providedIn: 'any',
-})
-export class MyService {}
-```
-
+  ```typescript
+  @Injectable({
+    providedIn: 'any',
+  })
+  export class MyService {}
+  ```
+  
 - `Specific Module`: You can specify a particular module where the service should be provided. This means the service will be available only within that module and its child modules.
 
-```typescript
-@Injectable({
-  providedIn: SomeModule,
-})
-export class MyService {}
-```
-
+  ```typescript
+  @Injectable({
+    providedIn: SomeModule,
+  })
+  export class MyService {}
+  ```
+  
 - `null`: If you set providedIn to null, the service will not be provided automatically. You will need to add it to the providers array of a component or module manually.
 
-```typescript
-@Injectable({
-  providedIn: null,
-})
-export class MyService {}
-```
-
+  ```typescript
+  @Injectable({
+    providedIn: null,
+  })
+  export class MyService {}
+  ```
+  
 These options allow you to control the scope and lifecycle of your services, optimizing your application’s performance and organization.
 
 ### Hierarchical Injectors in Angular
 
 - `Element Injector` — registers dependencies defined in _`providers`_ inside the _`@Component`_ or _`@Directive`_ decorators. These dependencies are available for the component and its children.
 
-```typescript
-@Component({
-  ...
-  providers: [UserService]
-})
-export class UserComponent {}
-```
-
+  ```typescript
+  @Component({
+    ...
+    providers: [UserService]
+  })
+  export class UserComponent {}
+  ```
+  
 - `Environment Injector` — child hierarchies of the environment injector are created whenever dynamically loaded components are created, such as with a router. In that case, the injector is available for components and its children. It is higher in the hierarchy than the element injector in the same component.
 
-```typescript
-const routes: Routes = [{ path: 'user', component: UserComponent, providers: [UserService] }];
-```
-
+  ```typescript
+  const routes: Routes = [{ path: 'user', component: UserComponent, providers: [UserService] }];
+  ```
+  
 - `Environment Root Injector` — contains globally available dependencies decorated with _`@Injectable`_ and having **providedIn** set to **"root"** or **"platform"**.
 
-```typescript
-@Injectable({ providedIn: 'root' })
-export class UserService {
-  name = 'John';
-}
-```
+  ```typescript
+  @Injectable({ providedIn: 'root' })
+  export class UserService {
+    name = 'John';
+  }
+  ```
+  
+  or defined in _`providers`_ of the _`ApplicationConfig`_ interface:
 
-or defined in _`providers`_ of the _`ApplicationConfig`_ interface:
-
-```typescript
-bootstrapApplication(AppComponent, { providers: [UserService] });
-```
-
-> Decorator that marks a class as available to be provided and injected as a dependency:
-
-```typescript
-@Injectable(options?: ({ providedIn: Type<any> | "root" | "platform" | "any" | null }) & InjectableProvider)
-```
-
-> To achieve better optimization, it’s recommended to use the _`@Injectable`_ decorator. Such a definition makes dependencies _`tree-shakeable`_ — they are removed from bundled files if they haven’t been used.
-
+  ```typescript
+  bootstrapApplication(AppComponent, { providers: [UserService] });
+  ```
+  
+  > Decorator that marks a class as available to be provided and injected as a dependency:
+  
+  ```typescript
+  @Injectable(options?: ({ providedIn: Type<any> | "root" | "platform" | "any" | null }) & InjectableProvider)
+  ```
+  
+  > To achieve better optimization, it’s recommended to use the _`@Injectable`_ decorator. Such a definition makes dependencies _`tree-shakeable`_ — they are removed from bundled files if they haven’t been used.
+  
 - `Module Injector` — in module-based applications, this injector stores global dependencies decorated with _`@Injectable`_ and having **providedIn** set to **"root"** or **"platform"**. Additionally, it keeps track of dependencies defined in the _`providers`_ array within _`@NgModule`_. During compilation, Angular also recursively registers dependencies from eagerly loaded modules. Child hierarchies of _`Module Injector`_ are created by lazy loaded modules.
 
 - `Platform Injector` — configured by Angular, this injector registers platform-specific dependencies such as _`DomSanitizer`_ or the _`PLATFORM_ID token`_. Additional dependencies can be defined by passing them to the _`extraProviders`_ array in the _`platformBrowserDynamic`_ function parameter.
@@ -1165,44 +1165,44 @@ In this hierarchical order, if a dependency exists in more than injector, the in
 
 - `@Self()`
 
-Декоратор параметрів _`constructor() {}`_ який говорить _`DI framework`_ почати пошук залежностей з `Element injector`.
-В такому разі сервіс потрібно додати в _`providers`_, інакше буде помилка `"Null Injector: NOT_FOUND"` .
-
-```javascript
-constructor(@Self() private roomsService: RoomsService) {}
-```
-
+  Декоратор параметрів _`constructor() {}`_ який говорить _`DI framework`_ почати пошук залежностей з `Element injector`.
+  В такому разі сервіс потрібно додати в _`providers`_, інакше буде помилка `"Null Injector: NOT_FOUND"` .
+  
+  ```javascript
+  constructor(@Self() private roomsService: RoomsService) {}
+  ```
+  
 - `@SkipSelf()`
 
-Декоратор параметрів _`constructor() {}`_ який говорить _`DI framework`_ почати пошук залежностей з батьківського `Element Injector`. Локальний інжектор перевірятися на наявність провайдера не буде.
-
-```javascript
-constructor(@SkipSelf() private roomsService: RoomsService) {}
-```
-
+  Декоратор параметрів _`constructor() {}`_ який говорить _`DI framework`_ почати пошук залежностей з батьківського `Element Injector`. Локальний інжектор перевірятися на наявність провайдера не буде.
+  
+  ```javascript
+  constructor(@SkipSelf() private roomsService: RoomsService) {}
+  ```
+  
 - `@Optional()`
 
-Декоратор параметрів _`constructor() {}`_, який позначає параметр як опційну залежність. _`DI framework`_ повертає _`null`_, а не викидає помилку якщо залежність не буде знайдено.
-Може бути використаний разом з іншими декораторами, які модифікують поведінку _`DI`_.
-
-```javascript
-constructor(@Optional() private loggerService: LoggerService) {}`
-```
-
+  Декоратор параметрів _`constructor() {}`_, який позначає параметр як опційну залежність. _`DI framework`_ повертає _`null`_, а не викидає помилку якщо залежність не буде знайдено.
+  Може бути використаний разом з іншими декораторами, які модифікують поведінку _`DI`_.
+  
+  ```javascript
+  constructor(@Optional() private loggerService: LoggerService) {}`
+  ```
+  
 - `@Host()`
 
-Декоратор параметрів _`constructor() {}`_ батьківського компонента або компонента хоста, якщо це наприклад компонент, через який відбувається _`content projection`_, який говорить _`DI framework`_ завершити створення подання _(view)_, перевіряючи інжектори дочірніх елементів і зупинятися при досягненні елемента хоста.
-
-```javascript
-constructor(@Host() private roomsService: RoomsService) {}
-```
-
-> Described decorators can be used for dependencies defined as `constructor` parameters. When we use the `inject` function, flags with names corresponding to decorators should be set in the options object:
-
-```typescript
-userService = inject(UserService, { optional: true, skipSelf: true });
-```
-
+  Декоратор параметрів _`constructor() {}`_ батьківського компонента або компонента хоста, якщо це наприклад компонент, через який відбувається _`content projection`_, який говорить _`DI framework`_ завершити створення подання _(view)_, перевіряючи інжектори дочірніх елементів і зупинятися при досягненні елемента хоста.
+  
+  ```javascript
+  constructor(@Host() private roomsService: RoomsService) {}
+  ```
+  
+  > Described decorators can be used for dependencies defined as `constructor` parameters. When we use the `inject` function, flags with names corresponding to decorators should be set in the options object:
+  
+  ```typescript
+  userService = inject(UserService, { optional: true, skipSelf: true });
+  ```
+  
 ---
 
 ### Dependency Injection Providers
@@ -1351,62 +1351,62 @@ constructor(@Inject(APP_SERVICE_CONFIG) private config: AppConfig) {
 
 #### Factory Provider
 
-Using the factory provider, let's create a dependency based on runtime values by calling a function defined in _`useFactory`_.
+- Using the factory provider, let's create a dependency based on runtime values by calling a function defined in _`useFactory`_.
 
-```typescript
-@Injectable()
-export class SecretMessageService {
-  constructor(
-    private readonly logger: Logger,
-    private readonly isAuthorized: boolean
-  ) {}
-
-  private secretMessage = 'My secret message';
-
-  getSecretMessage(): string | null {
-    if (!this.isAuthorized) {
-        this.logger.log('Authorize to get secret message!');
-        return null;
+  ```typescript
+  @Injectable()
+  export class SecretMessageService {
+    constructor(
+      private readonly logger: Logger,
+      private readonly isAuthorized: boolean
+    ) {}
+  
+    private secretMessage = 'My secret message';
+  
+    getSecretMessage(): string | null {
+      if (!this.isAuthorized) {
+          this.logger.log('Authorize to get secret message!');
+          return null;
+      }
+  
+      return this.secretMessage;
     }
-
-    return this.secretMessage;
   }
-}
-
-@Component({
-  ...,
-  providers: [
-    {
-      provide: SecretMessageService,
-      useFactory: (logger: Logger, authService: AuthService) =>
-        new SecretMessageService(logger, authService.isAuthorized),
-      deps: [Logger, AuthService]
+  
+  @Component({
+    ...,
+    providers: [
+      {
+        provide: SecretMessageService,
+        useFactory: (logger: Logger, authService: AuthService) =>
+          new SecretMessageService(logger, authService.isAuthorized),
+        deps: [Logger, AuthService]
+      }
+    ]
+  })
+  export class MyComponent {
+    constructor(private readonly secretMessageService: SecretMessageService) {
+      const secretMessage = this.secretMessageService.getSecretMessage()
     }
-  ]
-})
-export class MyComponent {
-  constructor(private readonly secretMessageService: SecretMessageService) {
-    const secretMessage = this.secretMessageService.getSecretMessage()
   }
-}
-```
+  ```
+  
+  This provider contains an additional field, _`deps`_, which is an array of tokens passed as arguments of the factory function. The **order** in which they are defined is **important**.
 
-This provider contains an additional field, _`deps`_, which is an array of tokens passed as arguments of the factory function. The **order** in which they are defined is **important**.
+- For functions with more arguments, it may be more convenient and flexible to replace them with a single _`Injector`_, which allows Angular to retrieve the needed dependencies inside the function. It would look something like this:
 
-For functions with more arguments, it may be more convenient and flexible to replace them with a single _`Injector`_, which allows Angular to retrieve the needed dependencies inside the function. It would look something like this:
-
-```typescript
-{
-  provide: SecretMessageService,
-  useFactory: (injector: Injector) => {
-    const logger = injector.get(Logger);
-    const authService = injector.get(AuthService);
-    return new SecretMessageService(logger, authService.isAuthorized)
-  },
-  deps: [Injector]
-}
-```
-
+  ```typescript
+  {
+    provide: SecretMessageService,
+    useFactory: (injector: Injector) => {
+      const logger = injector.get(Logger);
+      const authService = injector.get(AuthService);
+      return new SecretMessageService(logger, authService.isAuthorized)
+    },
+    deps: [Injector]
+  }
+  ```
+  
 ---
 
 Another interesting use case is when we don't know in advance what dependency we want to use, and it is determined by some runtime condition. To use a simple example, we could have a service that connects to an external API, and we want to limit the number of requests sent so as not to generate additional costs:
@@ -1685,13 +1685,13 @@ function initFactory(initService: InitService) {
 - Підключення роутінгу: _`import { RouterModule, Routes } from "@angular/router";`_
 - Далі передати в _`imports: [RouterModule.forRoot(appRoutes)]`_, де _`appRoutes`_ - змінна, куди ми прописали наші шляхи ось в такому вигляді:
 
-```typescript
-const appRoutes: Routes = [
-  { path: '', component: HomeComponent },
-  { path: 'users', component: UsersComponent },
-  { path: 'servers', component: ServersComponent },
-];
-```
+  ```typescript
+  const appRoutes: Routes = [
+    { path: '', component: HomeComponent },
+    { path: 'users', component: UsersComponent },
+    { path: 'servers', component: ServersComponent },
+  ];
+  ```
 
 - В самих лінках використовується `routerLink='/somePath'` або `[routerLink]="['/tags', tagName]"` замість _`href`_. Тоді при переході сторінка не буде перезавантажуватися, як з використанням _`href`_. `routerLink` завжди знає, для якого компонента він застосовується, так як для нього прописаний конкретний шлях.
 - Для рендерингу темплейту, в розмітку додається _`<router-outlet></router-outlet>`_, після якого Angular додасть в DOM компонент, який відповідатиме поточному шляху, відповідно до того, що було налаштовано в `routes: Routes = []`.
