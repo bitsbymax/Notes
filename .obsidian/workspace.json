@@ -4,23 +4,11 @@
     "type": "split",
     "children": [
       {
-        "id": "69565389256d8ebc",
+        "id": "70fbfa7799e65011",
         "type": "tabs",
         "children": [
           {
-            "id": "bd74cead676b672e",
-            "type": "leaf",
-            "state": {
-              "type": "markdown",
-              "state": {
-                "file": "Angular.md",
-                "mode": "preview",
-                "source": false
-              }
-            }
-          },
-          {
-            "id": "9b7ab12b268880df",
+            "id": "4f0841143b01d6cf",
             "type": "leaf",
             "state": {
               "type": "markdown",
@@ -29,28 +17,7 @@
                 "mode": "source",
                 "source": false
               }
-            },
-            "group": "5e04d6a7795fede5"
-          }
-        ],
-        "currentTab": 1
-      },
-      {
-        "id": "c263bb3500f0fc79",
-        "type": "tabs",
-        "children": [
-          {
-            "id": "b3b00d216326ba86",
-            "type": "leaf",
-            "state": {
-              "type": "markdown",
-              "state": {
-                "file": "MacOS shortcuts.md",
-                "mode": "preview",
-                "source": false
-              }
-            },
-            "group": "5e04d6a7795fede5"
+            }
           }
         ]
       }
@@ -180,9 +147,10 @@
       "command-palette:Open command palette": false
     }
   },
-  "active": "b3b00d216326ba86",
+  "active": "4f0841143b01d6cf",
   "lastOpenFiles": [
-    "Angular.md",
-    "MacOS shortcuts.md"
+    "SE Interview Questions.md",
+    "MacOS shortcuts.md",
+    "Angular.md"
   ]
 }
