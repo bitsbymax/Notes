@@ -7,12 +7,12 @@
 5. **`Option-F`** - open settings
 6. **`Ctrl- ←|→`** - moving between Desktops/Spaces
 7. **`Option-Cmd-H`** - hide all windows except focused one
-7. **`Option-Cmd-M`** - minimize all windows of the current app
-8. **`Shift-Option-volume/brightness`** - up/down volume/brightness by smaller steps
-9. **`Option-Mouse click`**- on any icon in the dock will hide apps windows one by one
-10. **`Cmd-Mouse click`**- on any icon in the dock will show app executable folder
-11. **`Ctrl-Mouse click`**- on any icon in the dock will imitate right click
-12. **`Shift-Cmd-Backspace`** - clean a trash 
+8. **`Option-Cmd-M`** - minimize all windows of the current app
+9. **`Shift-Option-volume/brightness`** - up/down volume/brightness by smaller steps
+10. **`Option-Mouse click`**- on any icon in the dock will hide apps windows one by one
+11. **`Cmd-Mouse click`**- on any icon in the dock will show app executable folder
+12. **`Ctrl-Mouse click`**- on any icon in the dock will imitate right click
+13. **`Shift-Cmd-Backspace`** - clean a trash
 
 ## VSCode shortcuts
 
