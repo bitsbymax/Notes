@@ -28,6 +28,8 @@
 10. **`Cmd-J`** - terminal
 11. **`Option-Cmd- ←|→`** - moving between tabs
 12. **`Shift-Cmd-O`** - all chapters of the Markdown
+13. **`Option-Cmd- ←|→`** - move focus between groups
+14. **`Ctrl-Cmd- ←|→`** - move tab between groups
 
 ## Flow
 

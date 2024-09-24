@@ -69,8 +69,7 @@
       }
     ],
     "direction": "horizontal",
-    "width": 300,
-    "collapsed": true
+    "width": 300
   },
   "right": {
     "id": "e4cb1273a42bd5d1",
@@ -149,8 +148,9 @@
   },
   "active": "4f0841143b01d6cf",
   "lastOpenFiles": [
-    "SE Interview Questions.md",
+    "Angular.md",
+    "Rendering.md",
     "MacOS shortcuts.md",
-    "Angular.md"
+    "SE Interview Questions.md"
   ]
 }
