@@ -878,7 +878,7 @@ export class AppComponent {
       }
     }
   ```
-  
+
 - В _`NgModule`_ в _`declarations`_ додати `SomeBasicDirective`
 - В потрібний елемент DOM додати атрибут _`someName`_, назва якого має відповідати тій, що у властивості `selector` нашої директиви - таким чином на прикладі вище ми задамо колір нашому елементу
 
@@ -898,7 +898,7 @@ export class AppComponent {
     }
   }
   ```
-  
+
   > [https://angular.io/api/core/Renderer2](https://angular.io/api/core/Renderer2) - тут більше методів класу **Renderer2**
 
 ---
@@ -1008,6 +1008,10 @@ It’s worth remembering that the inject function can only be used inside an inj
 
 An abstraction called **`Injector`** is responsible for resolving dependencies. It can store an instance of a required dependency. If it already exists, it’s passed onto the consumer. Otherwise, a new instance is created and passed as a constructor parameter and stored in memory. Every dependency inside an `Injector` is a _`singleton`_ — which means there’s always only one instance.
 
+>Angular Injector є чудовим прикладом абстракції в програмуванні. Він відповідає за надання залежностей компонентам та сервісам, приховуючи деталі створення та управління цими залежностями.
+>
+>Інжектор в Angular є частиною системи Dependency Injection (DI). Коли компонент або сервіс потребує залежність, він оголошує її у своєму конструкторі. Інжектор відповідає за створення та надання цієї залежності.
+
 To better demonstrate this process, let’s create a simple example. Let’s assume that we have a class representing some service:
 
 ```typescript
@@ -1079,7 +1083,7 @@ In Angular, the _`providedIn`_ property is used in the _`@Injectable`_ decorator
   })
   export class MyService {}
   ```
-  
+
 - `Specific Module`: You can specify a particular module where the service should be provided. This means the service will be available only within that module and its child modules.
 
   ```typescript
@@ -1088,7 +1092,7 @@ In Angular, the _`providedIn`_ property is used in the _`@Injectable`_ decorator
   })
   export class MyService {}
   ```
-  
+
 - `null`: If you set providedIn to null, the service will not be provided automatically. You will need to add it to the providers array of a component or module manually.
 
   ```typescript
@@ -1097,7 +1101,7 @@ In Angular, the _`providedIn`_ property is used in the _`@Injectable`_ decorator
   })
   export class MyService {}
   ```
-  
+
 These options allow you to control the scope and lifecycle of your services, optimizing your application’s performance and organization.
 
 ### Hierarchical Injectors in Angular
@@ -1111,13 +1115,13 @@ These options allow you to control the scope and lifecycle of your services, opt
   })
   export class UserComponent {}
   ```
-  
+
 - `Environment Injector` — child hierarchies of the environment injector are created whenever dynamically loaded components are created, such as with a router. In that case, the injector is available for components and its children. It is higher in the hierarchy than the element injector in the same component.
 
   ```typescript
   const routes: Routes = [{ path: 'user', component: UserComponent, providers: [UserService] }];
   ```
-  
+
 - `Environment Root Injector` — contains globally available dependencies decorated with _`@Injectable`_ and having **providedIn** set to **"root"** or **"platform"**.
 
   ```typescript
@@ -1126,21 +1130,21 @@ These options allow you to control the scope and lifecycle of your services, opt
     name = 'John';
   }
   ```
-  
+
   or defined in _`providers`_ of the _`ApplicationConfig`_ interface:
 
   ```typescript
   bootstrapApplication(AppComponent, { providers: [UserService] });
   ```
-  
-  > Decorator that marks a class as available to be provided and injected as a dependency:
-  
+
+  >`@Injectable` - decorator that marks a class as available to be provided and injected as a dependency:
+
   ```typescript
   @Injectable(options?: ({ providedIn: Type<any> | "root" | "platform" | "any" | null }) & InjectableProvider)
   ```
-  
+
   > To achieve better optimization, it’s recommended to use the _`@Injectable`_ decorator. Such a definition makes dependencies _`tree-shakeable`_ — they are removed from bundled files if they haven’t been used.
-  
+
 - `Module Injector` — in module-based applications, this injector stores global dependencies decorated with _`@Injectable`_ and having **providedIn** set to **"root"** or **"platform"**. Additionally, it keeps track of dependencies defined in the _`providers`_ array within _`@NgModule`_. During compilation, Angular also recursively registers dependencies from eagerly loaded modules. Child hierarchies of _`Module Injector`_ are created by lazy loaded modules.
 
 - `Platform Injector` — configured by Angular, this injector registers platform-specific dependencies such as _`DomSanitizer`_ or the _`PLATFORM_ID token`_. Additional dependencies can be defined by passing them to the _`extraProviders`_ array in the _`platformBrowserDynamic`_ function parameter.
@@ -1167,42 +1171,42 @@ In this hierarchical order, if a dependency exists in more than injector, the in
 
   Декоратор параметрів _`constructor() {}`_ який говорить _`DI framework`_ почати пошук залежностей з `Element injector`.
   В такому разі сервіс потрібно додати в _`providers`_, інакше буде помилка `"Null Injector: NOT_FOUND"` .
-  
+
   ```javascript
   constructor(@Self() private roomsService: RoomsService) {}
   ```
-  
+
 - `@SkipSelf()`
 
   Декоратор параметрів _`constructor() {}`_ який говорить _`DI framework`_ почати пошук залежностей з батьківського `Element Injector`. Локальний інжектор перевірятися на наявність провайдера не буде.
-  
+
   ```javascript
   constructor(@SkipSelf() private roomsService: RoomsService) {}
   ```
-  
+
 - `@Optional()`
 
   Декоратор параметрів _`constructor() {}`_, який позначає параметр як опційну залежність. _`DI framework`_ повертає _`null`_, а не викидає помилку якщо залежність не буде знайдено.
   Може бути використаний разом з іншими декораторами, які модифікують поведінку _`DI`_.
-  
+
   ```javascript
   constructor(@Optional() private loggerService: LoggerService) {}`
   ```
-  
+
 - `@Host()`
 
   Декоратор параметрів _`constructor() {}`_ батьківського компонента або компонента хоста, якщо це наприклад компонент, через який відбувається _`content projection`_, який говорить _`DI framework`_ завершити створення подання _(view)_, перевіряючи інжектори дочірніх елементів і зупинятися при досягненні елемента хоста.
-  
+
   ```javascript
   constructor(@Host() private roomsService: RoomsService) {}
   ```
-  
+
   > Described decorators can be used for dependencies defined as `constructor` parameters. When we use the `inject` function, flags with names corresponding to decorators should be set in the options object:
-  
+
   ```typescript
   userService = inject(UserService, { optional: true, skipSelf: true });
   ```
-  
+
 ---
 
 ### Dependency Injection Providers
@@ -1360,19 +1364,19 @@ constructor(@Inject(APP_SERVICE_CONFIG) private config: AppConfig) {
       private readonly logger: Logger,
       private readonly isAuthorized: boolean
     ) {}
-  
+
     private secretMessage = 'My secret message';
-  
+
     getSecretMessage(): string | null {
       if (!this.isAuthorized) {
           this.logger.log('Authorize to get secret message!');
           return null;
       }
-  
+
       return this.secretMessage;
     }
   }
-  
+
   @Component({
     ...,
     providers: [
@@ -1390,7 +1394,7 @@ constructor(@Inject(APP_SERVICE_CONFIG) private config: AppConfig) {
     }
   }
   ```
-  
+
   This provider contains an additional field, _`deps`_, which is an array of tokens passed as arguments of the factory function. The **order** in which they are defined is **important**.
 
 - For functions with more arguments, it may be more convenient and flexible to replace them with a single _`Injector`_, which allows Angular to retrieve the needed dependencies inside the function. It would look something like this:
@@ -1406,7 +1410,7 @@ constructor(@Inject(APP_SERVICE_CONFIG) private config: AppConfig) {
     deps: [Injector]
   }
   ```
-  
+
 ---
 
 Another interesting use case is when we don't know in advance what dependency we want to use, and it is determined by some runtime condition. To use a simple example, we could have a service that connects to an external API, and we want to limit the number of requests sent so as not to generate additional costs:
@@ -2111,9 +2115,9 @@ export class DummyComponent implements NgOnInit {
 
 An _`Observable`_ is the main tool provided by the _`RxJS`_ library whose _`Angular`_ uses extensively. As with a regular _`JavaScript Promise`_, the goal of an Observable is to handle asynchronous events.
 
-It can be used to represent data from a server, a UI event, or any other kind of data stream.
+- It can be used to represent data from a server, a UI event, or any other kind of data stream.
 
-An observable can have multiple observers subscribed to it and will notify them whenever new values are emitted.
+- An observable can have multiple observers subscribed to it and will notify them whenever new values are emitted.
 
 _`Creating Observable manually`_
 
@@ -2125,7 +2129,7 @@ observable = new Observable<number>((observer) => {
 });
 ```
 
-You can create an _`Observable`_ from nearly anything, but the most common use case in RxJS is from _`events`_. This can be anything from mouse moves, button clicks, input into a text field, or even route changes.
+- You can create an _`Observable`_ from nearly anything, but the most common use case in RxJS is from _`events`_. This can be anything from mouse moves, button clicks, input into a text field, or even route changes.
 
 The easiest way to create an observable is through the built in _`creation`_ functions. For example, we can use the _`fromEvent`_ helper function to create an observable of mouse click events:
 
@@ -2141,7 +2145,8 @@ const myObservable = fromEvent(button, 'click');
 ```
 
 At this point we have an observable but it's not doing anything.
-**This is because observables are cold, or do not activate a producer (like wiring up an event listener), until there is a...**
+
+- **This is because observables are cold, or do not activate a producer (like wiring up an event listener), until there is a...**
 
 ---
 
@@ -2149,7 +2154,9 @@ At this point we have an observable but it's not doing anything.
 
 _`Subscriptions`_ are what set everything in motion. You can think of this like a faucet, you have a stream of water ready to be tapped (observable), someone just needs to turn the handle. In the case of observables, that role belongs to the subscriber.
 
-To create a _`Subscription`_, you call the **`subscribe`** method, supplying a function (or object) - also known as an **`observer`**. This is where you can decide how to react(-ive programming) to each event. Let's walk through what happens in the previous scenario when a subscription is created:
+To create a _`Subscription`_, you call the **`subscribe`** method, supplying a function (or object) - also known as an **`observer`**. This is where you can decide how to react(-ive programming) to each event.
+
+Let's walk through what happens in the previous scenario when a subscription is created:
 
 ```typescript
 // import the fromEvent operator
@@ -2175,49 +2182,49 @@ In the example above, calling _`myObservable.subscribe()`_ will:
 
 ---
 
-It's important to note that each _`Subscription`_ will create a **`new execution context`**. This means calling `subscribe` a second time will create a new event listener:
+- It's important to note that each _`Subscription`_ will create a **`new execution context`**. This means calling `subscribe` a second time will create a new event listener:
 
-```typescript
-// addEventListener called
-const subscription = myObservable.subscribe((event) => console.log(event));
+  ```typescript
+  // addEventListener called
+  const subscription = myObservable.subscribe((event) => console.log(event));
 
-// addEventListener called again!
-const secondSubscription = myObservable.subscribe((event) => console.log(event));
+  // addEventListener called again!
+  const secondSubscription = myObservable.subscribe((event) => console.log(event));
 
-// clean up with unsubscribe
-subscription.unsubscribe();
-secondSubscription.unsubscribe();
-```
+  // clean up with unsubscribe
+  subscription.unsubscribe();
+  secondSubscription.unsubscribe();
+  ```
 
-- By default, a subscription creates a one on one, one-sided conversation between the observable and observer. This is also known as **`unicasting`**.
+- By default, a subscription creates a **one on one**, one-sided conversation between the observable and observer. This is also known as **`unicasting`**.
 
 - If we have one observable, many observers - you will take a different approach which includes **`multicasting`** with _`Subjects`_ (either explicitly or behind the scenes).
 
 ---
 
-`Subscribing to data with Happy path callback`
+- `Subscribing to data with Happy path callback`
 
-```typescript
-ngOnInit(): void {
-  this.roomsService.getRooms().subscribe((rooms) => {
-    this.roomList = rooms;
-  });
-}
-```
+  ```typescript
+  ngOnInit(): void {
+    this.roomsService.getRooms().subscribe((rooms) => {
+      this.roomList = rooms;
+    });
+  }
+  ```
 
-> Ми маємо змогу підписатися на результат виклику _`getRooms()`_ по тій причині, що цей метод повертатиме _`Observable`_.
+  > Ми маємо змогу підписатися на результат виклику _`getRooms()`_ по тій причині, що цей метод повертатиме _`Observable`_.
 
-`Subscribing to data with full notation`
+- `Subscribing to data with full notation`
 
-```typescript
-ngOnInit(): void {
-  this.observable.subscribe({
-    next: (value) => console.log(value),
-    error: (error) => console.log(error),
-    complete: () => console.log('Completed'),
-  });
-}
-```
+  ```typescript
+  ngOnInit(): void {
+    this.observable.subscribe({
+      next: (value) => console.log(value),
+      error: (error) => console.log(error),
+      complete: () => console.log('Completed'),
+    });
+  }
+  ```
 
 ---
 
@@ -2225,7 +2232,7 @@ ngOnInit(): void {
 
 The key difference between an _`Observable`_ and a _`Promise`_ is that Observables are **lazy**. You can declare how your data should be handled once received, but you will then need to explicitly _`subscribe`_ to trigger the asynchronous call.
 
-In other words, **making the call and handling the results are separated operations**.
+- In other words, **making the call and handling the results are separated operations**.
 
 Whereas with a _`Promise`_, when you call the _`then`_ function, you are actually doing both operations at once. **It triggers the call and handles the result**.
 
@@ -2241,11 +2248,23 @@ Whereas with a _`Promise`_, when you call the _`then`_ function, you are actuall
 
 Як висновок:
 
-- _`Promise`_ поверне значення лише раз і завершиться
-- _`Promise`_ не можна відмінити на відміну від _`Observable`_
-- У _`Promise`_ немає допоміжних методів, які додають зручності для роботи з даними. Вся логіка пишеться в _`then`_
-- _`Promise`_ не є lazy, тобто він виконається, навіть якщо ми не викликатимемо _`then`_ для нього
-- _`Promise`_ помилку ми можемо обробити лише в самому _`Promise`_
+- Ключова відмінність полягає в тому, що `Promise` підходить для одноразових асинхронних операцій з одним результатом, тоді як `Observable` призначений для роботи з потоками даних, які можуть генерувати кілька значень з плином часу.
+- `Promise`:
+
+  - Являє собою єдине значення, яка буде доступне в майбутньому (**fulfilled or rejected**).
+  - Не має вбудованої можливості скасування.
+  - Підтримує методи `then()` і `catch()` для обробки успішного завершення або помилки.
+  - Не має вбудованої підтримки для повернення декількох значень або потоків даних.
+  - _`Promise`_ поверне значення лише раз і завершиться.
+  - У _`Promise`_ немає допоміжних методів, які додають зручності для роботи з даними. Вся логіка пишеться в _`then`_.
+  - _`Promise`_ не є lazy, тобто він виконається, навіть якщо ми не викликатимемо `then` для нього.
+  - _`Promise`_ помилку ми можемо обробити лише в самому _`Promise`_.
+
+- `Observable`:
+  - Являє собою потік даних, який може містити кілька значень.
+  - Підтримує операції відписки через `unsubscribe()`.
+  - Має багато операторів для маніпулювання даними, такі як `map()`, `filter()`, `merge()` та інші.
+  - Використовується для реактивного програмування та для роботи з потоками даних.
 
 ---
 
@@ -2275,7 +2294,7 @@ const example = (operator: any) => () => {
   from([0, 1, 2, 3, 4]) //? first is outer Observable
     .pipe(
       operator(
-        (x: any) => of(x).pipe(delay(1000)), //? second is inner Observable
+        (x: any) => of(x).pipe(delay(3000)), //? second is inner Observable
       ),
     )
     .subscribe({
@@ -2292,13 +2311,14 @@ example(switchMap)();
 example(exhaustMap)();
 ```
 
->**`from()`** ітерує значення в масиві і для кожного значення повертає новий Observable
+> **`from()`** ітерує значення в масиві і для кожного значення повертає новий Observable
 
 - **`mergeMap()`**
 
   - _Map to Observable, emit values_.
-    Внутрішній і зовнішній Observables не блокують виконання один одного, тобто значення з зовнішнього попадають у внутрішній одразу по мірі їх створення і внутрішній починає працювати одразу ж як отримав перше значення з зовнішнього стріма. Тобто по суті вони відпрацьовують паралельно.
-  - `0, 1, 2, 3, 4, mergeMap completed` - з затримкою в 3 секунди отримаємо одразу всі значення
+    - Внутрішній і зовнішній Observables не блокують виконання один одного, тобто значення з зовнішнього попадають у внутрішній одразу, по мірі їх створення.
+    - Використовується для злиття результатів кількох Observable в єдиний потік. Кожен отриманий елемент перетворюється на новий Observable, і всі ці Observable зливаються в один.
+    - `0, 1, 2, 3, 4, mergeMap completed` - з затримкою в 3 секунди отримаємо одразу всі значення
 
 - **`concatMap()`**
 
@@ -2310,7 +2330,8 @@ example(exhaustMap)();
 - **`switchMap()`**
 
   - _Map to observable, complete previous inner observable, emit values_.
-    - Оператор чекає поки повністю завершиться зовнішній Observable і лише тоді його останнє значення передається у внутрішній Observable
+    - Оператор чекає поки повністю завершиться зовнішній Observable і лише тоді його останнє значення передається у внутрішній Observable.
+    - Використовується для перемикання на новий Observable та скасування попереднього, коли отримано новий елемент. Тільки результати останнього Observable залишаються у потоці.
     - `4, switchMap completed` - з затримкою в 3 секунди отримаємо останнє значення
 
 - **`exhaustMap()`**
@@ -2353,27 +2374,44 @@ inputValue
 _`Subjects`_ are like _`EventEmitters`_.
 
 - Every Subject is an Observable and an Observer.
-- You can subscribe to a Subject, and you can call next to feed values as well as error and complete.
+- You can `subscribe()` to a Subject, and you can call `next()` to feed values as well as error and complete.
 
-_`Subject`_ дуже схожий на _`Observable`_, його можна створити через оператор `new`, на нього можна підписатись `subscribe`, і його стрім можна змінювати за допомогою `pipe`.
-Відмінність в тому, що його підписник водночас може бути і джерелом стріма.
+_`Subject`_ схожий на _`Observable`_, його можна створити через оператор `new`, на нього можна підписатись зі `subscribe` і його стрім можна змінювати за допомогою `pipe`.
 
-Інше порівняння, це YouTube.
+**Відмінність в тому, що його підписник водночас може бути і джерелом стріма**.
 
-`Observable` -> звичайне відео на ютубі.
-`Subject` -> онлайн трансляція (ютуб стрім).
+- Інше порівняння, це YouTube.
 
-Якщо ви відкриваєте нове ютуб відео, ви починає дивитись його з самого початку, ваш друг\сусід\колега який знаходиться біля вас також може увімкнути те ж саме відео, як тільки він це зробить, він теж зможе дивитись відео з самого початку, не важливо на якій хвилині відео находитесь ви на своєму девайсі.
+  `Observable` -> звичайне відео на ютубі.
+  `Subject` -> онлайн трансляція (ютуб стрім).
 
-Тобто, кожен новий підписник Observable буде отримувати дані з самого початку, ті які є в Observable.
-Такий підхід називають `cold observable`.
+  Якщо ви відкриваєте нове ютуб відео, ви починає дивитись його з самого початку, ваш друг\сусід\колега який знаходиться біля вас також може увімкнути те ж саме відео і як тільки він це зробить, він теж зможе дивитись відео з самого початку, не важливо на якій хвилині відео находитесь ви на своєму девайсі.
 
-Якщо ви відкриваєте онлайн трансляцію на ютубі (ютуб стрім), ви являєтесь новим підписником, і те, що ви будете бачити, може бути початком\серединою\кінцем стріма, якщо стрім почався годину тому, гарантовано ви будете його спостерігати не з самого початку, а відповідно на годину пізніше вій його початку.
+  Тобто, кожен новий підписник Observable буде отримувати дані з самого початку, ті які є в Observable.
+  Такий підхід називають `cold observable`.
 
-Відповідно, якщо ваш друг\сусід\колега відкриє цей самий стрім, він буде спостерігати відео на тому ж моменті, на якому й ви, але втратить початок цього стріма, так як підписався на нього значно пізніше.
+  Якщо ви відкриваєте онлайн трансляцію на ютубі (ютуб стрім), ви являєтесь новим підписником, і те, що ви будете бачити, може бути початком\серединою\кінцем стріма, якщо стрім почався годину тому, гарантовано ви будете його спостерігати не з самого початку, а відповідно на годину пізніше вій його початку.
+
+  Відповідно, якщо ваш друг\сусід\колега відкриє цей самий стрім, він буде спостерігати відео на тому ж моменті, на якому й ви, але втратить початок цього стріма, так як підписався на нього значно пізніше.
 
 Такий підхід називають `hot observable`.
 `Subject`, на відміну від `Observable`, по замовчуванню є `hot observable`.
+
+Як висновок:
+
+- Різниця між **Hot** та **Cold** _Observables_ пов'язана з моментом створення та початком випромінювання подій.
+- **Cold** _Observable_:
+  - Починає випускати елементи лише при підписці на нього
+  - Кожен підписник отримує свій власний потік подій і починає його отримувати від початку
+- **Hot** _Observable_:
+  - Починає випускати події незалежно від того, чи підписані на нього підписники чи ні
+  - Усі підписники отримують один і той же потік подій, починаючи з поточного моменту, незалежно від того, коли вони передплатили.
+- Коли використовувати **Cold** _Observable_:
+  - Коли потрібно отримати однакові дані для кожного підписника.
+  - Коли ви хочете, щоб кожен підписник починав отримання даних із початку.
+- Коли використовувати **Hot** _Observable_:
+  - Коли дані є спільними для всіх підписників і не потрібно їх повторної генерації.
+  - Коли важливим є момент створення та початку випускання подій, незалежно від того, чи є підписники.
 
 > Для `Subjects` також потрібно робити _`unsubscribe()`_.
 
@@ -2456,13 +2494,13 @@ const source3$ = new AsyncSubject();
   export class PostsComponent implements OnDestroy {
     interval$ = interval(1000);
     intervalSubscription: Subscription;
-  
+
     constructor() {
       this.intervalSubscription = this.interval$.subscribe((i) => {
         console.log(i);
       });
     }
-  
+
     ngOnDestroy() {
       this.intervalSubscription.unsubscribe();
     }
@@ -2507,12 +2545,12 @@ const source3$ = new AsyncSubject();
   export class PostsComponent implements OnDestroy {
     interval$ = interval(1000);
     unsubscribe$ = new Subject<void>();
-  
+
     constructor() {
       this.interval$.pipe(takeUntil(this.unsubscribe$)).subscribe((i) => console.log(i)); //1 підписка
       this.interval$.pipe(takeUntil(this.unsubscribe$)).subscribe((i) => console.log(i)); //2 підписка
     }
-  
+
     ngOnDestroy() {
       this.unsubscribe$.next();
       this.unsubscribe$.complete();
@@ -2525,26 +2563,26 @@ const source3$ = new AsyncSubject();
   > Також цей спосіб зручний тим, що ми можемо використати _`Subject`_ для всіх наших підписників в компоненті. Тоді не потрібно буде створювати для кожної підписки змінну з типом _`Subscription`_ і робити _`unsubscribe()`_.
   >
   > Відписка відбудеться автоматично.
-  
+
   Цей спосіб можна покращити, використавши клас, який буде шерити загальну логіку:
 
   ```typescript
   export abstract class Unsubscribe implements OnDestroy {
     unsubscribe$ = new Subject<void>();
-  
+
     ngOnDestroy() {
       this.unsubscribe$.next();
       this.unsubscribe$.complete();
     }
   }
   ```
-  
+
   І далі розширити наш основний клас:
 
   ```typescript
   export class PostsComponent extends Unsubscribe {
     interval$ = interval(1000);
-  
+
     constructor() {
       super(); //для використання власного конструктора
       this.interval$.pipe(takeUntil(this.unsubscribe$)).subscribe((i) => console.log(i)); //1 підписка
@@ -2558,7 +2596,7 @@ const source3$ = new AsyncSubject();
   ```typescript
   export class PostsComponent {
     interval$ = interval(1000).pipe(takeUntilDestroyed());
-  
+
     constructor() {
       this.interval$.subscribe((i) => console.log(i));
     }
@@ -3753,8 +3791,6 @@ export function markViewForRefresh(lView: LView) {
 ---
 
 ### Zoneless Angular — Let’s remove zone.js from Angular
-
----
 
 ## Signals
 
