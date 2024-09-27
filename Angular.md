@@ -953,15 +953,68 @@ export class UnlessDirective {
 
 **Service** - клас, який, як правило, містить допоміжні методи або якийсь функціонал, який ми будемо використовувати в різних місцях програми для виконання якоїсь бізнес логіки. За рахунок перевикористання цей паттерн дає можливість зробити код чистішим, більш лінійним, централізованим, таким, який легше підтримувати.
 
-_`Dependency Injection`_ (DI) is one of the most important mechanisms in Angular. This pattern allows for inversion of control by passing instances of requested dependencies to the class instead of creating them inside the class. This approach creates loose coupling and makes testing easier.
+_`Dependency Injection`_ (DI) is one of the most important mechanisms in Angular. This pattern allows for **inversion of control** by passing instances of requested dependencies to the class instead of creating them inside the class. This approach creates loose coupling and makes testing easier.
+
+> This is what IoC is all about: we hand over control of creating dependencies to Angular, which allows us to focus on the logic of our application.
+
 _`Dependency Injection`_ is not only a programming technique, but also an application design philosophy that promotes solutions that are modular, flexible and easy to test.
 Using _`Dependency Injection`_ brings a number of benefits, including increased code readability, easier dependency management and flexibility in modifying applications.
+
+- Основна ідея `DI` полягає в тому, що компоненти не створюють своїх залежностей, а отримують їх ззовні. Це сприяє більш гнучкій та тестованій архітектурі програми.
+- Процес роботи системи залежностей в `Angular` включає такі кроки:
+  1. Реєстрація залежностей: Кожна залежність (сервіс) реєструється у певному модулі з використанням провайдера (`provider`). Це може бути компонент, сервіс, фабрика (`factory`) і так далі.
+  2. Впровадження залежностей у конструктор (`constructor()`): Коли компонент або інший об'єкт створюється, Angular автоматично впроваджує необхідні залежності у його конструктор. Це завдяки аналізу типів в параметрах конструктора.
+  3. Життєвий цикл: Angular управляє життєвим циклом залежностей. Якщо якась залежність має область видимості, наприклад "singleton", вона буде створена лише один раз і використовуватиметься повторно при кожному запиті на впровадження.
+
+---
+
+### `providedIn` property of `@Injectable({})`
+
+In Angular, the _`providedIn`_ property is used in the _`@Injectable`_ decorator to specify where a service should be provided. Here are the possible values for providedIn:
+
+- `'root'`: The service is available throughout the entire application as a singleton. This is the most common and recommended option for services that need to be accessible globally.
+
+  ```typescript
+  @Injectable({
+    providedIn: 'root',
+  })
+  export class MyService {}
+  ```
+
+- `'any'`: A new instance of the service is created for each lazy-loaded module that injects it. This can be useful for services that should not be shared across different modules.
+
+  ```typescript
+  @Injectable({
+    providedIn: 'any',
+  })
+  export class MyService {}
+  ```
+
+- `Specific Module`: You can specify a particular module where the service should be provided. This means the service will be available only within that module and its child modules.
+
+  ```typescript
+  @Injectable({
+    providedIn: SomeModule,
+  })
+  export class MyService {}
+  ```
+
+- `null`: If you set providedIn to null, the service will not be provided automatically. You will need to add it to the providers array of a component or module manually.
+
+  ```typescript
+  @Injectable({
+    providedIn: null,
+  })
+  export class MyService {}
+  ```
+
+These options allow you to control the scope and lifecycle of your services, optimizing your application’s performance and organization.
 
 ---
 
 ### How to inject dependencies in Angular?
 
-Angular allows the injection of necessary dependencies, such as classes, functions, or primitives, to classes decorated with `@Component`, `@Directive`, `@Pipe`, `@Injectable` and `@NgModule` by defining them as a constructor parameter:
+Angular allows the injection of necessary dependencies, such as **classes**, **functions**, or **primitives**, to _classes_ decorated with `@Component`, `@Directive`, `@Pipe`, `@Injectable` and `@NgModule` by defining them as a constructor parameter:
 
 ```typescript
 @Component({ … })
@@ -1008,9 +1061,9 @@ It’s worth remembering that the inject function can only be used inside an inj
 
 An abstraction called **`Injector`** is responsible for resolving dependencies. It can store an instance of a required dependency. If it already exists, it’s passed onto the consumer. Otherwise, a new instance is created and passed as a constructor parameter and stored in memory. Every dependency inside an `Injector` is a _`singleton`_ — which means there’s always only one instance.
 
->Angular Injector є чудовим прикладом абстракції в програмуванні. Він відповідає за надання залежностей компонентам та сервісам, приховуючи деталі створення та управління цими залежностями.
+> Angular Injector є чудовим прикладом абстракції в програмуванні. Він відповідає за надання залежностей компонентам та сервісам, приховуючи деталі створення та управління цими залежностями.
 >
->Інжектор в Angular є частиною системи Dependency Injection (DI). Коли компонент або сервіс потребує залежність, він оголошує її у своєму конструкторі. Інжектор відповідає за створення та надання цієї залежності.
+> Інжектор в Angular є частиною системи Dependency Injection (DI). Коли компонент або сервіс потребує залежність, він оголошує її у своєму конструкторі. Інжектор відповідає за створення та надання цієї залежності.
 
 To better demonstrate this process, let’s create a simple example. Let’s assume that we have a class representing some service:
 
@@ -1033,80 +1086,352 @@ class Component {
 The injector is responsible for storing and returning an instance of the dependency:
 
 ```typescript
-class Injector {
-  private container = new Map();
+type ProviderToken = string; //  унікальний ідентифікатор
 
-  constructor(private providers: any[] = []) {
-    this.providers.forEach((service) => this.container.set(service, new service()));
+abstract class Injector {
+  abstract get(token: ProviderToken): any; // функція для отримання сервісу
+}
+
+type Record = {
+  factory: () => any; // функція для створення сервісу
+  value: any; // створений сервіс
+};
+
+export class ModuleInjector extends Injector {
+  private records: Map<ProviderToken, Record>; // відповідає за зберігання сервісів
+
+  constructor(providers: Array<[ProviderToken, Record]>) {
+    this.records = new Map(providers);
   }
 
-  get(service: any) {
-    const serviceInstance = this.container.get(service);
+  get(token: ProviderToken): any {
+    if (!this.records.has(token)) {
+      // повертаємо помилку, якщо токена немає
+      throw new Error(`Could not find the ${token}`);
+    }
 
-    if (!serviceInstance) throw new Error('Service not provided');
+    const record = this.records.get(token);
 
-    return serviceInstance;
+    if (!record.value) {
+      // якщо сервіс не створено, то створюємо його
+      record.value = record.factory();
+    }
+
+    return record.value;
   }
 }
 ```
 
 > _`private`_ - модифікатор доступу, який говорить, що екземпляр цього класу можна буде використати лише в самому класі
 
-During the bootstrapping, Angular creates the _`Injector`_ and registers dependencies which will be passed to components:
+- Angular при створенні інжектора збирає сервіси з `providers` у модулях і компонентах, а також класів, позначених декоратором `@Injectable({...})`. Потім інжектор створює з них мапу (`new Map()`), яка дає змогу отримувати екземпляр сервісу за запитом. Ось так це спрощено працює в Angular під капотом:
+
+  ```typescript
+  // збираємо провайдери і створюємо інжектор
+  const injector = new Injector([
+      ['SomeService', () => new SomeService()],
+      ['AnotherService', () => new AnotherService()]
+      ...
+  ]);
+
+  // коли створюється компонент з цим сервісом, викликається injector.get
+  const injector = new Injector([SomeService]);
+  const component = new Component(injector.get(SomeService)) // => SomeService instance;
+  component.service.doSomething();
+  ```
+
+- Однак в Angular існує не один інжектор, а ціла **ієрархія** інжекторів. Під час створення програми формується дерево інжекторів, яке може розширюватися. У разі, якщо токен не знайдено в поточному інжекторі, Angular намагається знайти його в батьківському інжекторі.
+
+Давайте додамо цю логіку в наш інжектор:
 
 ```typescript
-const injector = new Injector([SomeService]);
-const component = new Component(injector.get(SomeService));
-component.service.doSomething();
+export class ModuleInjector extends Injector {
+  private records: Map<ProviderToken, Record>;
+  private parent: Injector;
+
+  constructor(providers: Array<[ProviderToken, Record]>, parentInjector: Injector) {
+    this.records = new Map(providers);
+    this.parent = parentInjector; // зберігаємо батьківський інжектор
+  }
+
+  get(token: ProviderToken): any {
+    if (!this.records.has(token)) {
+      return this.parent.get(token); // пробуємо знайти в батьківському
+    }
+    ...
+  }
+}
 ```
+
+- При створенні інжектора Angular передає не тільки масив токенів і записів, але ще й батьківський інжектор. Що ж буде, якщо токен не буде знайдено в жодному з інжекторів? Для такого випадку в Angular існує спеціальний `NullInjector`.
+
+  ```typescript
+  export class NullInjector implements Injector {
+    get(token: ProviderToken): any {
+      const error = new Error(`NullInjectorError: No provider for ${stringify(token)}!`);
+      error.name = 'NullInjectorError';
+      throw error;
+    }
+  }
+  ```
+
+- Angular передає `NullInjector` як батька для першого створеного інжектора. Якщо токен не знайдено в ланцюжку інжекторів, то `NullInjector` викидає всім знайому помилку `«NullInjectorError: No provider for MyService!»`.
+
+Тепер, із розумінням цієї концепції, розглянемо, які інжектори існують в Angular і як вони пов'язані між собою.
+
+> Важливо зазначити, що спочатку будемо розглянуто, як працювала ієрархія інжекторів до 14-ї версії Angular, а далі - як вона змінилася.
 
 ---
 
-### `providedIn` property of `@Injectable({})`
-
-In Angular, the _`providedIn`_ property is used in the _`@Injectable`_ decorator to specify where a service should be provided. Here are the possible values for providedIn:
-
-- `'root'`: The service is available throughout the entire application as a singleton. This is the most common and recommended option for services that need to be accessible globally.
-
-  ```typescript
-  @Injectable({
-    providedIn: 'root',
-  })
-  export class MyService {}
-  ```
-
-- `'any'`: A new instance of the service is created for each lazy-loaded module that injects it. This can be useful for services that should not be shared across different modules.
-
-  ```typescript
-  @Injectable({
-    providedIn: 'any',
-  })
-  export class MyService {}
-  ```
-
-- `Specific Module`: You can specify a particular module where the service should be provided. This means the service will be available only within that module and its child modules.
-
-  ```typescript
-  @Injectable({
-    providedIn: SomeModule,
-  })
-  export class MyService {}
-  ```
-
-- `null`: If you set providedIn to null, the service will not be provided automatically. You will need to add it to the providers array of a component or module manually.
-
-  ```typescript
-  @Injectable({
-    providedIn: null,
-  })
-  export class MyService {}
-  ```
-
-These options allow you to control the scope and lifecycle of your services, optimizing your application’s performance and organization.
-
 ### Hierarchical Injectors in Angular
 
-- `Element Injector` — registers dependencies defined in _`providers`_ inside the _`@Component`_ or _`@Directive`_ decorators. These dependencies are available for the component and its children.
+#### Default Injectors
+
+Під час запуску програми створюються три інжектори:
+
+- `Root injector` - зберігає дефолтні сервіси Angular і сервіси, які позначені декоратором `@Injectable({providedIn: 'root'})` або вказані у властивості `providers` в метаданих `AppModule`.
+- `Platform injector` - відповідає за сервіси, які можуть використовуватися кількома додатками в рамках одного проєкту Angular.
+- `NULL injector` - викидає помилку, якщо токен не знайдено, за винятком випадку з `@Optional`.
+
+Під час інжекту сервісу, Angular спочатку шукає його в `Root injector`, потім у `Platform injector`. Якщо сервіс не знайдено, `Null injector` кидає помилку. Схематично це можна уявити так:
+
+![alt text](122d1bb7447f3020140315906aa44503.png)
+
+Цікаво, що якщо модуль з масивом `providers` імпортується в `AppModule`, він не створює окремий інжектор, а його провайдери потрапляють в `Root injector`:
+
+```typescript
+@NgModule({
+  providers: [AnotherService],
+})
+export class AnotherModule {}
+
+@NgModule({
+  imports: [AnotherModule],
+  providers: [Service],
+})
+// в root інжекторі буде зберігатися два сервіса: [Service, AnotherService]
+export class AppModule {}
+```
+
+> І це важливий нюанс, бо часто думають, що кожен модуль створює свій інжектор.
+
+#### `Lazy-loading Module Injector`
+
+Крім трьох основних інжекторів, Angular створює свій інжектор для кожного `lazy-loading` модуля.
+
+```typescript
+@NgModule({
+  providers: [MyService],
+})
+export class LazyModule {}
+
+export const ROUTES: Route[] = [
+  {
+    path: 'lazy',
+    loadChildren: () => import('./lazy-module').then((mod) => mod.LazyModule),
+  },
+];
+```
+
+Якщо вказати сервіс у провайдерах `lazy-loading` модуля, то його інжектор створить свій екземпляр сервісу для компонентів цього модуля. Інші частини програми нічого не знатимуть про цей сервіс.
+
+**Якщо заінжектити сервіс у компонент, який належить `lazy-loading` модулю, то пошук сервісу починатиметься з інжектора цього модуля**, а далі перейде до ланцюжка `Root Injector` → `Platform Injector` → `Null Injector`:
+
+![alt text](4714f3b8bb6b2b5c4cc9b4fe83f49e76.png)
+
+#### `Node (Element) Injector`
+
+Крім модульних інжекторів в Angular існують `node (element)` інжектори.
+
+- Рутовий компонент завжди створює `Node injector` для себе.
+
+- `Node` інжектори створюються для кожного тега, що відповідає Angular компоненту, або для будь-якого тега, на який застосована директива.
+
+Для додавання сервісу в `node` інжектор, його потрібно додати в `providers` або `viewProviders` метадати компонента:
+
+```typescript
+@Component({
+  selector: 'app-child',
+  template: '',
+  providers: [Service], // provide to NodeInjector
+  // or
+  viewProviders: [Service],
+})
+export class ChildComponent {
+  constructor(
+    private service: Service, // injected from NodeInjector
+  ) {}
+}
+```
+
+- Відмінність `Node injector` від `Module injector` в тому, що він створюється і видаляється разом із компонентом, отже, сервіси в `Node injector` створюються і видаляються теж разом із ним.
+
+- У `Node` інжекторів є своя ієрархія. Ланцюжок пошуку сервісу починається з поточного node інжектора і йде до батьківського компонента, поки не дійде до рутового node інжектора. Розглянемо таке дерево компонентів:
+
+  ```html
+  <app-root>
+    <app-parent>
+      <app-child></app-child>
+      <app-child></app-child>
+    </app-parent>
+  </app-root>
+  ```
+
+Якщо сервіс інжектується в `app-child` компонент, то ланцюжок пошуку буде такий: `app-child` → `app-parent` → `app-root`:
+
+![alt text](image.png)
+
+#### Full picture
+
+```typescript
+@Component({...})
+export class Component {
+  // як це працює?
+  constructor(private readonly service: Service) {
+  }
+}
+```
+
+- Отже, коли сервіс інжектується в компонент, Angular спершу намагається знайти його в поточному `Node (Element) injector`, потім йде вгору за ієрархією `node (element)` інжекторів, потім переходить до `Module injector`, починаючи з `lazy-loading` модулів (якщо вони є), далі до `Root injector`, потім до `Platform injector`, і, якщо нічого не знайдено, `NULL injector` викидає помилку:
+
+![alt text](18a0359a0c04185cb2a702cc3c775f8e.png)
+
+#### Standalone revolution (Env, Route Env Injectors)
+
+##### Environment Injector
+
+З приходом `standalone` компонентів в Angular 14-ї версії ситуація в ієрархії інжекторів змінилася. **Замість `Module injector` тепер використовується `Environment Injector`.**
+Оскільки в `standalone`-додатку немає модулів, то Angular команда вирішила використовувати більш узгоджену назву, але на принцип роботи це не вплинуло.
+
+- Ієрархія інжекторів та сама: `Root Environment Injector` → `Platform Environment Injector` → `Null Injector` .
+
+Щоб запровадити сервіс у рутовий інжектор, тепер можна використовувати такі варіанти:
+
+```typescript
+// №1 - через декоратор Injectable
+@Injectable({
+  providedIn: 'root',
+})
+export class SomeService {}
+
+// №2 - передати сервіс в конфіг бутстрапа застосунку
+export const appConfig: ApplicationConfig = {
+  providers: [SomeService],
+};
+
+bootstrapApplication(AppComponent, appConfig).catch((err) => console.error(err));
+```
+
+##### Route Environment Injector
+
+В Angular 14 з'явилася функція `loadComponent` для `lazy-loading` компонентів, яка схожа на `loadChildren`.
+Здається, що можна було б використовувати `loadComponent` для створення окремого інжектора, як це робиться з `lazy-loading` модулем і його інжектором.
+
+- Однак це припущення помилкове. Насправді `loadComponent` не створює новий інжектор.
+
+  ```typescript
+  export const ROUTES: Route[] = [
+    {
+      path: 'lazy',
+      // не створюю новий інжектор :(
+      loadComponent: () => import('./lazy.component').then((c) => c.LazyComponent),
+    },
+  ];
+  ```
+
+- Якщо необхідно створити інжектор для конкретного маршруту, аналогічно до `LazyLoading` `Module Injector`, можна використовувати властивість `providers` у конфігурації маршруту, що створить окремий інжектор. Це працюватиме і для звичайних маршрутів, і для `lazy-loading` маршрутів.
+
+```typescript
+export const ROUTES: Route[] = [
+  {
+    path: 'route-with-providers',
+    component: ChildComponent,
+    providers: [SomeService], // тут створюється новий інжектор
+    children: [...]
+  },
+]
+```
+
+Цей інжектор застосовуватиметься для маршруту `route-with-providers` і всіх його дітей:
+
+![alt text](2885f0e70e80dbb80e01a9f31a1eb03d.png)
+
+##### Backward compatibility with `@NgModule{}`
+
+Команда Angular усвідомлює, що перехід на `standalone` компоненти буде поступовим, тому вони додали сумісність із підходом `NgModule`. У `standalone` компоненти можна імпортувати **модулі** поряд із **компонентами**:
+
+```typescript
+@Component({
+  standalone: true,
+  selector: 'app-child',
+  imports: [SomeModule], // імпорт модуля
+  template: ``,
+})
+export class ChildComponent {}
+```
+
+Це полегшує міграцію на нові типи компонентів, але також призводить до деяких труднощів. Проблема виникає, коли у `standalone`-компонентів є **модулі**, які містять **сервіси**.
+Angular розглядає `standalone` компоненти як незалежні будівельні блоки додатка. Було б дивно, якби ці компоненти додавали свої сервіси в рутовий інжектор.
+
+- Щоб вирішити цю проблему, Angular тепер створює для `standalone`-компонентів окремий **інжектор-обгортку**, якщо ці компоненти імпортують модулі, незалежно від того, чи містять ці модулі сервіси, чи ні. **Цей інжектор-обгортка збирає сервіси з імпортованих модулів і включає їх у себе.**
+
+Інжектор-обгортка створюється в таких випадках:
+
+1. Під час старту застосунку, якщо в рутовому компоненті використовується компонент із модулем;
+
+1. Для компонентів, які створюються динамічно і мають модулі;
+
+1. Під час використання роутингу для компонентів з модулями;
+
+Розглянемо ці випадки на прикладах.
+
+**1.** Візьмемо `AppComponent` і додамо йому в імпорти компонент із модулем.
+
+```typescript
+@Component({
+  standalone: true,
+  selector: 'app-root',
+  imports: [ChildComponent], // компонент з модулем в імпортах
+  template: ` <app-child /><app-child /> `,
+})
+export class AppComponent {}
+```
+
+Ієрархія `Environment injectors` виглядатиме таким чином:
+
+![alt text](21b46d539aff133e04f7aeadd2a27d03.png)
+
+**2.** Окремий інжектор буде створюватися при динамічному створенні компонентів з модулем.
+
+```typescript
+@Component({
+  ...
+})
+export class AppComponent {
+  click(): void {
+    // динамічне створення компонента з модулем в імпортах
+    const compRef = this.viewContainerRef.createComponent(ChildComponent);
+    compRef.changeDetectorRef.detectChanges();
+  }
+}
+
+```
+
+**3.** Якщо на компонент із модулем буде вести маршрут, то аналогічно буде створено окремий інжектор-обгортка.
+
+```typescript
+export const ROUTES: Route[] = [
+  {
+    path: 'child',
+    // компонент з модулем в імпортах
+    component: ChildComponent,
+  },
+];
+```
+
+#### Other
+
+- `Node (Element) Injector` — registers dependencies defined in _`providers`_ inside the _`@Component`_ or _`@Directive`_ decorators. These dependencies are available for the component and its children.
 
   ```typescript
   @Component({
@@ -1137,7 +1462,7 @@ These options allow you to control the scope and lifecycle of your services, opt
   bootstrapApplication(AppComponent, { providers: [UserService] });
   ```
 
-  >`@Injectable` - decorator that marks a class as available to be provided and injected as a dependency:
+  > `@Injectable` - decorator that marks a class as available to be provided and injected as a dependency:
 
   ```typescript
   @Injectable(options?: ({ providedIn: Type<any> | "root" | "platform" | "any" | null }) & InjectableProvider)
@@ -1153,7 +1478,7 @@ These options allow you to control the scope and lifecycle of your services, opt
 
 #### Injectors Hierarchy
 
-- If a component requires a dependency, Angular first looks for it in the `element injector` of the component.
+- If a component requires a dependency, Angular first looks for it in the `node (element) injector` of the component.
 - If it isn’t defined in the providers array, then the framework looks at the parent component. This process repeats for as long as Angular finds a dependency in an ancestor.
 - If the dependency isn’t found, the next phase is searching in the `environment injector` (or the `module injector` in the case of module-based applications), and then the `environment root injector`.
 - Finally, the `platform injector` is checked.
@@ -1161,7 +1486,7 @@ These options allow you to control the scope and lifecycle of your services, opt
 
 In this hierarchical order, if a dependency exists in more than injector, the instance defined on the lowest level, the one closest to the component is resolved.
 
-**`Element Injector (Component)`** ---> **`Element Injector (Parent Component)`** ---> **`Element Injector (App Component)`** ---> **If not resolved** ---> **`Environment Injector`** ---> **`Environment Root Injector`** ---> **`Platform Injector`** ---> **`Null Injector`**
+**`Node (Element) Injector (Component)`** ---> **`Node (Element) Injector (Parent Component)`** ---> **`Node (Element) Injector (App Component)`** ---> **If not resolved** ---> **`Environment Injector`** ---> **`Environment Root Injector`** ---> **`Platform Injector`** ---> **`Null Injector`**
 
 ---
 
