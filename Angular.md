@@ -952,8 +952,7 @@ export class UnlessDirective {
 ## Services & Dependency injection
 
 **Useful links**:
-[1](https://dev.to/luishcastroc/learning-angulars-dependency-injection-with-typescript-kn)
-
+[1](https://dev.to/luishcastroc/learning-angulars-dependency-injection-with-typescript-kn), [2](https://angular.love/dependency-injection-in-angular-everything-you-need-to-know)
 
 **Service** - клас, який, як правило, містить допоміжні методи або якийсь функціонал, який ми будемо використовувати в різних місцях програми для виконання якоїсь бізнес логіки. За рахунок перевикористання цей паттерн дає можливість зробити код чистішим, більш лінійним, централізованим, таким, який легше підтримувати.
 
@@ -994,7 +993,9 @@ In Angular, the _`providedIn`_ property is used in the _`@Injectable`_ decorator
   export class MyService {}
   ```
 
-- `Specific Module`: You can specify a particular module where the service should be provided. This means the service will be available only within that module and its child modules.
+- `platform`: The service is provided at the platform level, making it a singleton. This is similar to `root`, but it can be used with multiple applications on the same platform.
+
+- `specific module`: You can specify a particular module where the service should be provided. This means the service will be available only within that module and its child modules.
 
   ```typescript
   @Injectable({
@@ -1018,7 +1019,7 @@ These options allow you to control the scope and lifecycle of your services, opt
 
 ### How to inject dependencies in Angular?
 
-Angular allows the injection of necessary dependencies, such as **classes**, **functions**, or **primitives**, to _classes_ decorated with `@Component`, `@Directive`, `@Pipe`, `@Injectable` and `@NgModule` by defining them as a constructor parameter:
+Angular allows the injection of necessary dependencies, such as **classes**, **functions**, or **primitives**, to _classes_ decorated with `@Component`, `@Directive`, `@Pipe`, `@Injectable` and `@NgModule` by defining them as a **`constructor`** parameter:
 
 ```typescript
 @Component({ … })
@@ -1027,37 +1028,126 @@ class UserComponent {
 }
 ```
 
-or using `inject` function:
+- by using **`inject`** function:
 
-#### `inject()`
+  #### `inject()`
 
-```typescript
-@Component({ … })
-class UserComponent {
-  private userService = inject(UserService);
-}
-```
+  ```typescript
+  @Component({ … })
+  class UserComponent {
+    private userService = inject(UserService);
+  }
+  ```
 
-The `inject` function in its current form was introduced in version 14. Aside from bringing a convenient and readable way of declaring dependencies, it also offers the following advantages:
+  The `inject` function in its current form was introduced in version 14. Aside from bringing a convenient and readable way of declaring dependencies, it also offers the following advantages:
 
-- It allows the omission of explicit typing — let TypeScript do it for you.
-- Class extension is made easier without the necessity of passing every argument to the base class _`constructor`_.
-- Additionally, it lets the programmer move the logic to reusable functions — the downside here, however, is hiding dependencies inside the function.
+  - It allows the omission of explicit typing — let TypeScript do it for you.
+  - Class extension is made easier without the necessity of passing every argument to the base class _`constructor`_.
+  - Additionally, it lets the programmer move the logic to reusable functions — the downside here, however, is hiding dependencies inside the function.
 
-```typescript
-const getPageParam = (): Observable<string> =>
-  inject(ActivatedRoute).queryParams.pipe(
-    map((params) => params['page']),
-    filter((pageParam) => pageParam !== null),
-  );
-```
+  ```typescript
+  const getPageParam = (): Observable<string> =>
+    inject(ActivatedRoute).queryParams.pipe(
+      map((params) => params['page']),
+      filter((pageParam) => pageParam !== null),
+    );
+  ```
 
-It’s worth remembering that the inject function can only be used inside an injection context. This means
+  It’s worth remembering that the inject function can only be used inside an injection context. This means
 
-- Within a _`constructor`_,
-- As a _`definition`_ of a class field,
-- Inside the factory function, as `useFactory` in the _`Provider`_ interface, `@Injectable` decorator or a factory in the _`Injection token`_ definition,
-- An API within the injection context, such as a router guard or a `runInInjectionContext` function callback.
+  - Within a _`constructor`_,
+  - As a _`definition`_ of a class field,
+  - Inside the factory function, as `useFactory` in the _`Provider`_ interface, `@Injectable` decorator or a factory in the _`Injection token`_ definition,
+  - An API within the injection context, such as a router guard or a `runInInjectionContext` function callback.
+
+- with **`@Inject()`** decorator:
+
+  In Angular, the `@Inject` decorator is used to **explicitly** specify a dependency to be injected into a class, typically when the type of the dependency cannot be inferred automatically by Angular's dependency injection system.
+  Here are some common cases where you should use the `@Inject` decorator:
+
+  - **Non-Class Dependencies**: When you want to inject a value that is not a class or does not have a type that can be inferred. For example, if you want to inject a string or a token:
+
+    ```typescript
+    import { Injectable, Inject } from '@angular/core';
+
+    export const API_URL = '<https://api.example.com>';
+
+    @Injectable({
+      providedIn: 'root',
+    })
+    export class ApiService {
+      constructor(@Inject(API_URL) private apiUrl: string) {
+        console.log(this.apiUrl); // Outputs: <https://api.example.com>
+      }
+    }
+    ```
+
+  - **Abstract Classes or Interfaces**: When you are injecting an abstract class or an interface, you need to use `@Inject` to specify the concrete implementation that should be used:
+
+    ```typescript
+    import { Injectable, Inject } from '@angular/core';
+
+    export abstract class BaseService {
+      abstract getData(): any;
+    }
+
+    @Injectable({
+      providedIn: 'root',
+    })
+    export class ConcreteService extends BaseService {
+      getData() {
+        return 'data';
+      }
+    }
+
+    @Injectable({
+      providedIn: 'root',
+    })
+    export class ConsumerService {
+      constructor(@Inject(BaseService) private service: BaseService) {
+        console.log(this.service.getData());
+      }
+    }
+    ```
+
+  - **Multi-Providers**: When you are using multi-providers (i.e., when you want to inject an array of services), you may need to use `@Inject` to specify the token for the multi-provider:
+
+    ```typescript
+    import { Injectable, Inject, forwardRef } from '@angular/core';
+
+    export const MY_SERVICE_TOKEN = 'MyServiceToken';
+
+    @Injectable({
+      providedIn: 'root',
+    })
+    export class ServiceA {
+      constructor(@Inject(MY_SERVICE_TOKEN) private serviceB: ServiceB) {}
+    }
+
+    @Injectable({
+      providedIn: 'root',
+    })
+    export class ServiceB {
+      constructor(@Inject(forwardRef(() => ServiceA)) private serviceA: ServiceA) {}
+    }
+    ```
+
+  - **Custom Injection Tokens**: When you create custom injection tokens using InjectionToken, you will need to use @Inject to specify the token when injecting the dependency:
+
+    ```typescript
+    import { Injectable, Inject, InjectionToken } from '@angular/core';
+
+    export const MY_CUSTOM_TOKEN = new InjectionToken<string>('MyCustomToken');
+
+    @Injectable({
+      providedIn: 'root',
+    })
+    export class MyService {
+      constructor(@Inject(MY_CUSTOM_TOKEN) private value: string) {
+        console.log(value);
+      }
+    }
+    ```
 
 ---
 
@@ -1433,7 +1523,7 @@ export const ROUTES: Route[] = [
 ];
 ```
 
-#### Other
+#### Summary
 
 - `Node (Element) Injector` — registers dependencies defined in _`providers`_ inside the _`@Component`_ or _`@Directive`_ decorators. These dependencies are available for the component and its children.
 
@@ -1451,7 +1541,7 @@ export const ROUTES: Route[] = [
   const routes: Routes = [{ path: 'user', component: UserComponent, providers: [UserService] }];
   ```
 
-- `Environment Root Injector` — contains globally available dependencies decorated with _`@Injectable`_ and having **providedIn** set to **"root"** or **"platform"**.
+- `Root Injector` — contains globally available dependencies decorated with _`@Injectable`_ and having **providedIn** set to **"root"** or **"platform"**.
 
   ```typescript
   @Injectable({ providedIn: 'root' })
@@ -1488,9 +1578,9 @@ export const ROUTES: Route[] = [
 - Finally, the `platform injector` is checked.
 - If Angular reaches the `null injector` an error is thrown.
 
-In this hierarchical order, if a dependency exists in more than injector, the instance defined on the lowest level, the one closest to the component is resolved.
+**In this hierarchical order, if a dependency exists in more than injector, the instance defined on the lowest level, the one closest to the component is resolved.**
 
-**`Node (Element) Injector (Component)`** ---> **`Node (Element) Injector (Parent Component)`** ---> **`Node (Element) Injector (App Component)`** ---> **If not resolved** ---> **`Environment Injector`** ---> **`Environment Root Injector`** ---> **`Platform Injector`** ---> **`Null Injector`**
+![alt text](/Angular_assets/image.png)
 
 ---
 
