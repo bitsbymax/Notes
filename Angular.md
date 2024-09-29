@@ -1,6 +1,6 @@
 # Angular docs
 
-## How an Angular App gets Loaded and Started
+## How an Angular App gets loaded and started
 
 - **Entry point** це файл `index.html` в якому після збірки angular cli додав свої скрипти, які завантажуються першими і серед яких буде бандл з файлом `main.ts`, код якого і виконається спочатку.
 - В ньому і стартує наш веб-застосунок в момент виклику `platformBrowserDynamic().bootstrapModule(AppModule)` з головним модулем _AppModule_, в якому в свою чергу вказано початковий компонент з селектором `<app-root></app-root>`, який і вказаний в `body` файлу `index.html`.
@@ -951,6 +951,10 @@ export class UnlessDirective {
 
 ## Services & Dependency injection
 
+**Useful links**:
+[1](https://dev.to/luishcastroc/learning-angulars-dependency-injection-with-typescript-kn)
+
+
 **Service** - клас, який, як правило, містить допоміжні методи або якийсь функціонал, який ми будемо використовувати в різних місцях програми для виконання якоїсь бізнес логіки. За рахунок перевикористання цей паттерн дає можливість зробити код чистішим, більш лінійним, централізованим, таким, який легше підтримувати.
 
 _`Dependency Injection`_ (DI) is one of the most important mechanisms in Angular. This pattern allows for **inversion of control** by passing instances of requested dependencies to the class instead of creating them inside the class. This approach creates loose coupling and makes testing easier.
@@ -1195,7 +1199,7 @@ export class ModuleInjector extends Injector {
 
 Під час інжекту сервісу, Angular спочатку шукає його в `Root injector`, потім у `Platform injector`. Якщо сервіс не знайдено, `Null injector` кидає помилку. Схематично це можна уявити так:
 
-![alt text](122d1bb7447f3020140315906aa44503.png)
+![alt text](/Angular_assets/122d1bb7447f3020140315906aa44503.png)
 
 Цікаво, що якщо модуль з масивом `providers` імпортується в `AppModule`, він не створює окремий інжектор, а його провайдери потрапляють в `Root injector`:
 
@@ -1237,7 +1241,7 @@ export const ROUTES: Route[] = [
 
 **Якщо заінжектити сервіс у компонент, який належить `lazy-loading` модулю, то пошук сервісу починатиметься з інжектора цього модуля**, а далі перейде до ланцюжка `Root Injector` → `Platform Injector` → `Null Injector`:
 
-![alt text](4714f3b8bb6b2b5c4cc9b4fe83f49e76.png)
+![alt text](/Angular_assets/4714f3b8bb6b2b5c4cc9b4fe83f49e76.png)
 
 #### `Node (Element) Injector`
 
@@ -1279,7 +1283,7 @@ export class ChildComponent {
 
 Якщо сервіс інжектується в `app-child` компонент, то ланцюжок пошуку буде такий: `app-child` → `app-parent` → `app-root`:
 
-![alt text](image.png)
+![alt text](/Angular_assets/ffeeb10c65089e07d62c5de5d0563f59.png)
 
 #### Full picture
 
@@ -1294,7 +1298,7 @@ export class Component {
 
 - Отже, коли сервіс інжектується в компонент, Angular спершу намагається знайти його в поточному `Node (Element) injector`, потім йде вгору за ієрархією `node (element)` інжекторів, потім переходить до `Module injector`, починаючи з `lazy-loading` модулів (якщо вони є), далі до `Root injector`, потім до `Platform injector`, і, якщо нічого не знайдено, `NULL injector` викидає помилку:
 
-![alt text](18a0359a0c04185cb2a702cc3c775f8e.png)
+![alt text](/Angular_assets/18a0359a0c04185cb2a702cc3c775f8e.png)
 
 #### Standalone revolution (Env, Route Env Injectors)
 
@@ -1354,7 +1358,7 @@ export const ROUTES: Route[] = [
 
 Цей інжектор застосовуватиметься для маршруту `route-with-providers` і всіх його дітей:
 
-![alt text](2885f0e70e80dbb80e01a9f31a1eb03d.png)
+![alt text](/Angular_assets/2885f0e70e80dbb80e01a9f31a1eb03d.png)
 
 ##### Backward compatibility with `@NgModule{}`
 
@@ -1399,7 +1403,7 @@ export class AppComponent {}
 
 Ієрархія `Environment injectors` виглядатиме таким чином:
 
-![alt text](21b46d539aff133e04f7aeadd2a27d03.png)
+![alt text](/Angular_assets/21b46d539aff133e04f7aeadd2a27d03.png)
 
 **2.** Окремий інжектор буде створюватися при динамічному створенні компонентів з модулем.
 
