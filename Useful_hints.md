@@ -14,3 +14,12 @@ git symbolic-ref HEAD refs/heads/${BRANCH_NAME}
 ## To remove all docker volumes
 
 docker volume rm $(docker volume ls -qf dangling=true)
+
+## settings.json for vscode
+
+```javascript
+{
+  "eslint.workingDirectories": ["client", "server"], // to get rid of eslint errors using monorepos
+  "typescript.tsdk": "./server/node_modules/typescript/lib", //for using ts from project, not vscode local
+}
+```
