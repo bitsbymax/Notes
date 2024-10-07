@@ -17,19 +17,21 @@
 ## VSCode shortcuts
 
 1. **`Ctrl-R`** - open recent
-2. **`Shift-Option`** - duplicate line
+2. **`Shift-Option-↑↓`** - duplicate line
 3. **`Option-↑↓`** - moving line up/down\
 4. **`Option-Cmd-↑↓`** - add cursor above/below
 5. **`Option-Space`** - suggestions
-6. **`Shift-Cmd-k`** - delete whole line
+6. **`Shift-Cmd-D`** - delete whole line
 7. **`🌐Fn-↑↓`** - scroll in document
 8. **`Shift-Option-F`** - format document
-9. **`Shift-Cmd-L`** - select all occurrences
+9. **`Shift-Option-X`** - select all occurrences
 10. **`Cmd-J`** - terminal
 11. **`Option-Cmd- ←|→`** - moving between tabs
-12. **`Shift-Cmd-O`** - all chapters of the Markdown
+12. **`Shift-Cmd-O`** - all chapters of the Markdown (edit mode)
 13. **`Option-Cmd- ←|→`** - move focus between groups
 14. **`Ctrl-Cmd- ←|→`** - move tab between groups
+15. **`Shift-Ctrl- ←|→`** - expand selection up and down
+16. **`Ctrl-Option-L`** - console.log
 
 ## Flow
 
