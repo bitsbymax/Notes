@@ -13,6 +13,7 @@
 11. **`Cmd-Mouse click`**- on any icon in the dock will show app executable folder
 12. **`Ctrl-Mouse click`**- on any icon in the dock will imitate right click
 13. **`Shift-Cmd-Backspace`** - clean a trash
+14. **`Shift-Cmd-.`** - show/hide hidden files in Finder
 
 ## VSCode shortcuts
 
