@@ -32,7 +32,8 @@
 13. **`Option-Cmd- ←|→`** - move focus between groups
 14. **`Ctrl-Cmd- ←|→`** - move tab between groups
 15. **`Shift-Ctrl- ←|→`** - expand selection up and down
-16. **`Ctrl-Option-L`** - console.log
+16. **`Shift-Ctrl-W`**- wrap with abbreviation 
+17. **`Ctrl-Option-L`** - console.log
 
 ## Flow
 
