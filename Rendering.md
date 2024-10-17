@@ -1,6 +1,30 @@
-# Rendering process in Browser
+# Understanding the Critical Rendering Path
+
+>useful resources: [1](https://bitsofco.de/understanding-the-critical-rendering-path/), [2](https://medium.com/@mustafa.abdelmogoud/how-the-browser-renders-html-css-27920d8ccaa6), [3](https://developer.mozilla.org/en-US/docs/Web/Performance/Critical_rendering_path), [4](https://developer.mozilla.org/en-US/docs/Web/Performance/How_browsers_work)
+
+## Critical Rendering Path
+
+Це процес між отриманням даних (HTML, CSS, JS) браузером та перетворенням їх на пікселі в браузерному вікні.
+
+- `Critical resource` - ресурс, що може блокувати початковий рендеринг. Це все, що може впливати на відтермінування `first contentful paint`
+- `First Contentful Paint (FCP)` is a performance metric that measures the time it takes for the browser to render the first piece of `DOM` content on a page. This content can include text, images, SVG elements, or non-white canvas elements
+  `FCP` is crucial because it gives users visual feedback that the page is loading, improving their perception of the site’s speed3. A good `FCP` score is typically 1.8 seconds or less
+- `Critical path length` - Кількість запитів байт інформації або загальний час на завантаження всіх критичних ресурсів
+- `Critical bytes` - Сумарна кількість байт, які необхідно завантажити, щоб відбувся перший рендеринг сторінки
+- `Time to First Byte, TTFB` - Час до першого байта це час між моментом, коли користувач відправив запит, скажімо, натиснувши на посилання, і моментом отримання першого пакета даних HTML. Перший пакет зазвичай містить 14КБ даних
+
+1. Constructing the DOM Tree
+1. Constructing the CSSOM Tree
+1. Running JavaScript
+1. Creating the Render Tree
+1. Generating the Layout
+1. Painting
+
+![alt text](<Rendering_assets/Critical Rendering Path.avif>)
 
 ## `DOM`
+
+The `DOM` (Document Object Model) Tree is an Object representation of the fully parsed HTML page.
 
 - `DOM` складається з DOM вузлів, яких є **12** типів:
 
@@ -17,18 +41,22 @@
 11. `Entity` Node: Represents an entity.
 12. `Notation` Node: Represents a notation declared in the DTD (Document Type Definition)
 
+A good thing about HTML is that it can be executed in parts. The full document doesn't have to be loaded for content to start appearing on the page. However, other resources, CSS and JavaScript, can block the render of the page.
+
 ## `CSSOM`
+
+The `CSSOM` (CSS Object Model) is an Object representation of the styles associated with the DOM.
 
 - Після побудови DOM дерева, браузер будує `CSSOM` дерево.
 
   - Починає будуватися з вбудованих стилів (ті, що зашиті в самі `html` елементи по замовчуванні і стилі в тегах `<style>`)
   - Теж дерево, але з CSS правил
-  - Перебудовується щоразу, як додаються нові стилі, так як інформації про те, куди саме і які стилі були додані немає.
+  - Перебудовується щоразу, як додаються нові стилі, так як інформації про те, куди саме і які стилі були додані - немає.
   - Також стилі наслідуються по ієрархії від батьківських до дочірніх за рахунок деревовидності.
 
 ## Render
 
-Rendering steps include **style, layout, paint, and in some cases compositing**. The CSSOM and DOM trees created in the parsing step are combined into a render tree which is then used to compute the layout of every visible element, which is then painted to the screen.
+Rendering steps include **style, layout, paint, and in some cases compositing**. The CSSOM and DOM trees created in the parsing step are combined into a **render tree** which is then used to compute the layout of every visible element, which is then painted to the screen.
 
 У деяких випадках вміст може бути винесено на окремі шари і поєднано (`composition`) - такий підхід збільшує продуктивність, даючи змогу відтворювати вміст екрана на графічному процесорі (GPU) замість ЦПУ (CPU). Це звільняє основний потік.
 
@@ -90,17 +118,6 @@ Rendering steps include **style, layout, paint, and in some cases compositing**.
 
 While the browser builds the `DOM` tree, this process occupies the main thread. As this happens, the **preload scanner** will parse through the content available and request _high-priority resources_ like `CSS`, `JavaScript`, and `web fonts`.
 Thanks to the preload scanner, we don't have to wait until the parser finds a reference to an external resource to request it. It will retrieve resources in the background so that by the time the main HTML parser reaches the requested assets, they may already be in flight or have been downloaded. The optimizations the preload scanner provides reduce blockages.
-
-## Critical Rendering Path
-
-Це процес між отриманням даних (HTML, CSS, JS) браузером та перетворенням їх на пікселі в браузерному вікні.
-
-- `Critical resource` - ресурс, що може блокувати початковий рендеринг. Це все, що може впливати на відтермінування `first contentful paint`
-- `First Contentful Paint (FCP)` is a performance metric that measures the time it takes for the browser to render the first piece of `DOM` content on a page. This content can include text, images, SVG elements, or non-white canvas elements.
-  `FCP` is crucial because it gives users visual feedback that the page is loading, improving their perception of the site’s speed3. A good `FCP` score is typically 1.8 seconds or less.
-- `Critical path length` - Кількість запитів байт інформації або загальний час на завантаження всіх критичних ресурсів
-- `Critical bytes` - Сумарна кількість байт, які необхідно завантажити, щоб відбувся перший рендеринг сторінки
-- `Time to First Byte, TTFB` - Час до першого байта це час між моментом, коли користувач відправив запит, скажімо, натиснувши на посилання, і моментом отримання першого пакета даних HTML. Перший пакет зазвичай містить 14КБ даних.
 
 ## СRP optimization
 
