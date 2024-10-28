@@ -1,8 +1,42 @@
-# Execution Context in JavaScript
+# Execution Contexts in JavaScript
 
 [original video](https://www.youtube.com/watch?v=zdGfo6I1yrA)
 
 - JavaScript is a single-threaded language, which means it can only execute one piece of code at a time. To manage this, JavaScript uses an execution context to keep track of the current state of the program.
+
+These contexts are managed by the JavaScript engine using a _stack_, often referred to as the `execution stack` or `call stack`.
+**An execution context is, in simplistic terms, a concept that describes the environment in which JavaScript code is executed. Code is always executed within a context.**
+
+In JavaScript, there are primarily **4 types** of _execution contexts_:
+
+1. **Global Execution Context**
+2. **Function Execution Context**
+3. **Eval Execution Context**
+4. **Module Execution Context**
+
+Brief explanation:
+
+- **Global Execution Context**:
+
+  - This is the default or base execution context.
+  - It's created when the JavaScript script first starts to run.
+  - There can only be one global execution context in a program.
+
+- **Function Execution Context**:
+
+  - Created whenever a function is called.
+  - Each function has its own execution context.
+
+- **Eval Execution Context**:
+
+  - Created when code is executed inside an `eval()` function.
+
+- **Module Execution Context**:
+  - Created for the top-level code of a module.
+  - Similar to the global context, but specific to the module.
+  - Introduced in ES6 modules
+
+The _Global Execution Context_ is at the bottom of this stack and new _Function Execution Contexts_ are _pushed_ onto the stack as functions are called, and _popped off_ when they return. This _stack-based_ mechanism allows JavaScript to manage the flow of code execution efficiently.
 
 > _Some important definitions:_
 >
@@ -11,18 +45,16 @@
 > 3. **Scope Chain**: It is a reference to the variable environment of the parent execution context.
 > 4. **This Keyword**: It refers to the object that the function is called on
 > 5. **Call Stack**: It is a stack data structure that keeps track of the execution contexts as they are created and destroyed
-> 6. **Global Execution Context**: It is the outermost execution context, which is created when the JavaScript engine starts executing the code.It contains the global variables and functions.
+> 6. **Global Execution Context**: It is the outermost execution context, which is created when the JavaScript engine starts executing the code. It contains the global variables and functions.
 > 7. **Function Execution Context**: It is created whenever a function is called. It contains the parameters passed to the function and the local variables declared inside the function.
-> 8. **Eval Execution Context**: It is created by the eval() function, which allows you to execute JavaScript code as a string
-> 9. **Module Execution Context**: It is created when a module is imported using the import statement. It contains the exported functions and variables from the module.
+> 8. **Eval Execution Context**: It is created by the `eval()` function, which allows you to execute JavaScript code as a string
+> 9. **Module Execution Context**: It is created when a module is imported using the `import` statement. It contains the exported functions and variables from the module.
 
 ---
 
-## Global Execution Context
-
-- When a function is invoked, a new `execution context` is created and pushed onto the call stack, which is actually just an _execution context stack_.
-- Execution context essentially defines the environment in which our code is executed, and it contains many internal components that the engine uses to keep track of the _execution flow_ of that piece of code.
-- And execution context uses `environment records` to keep track and maintain the `identifier bindings` that have been created for the _variable declarations_, _function declarations_, all the values within that context.
+- When a function is invoked, a new `execution context` is created and pushed onto the call stack, which is actually just an _`execution context stack`_.
+- Execution context essentially defines the environment in which our code is executed, and it contains many internal components that the engine uses to keep track of the _`execution flow`_ of that piece of code.
+- And execution context uses `Environment Records` to keep track and maintain the `Identifier bindings` that have been created for the _variable declarations_, _function declarations_, all the values within that context.
 
   ![Execution_Context](Exec_Context_assets/Execution_Context.png)
 
@@ -40,72 +72,78 @@ function greet(nameToGreet) {
 greet(firstName);
 ```
 
-So first, as the script is loaded, the `global execution context` is created, And every execution context goes through **2 phases**.
+## Global Execution Context
+
+So first, as the script is loaded, the _`Global Execution Context`_ is created and every _execution context_ goes through **2 phases**.
 
 - 1st, we have the **`creation phase`** in which memory space is set up for the _variable declarations_, _function declarations_, and so on within that context.
 
   ![alt text](Exec_Context_assets/Global_exec_context1-1.png)
 
-- And then we have the **`execution phase`** in which the execution context is on the call stack and the code is actually executed.
+- 2nd, we have the **`execution phase`** in which the _execution context_ is on the _call stack_ and the code is actually executed.
 
   ![alt text](Exec_Context_assets/execution_phase-2.png)
 
-The global execution context has many components, but for now, lets focus on the `realm`, the `lexical environment`, and also the `variable environment` just to make it complete.
+The _Global Execution Context_ has many components, but for now, lets focus on the `Realm`, the `Lexical Environment`, and also the `Variable Environment` just to make it complete.
 
-## Realm
+### Realm
 
-- The `Realm` points to a realm record, and a realm is essentially an **isolated environment** in which our code runs. So, for example, in browsers, a new realm is created whenever we open a _new tab_, we _refresh a page_, _service workers_, _web workers_, _iFrames_, and so on. So it's essentially just the isolated environment.
+- The `Realm` points to a _Realm record_, and a _Realm_ is essentially an **isolated environment** in which our code runs. So, for example, in browsers, a new _Realm_ is created whenever we open a _new tab_, we _refresh a page_, for _service workers_, _web workers_, _iFrames_, and so on. So it's essentially just the isolated environment.
 
   ![alt text](Exec_Context_assets/Realm.png)
 
-And a realm consists of several components, including the `Intrinsics`, the `Global object`, and the `Global environment record`.
+And a `Realm` consists of several components, including the `Intrinsics`, the `Global Object`, and the `Global Environment Record`.
 
-### Intrinsics
+#### Intrinsics
 
-The **`Intrinsics`** provide all the standard built in _`objects`_ and _`functions`_ that are essentially just foundational for executing JavaScript, so like _`array`_, _`function`_, _`syntax error`_, and so on.
+The **`Intrinsics`** provide all the standard built-in _`objects`_ and _`functions`_ that are essentially just foundational for executing **JavaScript**, so like _`Array`_, _`Function`_, _`Syntax Error`_, and so on.
 
-### Global Object
+#### Global Object
 
-Then we have the **`Global object`**, which contains several types of properties.
+Then we have the **`Global Object`**, which contains several types of properties:
 
-- So first, we have the **`Specification defined properties`** (_JavaScript functionality_), which essentially just expose the _intrinsics_. So _`array`_ _`function`_, all the **JavaScript stuff** is on the _Global object_.
-- And then we have the **`Host defined properties`** (_Browser APIs_), which in a browser is things like `fetch`, `setTimeout`, `Document`. That's also all made available through the _Global object_.
-- And last but not least, we have the **`User defined properties`**. So as developers, we can either explicitly add properties to the _Global object_ or we do it implicitly whenever we declare a _`function`_ in the global scope or whenever we have a variable with a _`var`_ keyword in the global scope. These are also added to the _Global object_ and are now available, ready to use throughout the entire script.
+- So first, we have the **`Specification defined properties`** (_**JavaScript functionality**_), which essentially just expose the _`Intrinsics`_. So _`Array`_ _`Function`_, all the JavaScript stuff is on the _Global object_.
+- And then we have the **`Host defined properties`** (_**Browser APIs**_), which in a browser are things like `fetch`, `setTimeout`, `Document`. That's also all made available through the _Global object_.
+- And last but not least, we have the **`User defined properties`**. So as developers, we can either explicitly add properties to the _Global Object_ or we do it implicitly whenever we declare a _`function`_ in the global scope or whenever we have a variable with a _`var`_ keyword in the global scope. These are also added to the _Global Object_ and are now available, ready to use throughout the entire script.
 
-### Global Environment Record
+#### Global Environment Record
 
-And lastly, we have the **`Global environment record`**.
-And, again, `Environment records` manage the _identifier bindings_ within that context. So in the case of the _Global environment record_, these values are accessible throughout our entire script.
+And lastly, we have the **`Global Environment Record`**.
+And, again, `Environment Records` manage the _`Identifier bindings`_ within that context. So in the case of the _Global Environment Record_, these values are accessible throughout our entire script.
 
-#### Object Record
+##### Identifier Bindings
 
-- And the _Global environment record_ again contains another `Object record`. So the object record is essentially just a **direct reference** to the _global object_.
+By _"identifier"_ here we mean the name of a variable or function, and by _"variable"_ we mean a _reference_ to a specific object (including a function) or a _primitive value_.
+
+##### ObjectRecord
+
+- And the _Global Environment Record_ again contains another `ObjectRecord`. So the _ObjectRecord_ is essentially just a **direct reference** to the _Global Object_.
 - So this is used by variables with the _`var`_ keyword and _`function declarations`_ on the global scope.
   ![alt text](Exec_Context_assets/Global_object.png)
 
-#### Declarative Record
+##### DeclarativeRecord
 
-- It also contains a `Declarative record`, and this stores all _identifier bindings_ that _**aren't** variables with the `var` keyword or `function declaration`_. So everything except for those two: (`let`, `const`,`class`, etc.).
+- It also contains a `DeclarativeRecord`, and this stores all _Identifier bindings_ that **are not** variables with the `var` keyword or `function declaration`_. So everything except for those two: (`let`, `const`,`class`, etc.).
   ![alt text](<Exec_Context_assets/Declarative record.png>)
 
-#### Global `This` Value
+##### GlobalThisValue
 
-- And environment records also contain the value of the `this` keyword, which in the case of the _Global environment record_ is the global `this` value. And in most cases, `this` just points to the _Global object_.
+- And _Environment records_ also contain the value of the `this` keyword, which in the case of the _Global Environment Record_ is the global `this` value. And in most cases, `this` just points to the _Global Object_.
 
-#### Outer Environment Reference
+##### OuterEnv Reference
 
-- And finally, it also has an outer env or `Outer environment` property. And in the case of the _Global environment record_, this is **null**.
+- And finally, it also has an `OuterEnv` or `OuterEnvironment` property. And in the case of the _Global Environment Record_, this is **null**.
 - But later, we will see why this is a very important property when we talk about _`scope`_, _`scope chain`_, and so on.
 
-## Lexical Environment Record
+### Lexical Environment Record
 
-And the `Lexical environment` just points to the environment record that contains the bindings for _everything **except**_ for variables with the _`var` keyword_ and _`function declarations`_ like variables declared with `let`, `const`, `classes` etc. So in this case, that is the _Global environment record_.
+And the `Lexical Environment` just points to the environment record that contains the bindings for _everything **except**_ for variables with the _`var` keyword_ and _`function declarations`_ like variables declared with `let`, `const`, `classes` etc. So in this case, that is the _Global Environment Record_.
 
-The _Lexical environment record_ contains key information about the _function's scope_, including:
+The _Lexical Environment Record_ contains key information about the _function's scope_, including:
 
-## Variable Environment Record
+### Variable Environment Record
 
-And then we have the `Variable environment`, and this points to the environment record that stores the bindings for the variables declared with the _`var` keyword_ and _`function declarations`_, which in this case also is the _Global environment record_.
+And then we have the `Variable Environment`, and this points to the environment record that stores the bindings for the variables declared with the _`var` keyword_ and _`function declarations`_, which in this case also is the _Global environment record_.
 
 ## Script walk-through
 
@@ -209,7 +247,7 @@ In this example, the `x` variable is declared at the end of the script. However,
 
 - In this example, we declare `x` as a constant within an inner function. Because it's in the _temporal dead zone_, trying to access its value before assignment will result in a `ReferenceError`.
 
-### Hoisting for `var`
+### Hoisting for var variables
 
 - Then we have variables with the `var` keyword. And during the _creation phase_ of the _execution context_, these are also _hoisted_ and _initialized_, but with the value of `undefined`. And these variables get redefined with their actual values during the _execution phase_ whenever their declaration is reached within the code.
 
@@ -276,19 +314,19 @@ In this example, we try to call the `add` function before it's declared. Because
 
   ```javascript
   const firstName = 'Lydia';
-  
+
   function outer() {
     const lastName = 'Hallie';
-  
+
     function inner() {
       const fullName = firstName + ' ' + lastName;
       return fullName;
     }
-  
+
     return inner();
   }
-  
+
   outer();
   ```
-  
+
   In this case, the `firstName` variable is found in the _Global scope_ and the `lastName` variable is found in the `outer` function's _Lexical environment record_. The engine uses the _scope chain_ to access these variables when executing the `inner` function.
