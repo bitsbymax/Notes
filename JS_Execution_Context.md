@@ -94,7 +94,7 @@ The _`Global Execution Context`_ has many components, but for now, lets focus on
 
 ### Realm
 
-- The `Realm` points to a _Realm record_, and a _Realm_ is essentially an **isolated environment** in which our code runs. So, for example, in browsers, a new _Realm_ is created whenever we open a _new tab_, we _refresh a page_, for _service workers_, _web workers_, _iFrames_, and so on. So it's essentially just the isolated environment.
+- The `Realm` points to a _Realm record_, and a _Realm_ is essentially an **isolated environment** in which our code runs. So, for example, in browsers, a new _Realm_ is created whenever we open a _new tab_, we _refresh a page_, for _service workers_, _web workers_, _iFrames_, and so on. So it's essentially just the _isolated environment_.
 
   ![alt text](Exec_Context_assets/Realm.png)
 
@@ -112,15 +112,15 @@ Then we have the **`Global Object`**, which contains several types of properties
 - And then we have the **`Host defined properties`** (_**Browser APIs**_), which in a browser are things like `fetch`, `setTimeout`, `Document`. That's also all made available through the _Global object_.
 - And last but not least, we have the **`User defined properties`**. So as developers, we can either explicitly add properties to the _Global Object_ or we do it implicitly whenever we declare a _`function`_ in the global scope or whenever we have a variable with a _`var`_ keyword in the global scope. These are also added to the _Global Object_ and are now available, ready to use throughout the entire script.
 
-#### Global Environment Record
+#### Environment Record (Global Environment Record)
 
 And lastly, we have the **`Global Environment Record`**.
 
 - And, again, `Environment Records` manage the _`Identifier bindings`_ within that context. So in the case of the _Global Environment Record_, these values are accessible throughout our entire script.
 
-##### Identifier Bindings
-
-By _"Identifier"_ here we mean the name of a variable or function, and by _"variable"_ we mean a _reference_ to a specific object (including a function) or a _primitive value_.
+> **Identifier Bindings**
+>
+> By _"Identifier"_ here we mean the name of a variable or function, and by _"variable"_ we mean a _reference_ to a specific object (including a function) or a _primitive value_.
 
 ##### ObjectRecord
 
@@ -131,12 +131,12 @@ By _"Identifier"_ here we mean the name of a variable or function, and by _"vari
 ##### DeclarativeRecord
 
 - It also contains a `DeclarativeRecord` and this stores all _Identifier bindings_ declared with `let`, `const`, also `classes`.
-  - Note that in a **`Function Execution Context`**, it, in addition, contains function `parameters` an `arguments` object that stores correspondences between indices and values of arguments passed to the function, and information about the number of such arguments.
+  - Note that in a **`Function Execution Context`**, it, in addition, contains function `parameters` an `arguments` object that stores correspondences between indices and values of arguments passed to the function and information about the number of such arguments.
     ![alt text](<Exec_Context_assets/Declarative record.png>)
 
 ##### GlobalThisValue
 
-- And _Environment records_ also contain the value of the `this` keyword, which in the case of the _Global Environment Record_ is the global `this` value. And in most cases, `this` just points to the _Global Object_.
+- And _environment records_ also contain the value of the `this` keyword, which in the case of the _Global Environment Record_ is the global `this` value. And in most cases, `this` just points to the _Global Object_.
 
 ##### OuterEnv Reference
 
@@ -145,7 +145,7 @@ By _"Identifier"_ here we mean the name of a variable or function, and by _"vari
 
 ### Lexical Environment Record
 
-And the `Lexical Environment` just points to the _Environment record_ that contains the bindings for variables declared with `let`, `const`, `classes` etc. So in this case, that is the _Global Environment Record_.
+And the `Lexical Environment` just points to the _environment record_ that contains the bindings for variables declared with `let`, `const`, `classes` etc. So in this case, that is the _Global Environment Record_.
 
 ### Variable Environment Record
 
@@ -178,7 +178,7 @@ greet(firstName);
   > And something and special about variables created with the `const` and `let` keyword, and also `classes`, is that they are _uninitialized_.
   > Meaning that memory space is set up, they're **hoisted**, but they don't have a value yet. They are _uninitialized_. They're only initialized during the **execution phase** of the _execution context_.
 
-- So then on line 2, pretty similar. We have the `lastName` variable, and this time, we use the `let` keyword. So it again uses the _Lexical environment_, which points to the _Global Environment Record_, which again uses the _Declarative record_ to store this binding. And similar to `const`, it is uninitialized until the **execution phase**.
+- So then on line 2, pretty similar. We have the `lastName` variable, and this time, we use the `let` keyword. So it again uses the _**Lexical Environment**_, which points to the _Global Environment Record_, which again uses the _**DeclarativeRecord**_ to store this binding. And similar to `const`, it is uninitialized until the **execution phase**.
 
 - And then we have the _function_ `greet`, and `function declarations` are managed by the **`ObjectRecord`**. And in contrast to the two previous variables, _functions are initialized during the creation phase_.
   ![alt text](Exec_Context_assets/Func_Exec_1.png)
@@ -202,7 +202,7 @@ greet(firstName);
 
 - So, in this case, the _`Lexical Environment`_ contains a brand new _Function Environment Record_, and this manages the _identifier bindings_ for the parameters, variables, and function declarations within this function.
 
-- And it also has an `OuterEnv` property. Again, the _outer environment_, which points to the environment of the _Function object_, which, in this case, is the _Global Environment Record_. And unlike the _`Global Execution Context`_, we now have to deal with _function parameters_. So in this case, `nameToGreet`.
+- And it also has an `OuterEnv` property. Again, the _Outer Environment_, which points to the environment of the _`Function Object`_, which, in this case, is the _Global Environment Record_. And unlike the _`Global Execution Context`_, we now have to deal with _function parameters_. So in this case, `nameToGreet`.
   ![alt text](Exec_Context_assets/CallStack_Func1.png)
 
 - And these are immediately added to the _Function Environment Record_, and, also, these are immediately initialized with the value that we pass. So in this case, the string 'Lydia'.
@@ -224,7 +224,7 @@ greet(firstName);
 
 ## Understanding Variable Hoisting
 
-- Hoisting happens during the _creation phase_ of an _execution context_ and variables declared with `let`, `const`, `classes` and `imports` are _**hoisted**_ to the top of their scope. However, this does not mean they are initialized at this point; rather, a reference to them is created in the _Lexical Environment Record_.
+- Hoisting happens during the _creation phase_ of an _execution context_ and variables declared with `let`, `const`, `classes` and `imports` are _**hoisted**_ to the top of their scope. However, this does not mean they are initialized at this point, rather, a reference to them is created in the _Lexical Environment Record_.
 
 - Imagine the following code:
 
@@ -281,7 +281,7 @@ In this example, we try to call the `add` function before it's declared. Because
 
 ## **Closures**
 
-- A `closure` is created when an inner function keeps a reference to the outer function's _Environment Record_. This means that the inner function has access to the variables in the outer function's scope even after the outer function has returned and this is made possible through the _`Function Object's`_ _environment property_.
+- A `closure` is created when an inner function keeps a reference to the outer function's _Environment Record_. This means that the inner function has access to the variables in the outer function's scope even after the outer function has returned and this is made possible through the _`Function Object's`_ **Environment** property.
 
 - Creating a _closure_ example:
 
