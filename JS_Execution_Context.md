@@ -124,7 +124,7 @@ And lastly, we have the **`Global Environment Record`**.
 
 ##### ObjectRecord
 
-- And the _Global Environment Record_ again contains another `ObjectRecord`. So the _ObjectRecord_ is essentially just a **direct reference** to the _Global Object_.
+- And the _Global Environment Record_ again contains another `ObjectRecord`. So the _ObjectRecord_ is essentially just a **direct reference** to the _Global Object_ in this case.
 - So this is used by variables with the _`var`_ keyword and _`function declarations`_ on the global scope.
   ![alt text](Exec_Context_assets/Global_object.png)
 
