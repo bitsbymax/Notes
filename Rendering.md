@@ -1,6 +1,6 @@
 # Understanding the Critical Rendering Path
 
->useful resources: [1](https://bitsofco.de/understanding-the-critical-rendering-path/), [2](https://medium.com/@mustafa.abdelmogoud/how-the-browser-renders-html-css-27920d8ccaa6), [3](https://developer.mozilla.org/en-US/docs/Web/Performance/Critical_rendering_path), [4](https://developer.mozilla.org/en-US/docs/Web/Performance/How_browsers_work)
+> useful resources: [1](https://bitsofco.de/understanding-the-critical-rendering-path/), [2](https://medium.com/@mustafa.abdelmogoud/how-the-browser-renders-html-css-27920d8ccaa6), [3](https://developer.mozilla.org/en-US/docs/Web/Performance/Critical_rendering_path), [4](https://developer.mozilla.org/en-US/docs/Web/Performance/How_browsers_work)
 
 ## Critical Rendering Path
 
@@ -8,17 +8,17 @@
 
 - `Critical resource` - ресурс, що може блокувати початковий рендеринг. Це все, що може впливати на відтермінування `first contentful paint`
 - `First Contentful Paint (FCP)` is a performance metric that measures the time it takes for the browser to render the first piece of `DOM` content on a page. This content can include text, images, SVG elements, or non-white canvas elements
-  `FCP` is crucial because it gives users visual feedback that the page is loading, improving their perception of the site’s speed3. A good `FCP` score is typically 1.8 seconds or less
+  `FCP` is crucial because it gives users visual feedback that the page is loading, improving their perception of the site's speed3. A good `FCP` score is typically 1.8 seconds or less
 - `Critical path length` - Кількість запитів байт інформації або загальний час на завантаження всіх критичних ресурсів
 - `Critical bytes` - Сумарна кількість байт, які необхідно завантажити, щоб відбувся перший рендеринг сторінки
 - `Time to First Byte, TTFB` - Час до першого байта це час між моментом, коли користувач відправив запит, скажімо, натиснувши на посилання, і моментом отримання першого пакета даних HTML. Перший пакет зазвичай містить 14КБ даних
 
-1. Constructing the DOM Tree
-1. Constructing the CSSOM Tree
-1. Running JavaScript
-1. Creating the Render Tree
-1. Generating the Layout
-1. Painting
+1. **Constructing the DOM Tree**
+1. **Constructing the CSSOM Tree**
+1. **Running JavaScript**
+1. **Creating the Render Tree**
+1. **Generating the Layout**
+1. **Painting**
 
 ![alt text](<Rendering_assets/Critical Rendering Path.avif>)
 
@@ -28,7 +28,7 @@ The `DOM` (Document Object Model) Tree is an Object representation of the fully 
 
 - `DOM` складається з DOM вузлів, яких є **12** типів:
 
-1. `Document` Node: Represents the entire document. It’s the root of the DOM tree.
+1. `Document` Node: Represents the entire document. It's the root of the DOM tree.
 2. `Element` Node: Represents an HTML element, such as _`<div>`_, _`<p>`_, _`<ul>`_, etc.
 3. `Text` Node: Contains the text content within an element.
 4. `Attribute` Node: Represents an attribute of an HTML element, such as id, class, src, etc.
@@ -95,15 +95,15 @@ Rendering steps include **style, layout, paint, and in some cases compositing**.
 - Коли розділи документа відмальовані на різних шарах, а один шар розташований над іншим або перекриває його, стає необхідною композиція. Цей крок дає змогу браузеру гарантувати, що кожен шар відмальований на екрані в правильному порядку, а вміст відображається коректно.
 
 - Під час довантаження раніше запитаних ресурсів (наприклад, зображень) може знадобитися перерахувати розміри та положення елементів відносно один одного.
-Цей перерахунок - `reflow` - запускає перемальовування (`repaint`) і перекомпозицію (`re-composite`).
-Якщо ми заздалегідь визначили розмір зображення, перерахунок не буде необхідний, і в цьому разі тільки той шар, який має бути перемальований, буде перемальований. Але якщо ми не визначили розмір зображення заздалегідь, то браузер, після отримання відповіді від сервера, буде змушений відмотати процес рендерингу назад до кроку компонування (`layout`) і почати процес відтворення ще раз.
+  Цей перерахунок - `reflow` - запускає перемальовування (`repaint`) і перекомпозицію (`re-composite`).
+  Якщо ми заздалегідь визначили розмір зображення, перерахунок не буде необхідний, і в цьому разі тільки той шар, який має бути перемальований, буде перемальований. Але якщо ми не визначили розмір зображення заздалегідь, то браузер, після отримання відповіді від сервера, буде змушений відмотати процес рендерингу назад до кроку компонування (`layout`) і почати процес відтворення ще раз.
 
 ### Interactivity
 
 - Можна було б подумати, що щойно основний потік завершує відтворення сторінки - «все готово». Це не завжди так. Якщо серед ресурсів, що завантажуються, є `JavaScript`, завантаження якого було коректно відкладено, а запуск якого відбувається тільки після події `onload`, основний потік починає обробку скриптів. **Під час цієї обробки браузер не може обробляти події прокрутки, натискань тощо.**
 
 - `Time to Interactive` (`TTI`, час до інтерактивності) - це показник того, як багато часу проходить між найпершим мережевим запитом і моментом, коли сторінка стає інтерактивною.
-У хронології цей етап слідує одразу за `First Contentful Paint`. Інтерактивністю називається показник того, що сторінка відреагувала на дію користувача за час у `50мс`. Якщо процесор зайнятий опрацюванням, компіляцією та виконанням JavaScript, то браузер не може відреагувати досить швидко, а отже сторінка вважається не інтерактивною.
+  У хронології цей етап слідує одразу за `First Contentful Paint`. Інтерактивністю називається показник того, що сторінка відреагувала на дію користувача за час у `50мс`. Якщо процесор зайнятий опрацюванням, компіляцією та виконанням JavaScript, то браузер не може відреагувати досить швидко, а отже сторінка вважається не інтерактивною.
 
 ## Blocking behavior (parse/render blocking)
 
@@ -156,12 +156,12 @@ Thanks to the preload scanner, we don't have to wait until the parser finds a re
   - With header compression, the size of headers is minimized, reducing the overhead and improving efficiency.
   - Prioritizing network resource allocation is another benefit of HTTP/2, ensuring critical resources are delivered promptly.
 
-In summary, `HTTP/2`’s multiplexing and header compression enhance performance, reduce latency, and make web applications faster and more efficient!
+In summary, `HTTP/2`'s multiplexing and header compression enhance performance, reduce latency, and make web applications faster and more efficient!
 
 ### `Preconnect`, `prefetch`, `preload`
 
 - `Preconnect`
-  - **Purpose**: Establishes a connection to a server before it’s actually needed.
+  - **Purpose**: Establishes a connection to a server before it's actually needed.
   - **Benefit**: Speeds up future loads from that origin by preemptively performing part or all of the handshake (DNS+TCP for HTTP, and DNS+TCP+TLS for HTTPS origins)1.
   - **Usage**: Include `<link rel="preconnect">` in your HTML to improve perceived page speed by reducing connection time to other origins.
 - `Prefetch`
