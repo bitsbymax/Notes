@@ -4,27 +4,32 @@
 
 ## Critical Rendering Path
 
-Це процес між отриманням даних (HTML, CSS, JS) браузером та перетворенням їх на пікселі в браузерному вікні.
+Це процес між отриманням даних (**HTML**, **CSS**, **JS**) браузером та перетворенням їх на пікселі в браузерному вікні.
 
-- `Critical resource` - ресурс, що може блокувати початковий рендеринг. Це все, що може впливати на відтермінування `first contentful paint`
+**Important definitions**:
+
+- `Critical Resource` - ресурс, що може блокувати початковий рендеринг. Це все, що може впливати на відтермінування `First Contentful Paint`
+- `First Paint (FP)` measures the time it takes for the browser to render the first pixel on the screen. It's a crucial indicator of a site's perceived performance, marking the moment users see anything change from blank to a rendered page.
+  While `FP` is a good starting point, it doesn't necessarily mean the content is useful—just that something is visible. That's why more nuanced metrics like `First Contentful Paint (FCP)` and `First Meaningful Paint (FMP)` give a fuller picture of user experience.
 - `First Contentful Paint (FCP)` is a performance metric that measures the time it takes for the browser to render the first piece of `DOM` content on a page. This content can include text, images, SVG elements, or non-white canvas elements
-  `FCP` is crucial because it gives users visual feedback that the page is loading, improving their perception of the site's speed3. A good `FCP` score is typically 1.8 seconds or less
-- `Critical path length` - Кількість запитів байт інформації або загальний час на завантаження всіх критичних ресурсів
-- `Critical bytes` - Сумарна кількість байт, які необхідно завантажити, щоб відбувся перший рендеринг сторінки
-- `Time to First Byte, TTFB` - Час до першого байта це час між моментом, коли користувач відправив запит, скажімо, натиснувши на посилання, і моментом отримання першого пакета даних HTML. Перший пакет зазвичай містить 14КБ даних
-
-1. **Constructing the DOM Tree**
-1. **Constructing the CSSOM Tree**
-1. **Running JavaScript**
-1. **Creating the Render Tree**
-1. **Generating the Layout**
-1. **Painting**
+  `FCP` is crucial because it gives users visual feedback that the page is loading, improving their perception of the site's speed. A good `FCP` score is typically `1.8` seconds or less
+- `First Meaningful Paint (FMP)` - is a metric used to measure the point when the primary content of a web page is visible to the user. Unlike other metrics like `First Paint (FP)` and `First Contentful Paint (FCP)`, `FMP` tries to capture the moment when the main content appears meaningful and useful. It's a more nuanced measure of the perceived loading experience, focusing on when the key parts of the page are actually ready to engage the user.
+- `Critical Path Length` - Кількість запитів байт інформації або загальний час на завантаження всіх критичних ресурсів
+- `Critical Bytes` - Сумарна кількість байт, які необхідно завантажити, щоб відбувся перший рендеринг сторінки
+- `Time to First Byte, TTFB` - Час до першого байта це час між моментом, коли користувач відправив запит, скажімо, натиснувши на посилання, і моментом отримання першого пакета даних HTML. Перший пакет зазвичай містить `14КБ` даних
 
 ![alt text](<Rendering_assets/Critical Rendering Path.avif>)
 
-## `DOM`
+## Parsing
 
-The `DOM` (Document Object Model) Tree is an Object representation of the fully parsed HTML page.
+1. `Tokenization`: Breaks down the HTML or CSS text into tokens.
+1. `Lexical Analysis`: Identifies the syntactic units (tags, attributes).
+1. `Building the DOM Tree`: Creates a Document Object Model (DOM) from the HTML.
+1. `Building the CSSOM Tree`: Constructs a CSS Object Model (CSSOM) from the CSS.
+
+### `DOM`
+
+The `DOM` (**Document Object Model**) Tree is an Object representation of the fully parsed HTML page.
 
 - `DOM` складається з DOM вузлів, яких є **12** типів:
 
@@ -43,9 +48,9 @@ The `DOM` (Document Object Model) Tree is an Object representation of the fully 
 
 A good thing about HTML is that it can be executed in parts. The full document doesn't have to be loaded for content to start appearing on the page. However, other resources, CSS and JavaScript, can block the render of the page.
 
-## `CSSOM`
+### `CSSOM`
 
-The `CSSOM` (CSS Object Model) is an Object representation of the styles associated with the DOM.
+The `CSSOM` (**CSS Object Model**) is an Object representation of the styles associated with the DOM.
 
 - Після побудови DOM дерева, браузер будує `CSSOM` дерево.
 
@@ -54,15 +59,22 @@ The `CSSOM` (CSS Object Model) is an Object representation of the styles associa
   - Перебудовується щоразу, як додаються нові стилі, так як інформації про те, куди саме і які стилі були додані - немає.
   - Також стилі наслідуються по ієрархії від батьківських до дочірніх за рахунок деревовидності.
 
-## Render
+## Rendering
 
-Rendering steps include **style, layout, paint, and in some cases compositing**. The CSSOM and DOM trees created in the parsing step are combined into a **render tree** which is then used to compute the layout of every visible element, which is then painted to the screen.
+### Rendering steps
 
-У деяких випадках вміст може бути винесено на окремі шари і поєднано (`composition`) - такий підхід збільшує продуктивність, даючи змогу відтворювати вміст екрана на графічному процесорі (GPU) замість ЦПУ (CPU). Це звільняє основний потік.
+1. `Construction of the Render Tree`: Combines the DOM and CSSOM into a render tree.
+1. `Layout`: Calculates the position and size of all elements.
+1. `Paint`: Fills in pixels for elements on the screen.
+1. `Compositing`: Layers the painted elements into their final positions on the screen.
+
+Rendering steps include **Style**, **Layout**, **Paint**, and in some cases **Compositing**. The `CSSOM` and `DOM` trees created in the parsing step are combined into a **Render tree** which is then used to compute the layout of every visible element, which is then painted to the screen.
+
+У деяких випадках вміст може бути винесено на окремі шари і поєднано (`Composition`) - такий підхід збільшує продуктивність, даючи змогу відтворювати вміст екрана на графічному процесорі (GPU) замість ЦПУ (CPU). Це звільняє основний потік.
 
 ### Style
 
-Побудова `Render-tree`:
+Побудова `Render tree`:
 
 - Це похідне дерево, яке збирається докупи з `DOM` і `CSSOM` дерев.
 - Перебудовується кожного разу, коли змінюється `DOM` або `CSSOM`
@@ -84,7 +96,7 @@ Rendering steps include **style, layout, paint, and in some cases compositing**.
 ### Paint
 
 - Процес, який відбувається одразу після `Layout`, коли браузер по наявній блочній моделі відмальовуватиме вміст кожного елемента на сторінці.
-- Момент, коли це відбувається вперше, називається **`first meaningful paint`** (перше значуще відтворення)
+- Момент, коли це відбувається вперше, називається **`First Meaningful Paint`** (перше значуще відтворення)
 - Створюються окремі "шари", в основному за `z-index`
 - Кожен окремий шар відмальовується окремо
 - Далі відбувається `layer-composition` - склеювання усіх шарів в одне зображення
@@ -116,8 +128,9 @@ Rendering steps include **style, layout, paint, and in some cases compositing**.
 
 ## Preload Scanner
 
-While the browser builds the `DOM` tree, this process occupies the main thread. As this happens, the **preload scanner** will parse through the content available and request _high-priority resources_ like `CSS`, `JavaScript`, and `web fonts`.
-Thanks to the preload scanner, we don't have to wait until the parser finds a reference to an external resource to request it. It will retrieve resources in the background so that by the time the main HTML parser reaches the requested assets, they may already be in flight or have been downloaded. The optimizations the preload scanner provides reduce blockages.
+- While the browser builds the `DOM` tree, this process occupies the main thread. As this happens, the **preload scanner** will parse through the content available and request _high-priority resources_ like `CSS`, `JavaScript`, and `Web Fonts`.
+- Thanks to the **preload scanner**, we don't have to wait until the parser finds a reference to an external resource to request it. It will retrieve resources in the background so that by the time the main HTML parser reaches the requested assets, they may already be in flight or have been downloaded.
+- The optimizations the **preload scanner** provides reduce blockages.
 
 ## СRP optimization
 
@@ -188,11 +201,11 @@ In summary, `HTTP/2`'s multiplexing and header compression enhance performance, 
 
 ## Як прискорити рендеринг сторінки
 
-- Кешувати усі повторні звернення до `DOM` елементів. Тому що навіть при простому зверненні через `getElementBy` до `DOM` дерева, відбудеться `reflow`.
-- По можливості виконувати усі заплановані операції з `DOM` за один раз (`batch`)
+- Кешувати усі повторні звернення до `DOM` елементів. Тому що навіть при простому зверненні через `getElementBy` до `DOM` дерева, відбудеться `reflow`
+- По можливості виконувати усі заплановані операції з `DOM` за один раз (`batching`)
 - Можна використовувати хак з встановленням для елемента, для якого ми хочемо зробити багато змін, `display: none` або просто склонувати його, зробити зміни і замінити оригінальний елемент новим зміненим. Так як поки елемента має значення властивості `display`: `none`, він в процесі `reflow` участі не бере
 - Не модифікувати живий `DOM` в циклах
-- Зважати, що `HTMLCollection` - це "живий" об'єкт, що оновлюється на кожне звернення через `DOM api` до елементів `DOM` дерева. А оновлюється він за рахунок `reflow`
+- Зважати, що `HTMLCollection` - це "живий" об'єкт, що оновлюється на кожне звернення через `DOM API` до елементів `DOM` дерева. А оновлюється він за рахунок `reflow`
 - Використовувати CSS-анімації, так як вони не запускають `reflow`, лише `repaint`, який є досить малозатратним процесом з точки зору продуктивності
 - Використовувати `requestAnimationFrame` для керованих анімацій
 - Використовувати `will-change` для CSS властивостей, які будуть змінюватися для залучення оптимізації анімацій. Таким чином ми вказувати браузеру, які властивості ми плануємо анімувати
