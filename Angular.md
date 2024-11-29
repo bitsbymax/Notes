@@ -13,6 +13,7 @@
 
 Приклад декораторів:
 
+
 ```javascript
 @NgModule({
   declarations: [],
@@ -399,11 +400,11 @@ _Angular_ вже використовує _`ng-template`_ під капотом 
 
 І це очікувана поведінка, бо використовуючи _`ng-template`_ ми лише визначаємо темплейт але ще не використовуємо ніде.
 
-- We use the _`<ng-template>`_ because much like it's HTML5 counterpart `<template>`, it's also considered “virtual”.
+- We use the _`<ng-template>`_ because much like it's HTML5 counterpart `<template>`, it's also considered "virtual".
 
-- Being “virtual” means the _`<ng-template>`_ contents won't actually exist in the compiled DOM, until it's needed (you will never see it until Angular renders it).
+- Being "virtual" means the _`<ng-template>`_ contents won't actually exist in the compiled DOM, until it's needed (you will never see it until Angular renders it).
 
-- When it's needed (for example the “else” expression kicks into play), Angular will grab the contents of the _`<ng-template>`_ tag, and replace the _`*ngIf`_ contents with it. That's it.
+- When it's needed (for example the "else" expression kicks into play), Angular will grab the contents of the _`<ng-template>`_ tag, and replace the _`*ngIf`_ contents with it. That's it.
 
 ---
 
@@ -1013,7 +1014,7 @@ In Angular, the _`providedIn`_ property is used in the _`@Injectable`_ decorator
   export class MyService {}
   ```
 
-These options allow you to control the scope and lifecycle of your services, optimizing your application’s performance and organization.
+These options allow you to control the scope and lifecycle of your services, optimizing your application's performance and organization.
 
 ---
 
@@ -1053,7 +1054,7 @@ class UserComponent {
     );
   ```
 
-  It’s worth remembering that the inject function can only be used inside an injection context. This means
+  It's worth remembering that the inject function can only be used inside an injection context. This means
 
   - Within a _`constructor`_,
   - As a _`definition`_ of a class field,
@@ -1153,13 +1154,13 @@ class UserComponent {
 
 ### How does the Angular Injector work?
 
-An abstraction called **`Injector`** is responsible for resolving dependencies. It can store an instance of a required dependency. If it already exists, it’s passed onto the consumer. Otherwise, a new instance is created and passed as a constructor parameter and stored in memory. Every dependency inside an `Injector` is a _`singleton`_ — which means there’s always only one instance.
+An abstraction called **`Injector`** is responsible for resolving dependencies. It can store an instance of a required dependency. If it already exists, it's passed onto the consumer. Otherwise, a new instance is created and passed as a constructor parameter and stored in memory. Every dependency inside an `Injector` is a _`singleton`_ — which means there's always only one instance.
 
 > Angular Injector є чудовим прикладом абстракції в програмуванні. Він відповідає за надання залежностей компонентам та сервісам, приховуючи деталі створення та управління цими залежностями.
 >
 > Інжектор в Angular є частиною системи Dependency Injection (DI). Коли компонент або сервіс потребує залежність, він оголошує її у своєму конструкторі. Інжектор відповідає за створення та надання цієї залежності.
 
-To better demonstrate this process, let’s create a simple example. Let’s assume that we have a class representing some service:
+To better demonstrate this process, let's create a simple example. Let's assume that we have a class representing some service:
 
 ```typescript
 class SomeService {
@@ -1562,7 +1563,7 @@ export const ROUTES: Route[] = [
   @Injectable(options?: ({ providedIn: Type<any> | "root" | "platform" | "any" | null }) & InjectableProvider)
   ```
 
-  > To achieve better optimization, it’s recommended to use the _`@Injectable`_ decorator. Such a definition makes dependencies _`tree-shakeable`_ — they are removed from bundled files if they haven’t been used.
+  > To achieve better optimization, it's recommended to use the _`@Injectable`_ decorator. Such a definition makes dependencies _`tree-shakeable`_ — they are removed from bundled files if they haven't been used.
 
 - `Module Injector` — in module-based applications, this injector stores global dependencies decorated with _`@Injectable`_ and having **providedIn** set to **"root"** or **"platform"**. Additionally, it keeps track of dependencies defined in the _`providers`_ array within _`@NgModule`_. During compilation, Angular also recursively registers dependencies from eagerly loaded modules. Child hierarchies of _`Module Injector`_ are created by lazy loaded modules.
 
@@ -1573,8 +1574,8 @@ export const ROUTES: Route[] = [
 #### Injectors Hierarchy
 
 - If a component requires a dependency, Angular first looks for it in the `node (element) injector` of the component.
-- If it isn’t defined in the providers array, then the framework looks at the parent component. This process repeats for as long as Angular finds a dependency in an ancestor.
-- If the dependency isn’t found, the next phase is searching in the `environment injector` (or the `module injector` in the case of module-based applications), and then the `environment root injector`.
+- If it isn't defined in the providers array, then the framework looks at the parent component. This process repeats for as long as Angular finds a dependency in an ancestor.
+- If the dependency isn't found, the next phase is searching in the `environment injector` (or the `module injector` in the case of module-based applications), and then the `environment root injector`.
 - Finally, the `platform injector` is checked.
 - If Angular reaches the `null injector` an error is thrown.
 
@@ -1902,7 +1903,7 @@ export const APP_CONFIG = new InjectionToken<AppConfig>('app config', {
 
 Another parameter we can configure in the provider is **`multi`**. Setting its value to _`true`_ allows us to bind multiple dependencies to a single token and return them as an array. This prevents the default behavior of overwriting dependencies.
 
-To illustrate this, let’s create a token to which we will then assign two values. Here is the result we get:
+To illustrate this, let's create a token to which we will then assign two values. Here is the result we get:
 
 ```typescript
 export const LOCALE = new InjectionToken<string>('locale');
@@ -3579,7 +3580,7 @@ _`PipeName`_ додається в _`declarations`_ of _`@NgModule`_.
 
 _`PreloadAllModules`_ - говорить ангуляру про те, що потрібно завантажити всі бандли, створені _`loadChildren`_, одразу ж при ініціалізації кореневого/початкового модуля. При цьому сам початковий модуль, який теж завантажується як окремий бандл, залишається малим по розміру.
 
-- _`loadChildren`_ - спец. властивість яка говорить Ангуляру завантажувати модуль/компонент лише тоді, коли відбувається перехід за адресою в path. Ефект від використання цього методу полягає в тому, що код буде на цьому моменті поділений і все, що знаходиться за вказаним в _`loadChildren`_ шляхом(модуль і весь вміст в _`declarations[]`_) буде складено в окремий бандл який буде завантажений браузером і зпарсений тоді, коли юзер перейде за адресою з _`path`_ і не раніше
+- _`loadChildren`_ - спец. властивість яка говорить Ангуляру завантажувати модуль/компонент лише тоді, коли відбувається перехід за адресою в `path`. Ефект від використання цього методу полягає в тому, що код буде на цьому моменті поділений і все, що знаходиться за вказаним в _`loadChildren`_ шляхом(модуль і весь вміст в _`declarations[]`_) буде складено в окремий бандл який буде завантажений браузером і зпарсений тоді, коли юзер перейде за адресою з _`path`_ і не раніше.
 
 Загалом суть в тому, що такий модуль має бути ізольований, він не має мати зв'язків чи залежностей від інших модулів. Тобто такий модуль знає лише свою імплементацію і при завантажені має виконувати весь свій функціонал.
 
@@ -4068,7 +4069,7 @@ export class TodosComponent {
 
 Таким чином стан додатку знову буде зламано 🧨!
 
-#### Why can’t we just run the change detection for the component that is marked as dirty?
+#### Why can't we just run the change detection for the component that is marked as dirty?
 
 - Ми можемо це зробити за допомогою методу `detectChanges()` у класі `ChangeDetectorRef`.
 
@@ -4086,7 +4087,7 @@ export class TodosComponent {
 
 Ось чому ми повинні використовувати `markForCheck()` замість `detectChanges()`.
 
-#### Can’t we schedule `detectChanges()` in the next browser task?
+#### Can't we schedule `detectChanges()` in the next browser task?
 
 - Можемо, це те, що робить `push pipe` або директива `rxLet` з `rx-angular`. Вона планує запуск `cd` механізму на наступному завданні браузера.
 - Але це погана ідея робити це для кожного компонента. Тому що, якщо у нас є список зі 100 елементів і ми заплануємо виявлення змін для кожного елемента, у нас буде створено 100 завдань для браузера. І це також не добре для продуктивності.
@@ -4209,7 +4210,7 @@ export function markViewForRefresh(lView: LView) {
 
 ---
 
-### Zoneless Angular — Let’s remove zone.js from Angular
+### Zoneless Angular — Let's remove zone.js from Angular
 
 ## Signals
 
