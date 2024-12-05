@@ -13,7 +13,6 @@
 
 Приклад декораторів:
 
-
 ```javascript
 @NgModule({
   declarations: [],
