@@ -21,20 +21,12 @@
 2. **`Shift-Option-↑↓`** - duplicate line
 3. **`Option-↑↓`** - moving line up/down\
 4. **`Option-Cmd-↑↓`** - add cursor above/below
-5. **`Option-Space`** - suggestions
-6. **`Shift-Cmd-D`** - delete whole line
+5. **`Option-Space`** - suggestions (custom)
+6. **`Shift-Cmd-D`** - delete whole line (custom)
 7. **`🌐Fn-↑↓`** - scroll in document
 8. **`Shift-Option-F`** - format document
-9. **`Shift-Option-X`** - select all occurrences
-10. **`Cmd-J`** - terminal
-11. **`Option-Cmd- ←|→`** - moving between tabs
-12. **`Shift-Cmd-O`** - all chapters of the Markdown (edit mode)
-13. **`Option-Cmd- ←|→`** - move focus between groups
-14. **`Ctrl-Cmd- ←|→`** - move tab between groups
-15. **`Shift-Ctrl- ←|→`** - expand selection up and down
-16. **`Shift-Ctrl-W`**- wrap with abbreviation
-17. **`Ctrl-Option-L`** - console.log
-
-## Flow
-
-1. **`Ctrl-Option-Cmd-F`** - start/stop timer
+9. **`Cmd-J`** - terminal
+10. **`Option-Cmd- ←|→`** - moving between tabs
+11. **`Ctrl-Cmd- ←|→`** - move tab between groups
+12. **`Ctrl-Shift-Cmd- →`** - expand selection up and down
+13. **`Ctrl-Option-L`** - console.log
