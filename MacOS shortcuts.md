@@ -18,15 +18,28 @@
 ## VSCode shortcuts
 
 1. **`Ctrl-R`** - open recent
-2. **`Shift-Option-↑↓`** - duplicate line
-3. **`Option-↑↓`** - moving line up/down\
+2. **`Ctrl-Shift-Option-↑↓`** - copy line (custom)
+3. **`Ctrl-Option-↑↓`** - moving line up/down (custom)
 4. **`Option-Cmd-↑↓`** - add cursor above/below
 5. **`Option-Space`** - suggestions (custom)
 6. **`Shift-Cmd-D`** - delete whole line (custom)
-7. **`🌐Fn-↑↓`** - scroll in document
-8. **`Shift-Option-F`** - format document
-9. **`Cmd-J`** - terminal
-10. **`Option-Cmd- ←|→`** - moving between tabs
-11. **`Ctrl-Cmd- ←|→`** - move tab between groups
-12. **`Ctrl-Shift-Cmd- →`** - expand selection up and down
-13. **`Ctrl-Option-L`** - console.log
+7. **`Shift-Option-F`** - format document
+8. **`Cmd-J`** - terminal
+9. **`Option-Cmd- ←|→`** - moving between tabs
+10. **`Ctrl-Cmd- ←|→`** - move tab between groups
+11. **`Ctrl-Shift-Cmd- →`** - expand selection up and down
+12. **`Ctrl-Option-L`** - console.log (extension)
+13. **`Ctrl-Cmd-W`** - focus next editor group (custom)
+14. **`Option-Tab`** - open previously used tab (custom)
+15. **`Cmd-K-Cmd-F`** - toggle maximized editor group (custom)
+16. **`Cmd-K-Enter`** - switch off preview mode for the tab
+17. **`Ctrl-Cmd-S`** - toggle editor tab size (custom)
+18. **`Ctrl-]|[`** - go back/forward (custom) 
+19. **`Shift-Cmd-\`** - go to first/last bracket 
+20. **`Cmd-]|[`** - indent line 
+21. **`Ctrl-W`** - select window to open 
+22. **`Ctrl-K`** - delete all right
+23. **`Cmd-Backspace`** - delete all left 
+24. **`Shift-Option-↑↓`** - indentation level select up/down
+25. **`Shift-Cmd-↑↓`** - cursor select top/bottom
+26. **`Ctrl-Cmd-K`** - kill active terminal instance (custom)
