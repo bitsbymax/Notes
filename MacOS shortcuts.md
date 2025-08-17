@@ -49,3 +49,4 @@
 30. **`Option-Cmd-[|]`** - fold/unfold code snippet
 31. **`Cmd-K-Shift-Enter`** - pin editor
 32. **`Shift-Cmd-O`** - go to symbol in editor
+33. test
