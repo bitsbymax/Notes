@@ -32,14 +32,20 @@
 13. **`Ctrl-Cmd-W`** - focus next editor group (custom)
 14. **`Option-Tab`** - open previously used tab (custom)
 15. **`Cmd-K-Cmd-F`** - toggle maximized editor group (custom)
-16. **`Cmd-K-Enter`** - switch off preview mode for the tab
+16. **`Cmd-K-Enter`** - switch off preview mode for the tab (keep editor)
 17. **`Ctrl-Cmd-S`** - toggle editor tab size (custom)
-18. **`Ctrl-]|[`** - go back/forward (custom) 
-19. **`Shift-Cmd-\`** - go to first/last bracket 
-20. **`Cmd-]|[`** - indent line 
-21. **`Ctrl-W`** - select window to open 
+18. **`Ctrl-]|[`** - go back/forward (custom)
+19. **`Shift-Cmd-\`** - go to first/last bracket
+20. **`Cmd-]|[`** - indent line
+21. **`Ctrl-W`** - select window to open
 22. **`Ctrl-K`** - delete all right
-23. **`Cmd-Backspace`** - delete all left 
+23. **`Cmd-Backspace`** - delete all left
 24. **`Shift-Option-↑↓`** - indentation level select up/down
 25. **`Shift-Cmd-↑↓`** - cursor select top/bottom
 26. **`Ctrl-Cmd-K`** - kill active terminal instance (custom)
+27. **`Cmd-K-↑→↓←`** - focus editor group ab/be/ri/le
+28. **`Cmd-K-W`** - close all editors in group
+29. **`Cmd-K-K`** - close editor group
+30. **`Option-Cmd-[|]`** - fold/unfold code snippet
+31. **`Cmd-K-Shift-Enter`** - pin editor
+32. **`Shift-Cmd-O`** - go to symbol in editor
