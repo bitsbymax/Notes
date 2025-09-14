@@ -52,13 +52,13 @@ The _`Global Execution Context`_ is at the bottom of this stack and new _`Functi
 
 ---
 
-![alt text](Exec_Context_assets/Exec_Overall.png)
+![alt text](Exec_Overall.png)
 
 - When a function is invoked, a new `execution context` is created and pushed onto the call stack, which is actually just an _`execution context stack`_.
 - Execution context essentially defines the _environment_ in which our code is executed, and it contains many internal components that the engine uses to keep track of the _`execution flow`_ of that piece of code.
 - And execution context uses `Environment Records` to keep track and maintain the `Identifier bindings` that have been created for the _variable declarations_, _function declarations_, all the values within that context.
 
-  ![Execution_Context](Exec_Context_assets/Execution_Context.png)
+  ![Execution_Context](Execution_Context.png)
 
 Let's use this script as an example and see what happens behind the scenes whenever we run this script.
 
@@ -82,13 +82,13 @@ So first, as the script is loaded, the _`Global Execution Context`_ is created a
 
 - 1st, we have the **`creation phase`** in which memory space is set up for the _variable declarations_, _function declarations_, and so on within that context.
 
-  ![alt text](Exec_Context_assets/Global_exec_context1-1.png)
+  ![alt text](Global_exec_context1-1.png)
 
 ### Execution Phase
 
 - 2nd, we have the **`execution phase`** in which the _execution context_ is on the _call stack_ and the code is actually executed.
 
-  ![alt text](Exec_Context_assets/execution_phase-2.png)
+  ![alt text](execution_phase-2.png)
 
 The _`Global Execution Context`_ has many components, but for now, lets focus on the `Realm`, the `Lexical Environment`, and also the `Variable Environment` just to make it complete.
 
@@ -96,7 +96,7 @@ The _`Global Execution Context`_ has many components, but for now, lets focus on
 
 - The `Realm` points to a _Realm record_, and a _Realm_ is essentially an **isolated environment** in which our code runs. So, for example, in browsers, a new _Realm_ is created whenever we open a _new tab_, we _refresh a page_, for _service workers_, _web workers_, _iFrames_, and so on. So it's essentially just the _isolated environment_.
 
-  ![alt text](Exec_Context_assets/Realm.png)
+  ![alt text](Realm.png)
 
 And a `Realm` consists of several components, including the `Intrinsics`, the `Global Object`, and the `Global Environment Record`.
 
@@ -126,13 +126,13 @@ And lastly, we have the **`Global Environment Record`**.
 
 - And the _Global Environment Record_ again contains another `ObjectRecord`. So the _ObjectRecord_ is essentially just a **direct reference** to the _Global Object_ in this case.
 - So this is used by variables with the _`var`_ keyword and _`function declarations`_ on the global scope.
-  ![alt text](Exec_Context_assets/Global_object.png)
+  ![alt text](Global_object.png)
 
 ##### DeclarativeRecord
 
 - It also contains a `DeclarativeRecord` and this stores all _Identifier bindings_ declared with `let`, `const`, also `classes`.
   - Note that in a **`Function Execution Context`**, it, in addition, contains function `parameters` an `arguments` object that stores correspondences between indices and values of arguments passed to the function and information about the number of such arguments.
-    ![alt text](<Exec_Context_assets/Declarative record.png>)
+    ![alt text](<Declarative record.png>)
 
 ##### GlobalThisValue
 
@@ -173,7 +173,7 @@ greet(firstName);
 
 - And this again uses the **`DeclarativeRecord`** to handle the _identifier bindings_ created with the `const` keyword.
 
-  ![alt text](Exec_Context_assets/1.png)
+  ![alt text](1.png)
 
   > And something and special about variables created with the `const` and `let` keyword, and also `classes`, is that they are _uninitialized_.
   > Meaning that memory space is set up, they're **hoisted**, but they don't have a value yet. They are _uninitialized_. They're only initialized during the **execution phase** of the _execution context_.
@@ -181,44 +181,44 @@ greet(firstName);
 - So then on line 2, pretty similar. We have the `lastName` variable, and this time, we use the `let` keyword. So it again uses the _**Lexical Environment**_, which points to the _Global Environment Record_, which again uses the _**DeclarativeRecord**_ to store this binding. And similar to `const`, it is uninitialized until the **execution phase**.
 
 - And then we have the _function_ `greet`, and `function declarations` are managed by the **`ObjectRecord`**. And in contrast to the two previous variables, _functions are initialized during the creation phase_.
-  ![alt text](Exec_Context_assets/Func_Exec_1.png)
+  ![alt text](Func_Exec_1.png)
   So a new **`Function Object`** is created for `greet`.
 - And _function objects_ contain many properties, two of which are the _`Environment`_, which points to the environment record in which the function was declared. So in this case, the _Global Environment Record_.
-  ![alt text](Exec_Context_assets/2.png)
+  ![alt text](2.png)
 - And it also has the _`Call`_ method, which gets called whenever we invoke the function.
 
 ### Execution phase
 
-![alt text](Exec_Context_assets/CallStack_Exec.png)
+![alt text](CallStack_Exec.png)
 
 - So now the _`Global Execution Context`_ is added to the `call stack` and is executed.
 - So, again, on the first line, we have the `firstName` variable. So now this variable gets initialized with the value of the string 'Lydia'. And then on the second line, we have the `lastName` variable. So similar to the first one, it now gets initialized with the string, 'Hallie'.
 
 - And then we have the `greet` _function_, but this is already initialized in memory so nothing gets done here. Then on line 9, we actually invoke this function.
 - So the `Call` method on the _Function Object_ is called, and this, in turn, creates a new **`Function Execution Context`**. And you may have guessed, again, this execution context goes through **two phases**. So the _`creation phase`_ and the _`execution phase`_.
-  ![alt text](Exec_Context_assets/CallStack_Func_Exec.png)
+  ![alt text](CallStack_Func_Exec.png)
 
 #### Function Execution Context - Creation Phase
 
 - So, in this case, the _`Lexical Environment`_ contains a brand new _Function Environment Record_, and this manages the _identifier bindings_ for the parameters, variables, and function declarations within this function.
 
 - And it also has an `OuterEnv` property. Again, the _Outer Environment_, which points to the environment of the _`Function Object`_, which, in this case, is the _Global Environment Record_. And unlike the _`Global Execution Context`_, we now have to deal with _function parameters_. So in this case, `nameToGreet`.
-  ![alt text](Exec_Context_assets/CallStack_Func1.png)
+  ![alt text](CallStack_Func1.png)
 
 - And these are immediately added to the _Function Environment Record_, and, also, these are immediately initialized with the value that we pass. So in this case, the string 'Lydia'.
 - Next, we declare the `fullName` with the `const` keyword. And this is also added to the _Function Environment Record_, but it is uninitialized until we get to the _`execution phase`_. So now that we've allocated memory for the _parameters_ and the _variables_, it's time for the _`execution phase`_.
 
 #### Function Execution Context - Execution Phase
 
-![alt text](Exec_Context_assets/Func_Exec_Exec_Phase.png)
+![alt text](Func_Exec_Exec_Phase.png)
 
 - So the _`Function Execution Context`_ is added onto the `call stack`. So first, we have the `fullName` variable, and this uses both the `nameToGreet` parameter value, but also the `lastName` variable.
 - Now the _Function Environment Record_ itself doesn't have a binding for `lastName`.
 - So instead, it uses the `OuterEnv` property on the _Environment Record_ to search through the chain of environments, the _scope chain_, to see if the _`OuterEnv`_ does have the binding for this. So in this case, that is the _Global Environment Record_, and, yes, this one does have `lastName`, which is 'Hallie'.
-  ![alt text](Exec_Context_assets/Outer_Env.png)
+  ![alt text](Outer_Env.png)
 
 - So now `fullName` is equal to the string 'Lydia Hallie', and then the function returns 'Hello, Lydia Hallie'.
-  ![alt text](Exec_Context_assets/return_from_func.png)
+  ![alt text](return_from_func.png)
   And as it returns, the _`Function Execution Context`_ is removed from the `call stack`. And the topmost _execution context_ is the currently running _execution context_, which is, again, the global one.
 - Now there is nothing else to do in our script. So now also the _`Global Execution Context`_ is removed from the `call stack`, which is the end of our script.
 
@@ -305,17 +305,17 @@ In this example, we try to call the `add` function before it's declared. Because
 
 - In this example, when we invoke `getFullName` , a new _`Function Execution Context`_ is created that has a brand new function _Environment Record_. And this function environment record's `OuterEnv` property points to the environment property on the _`Function object`_, which in this case is the `outer` function's _Environment Record_.
 
-  ![closure](Exec_Context_assets/Closure.png)
+  ![closure](Closure.png)
 
 - So within `inner`, we still have access to the `lastName` variable.
   So it'll traverse the _scope chain_ and `OuterEnv` pointing to the `outer` functions _environment record_, which contains a binding for `lastName`.
 
-  ![alt text](Exec_Context_assets/Closure_1.png)
+  ![alt text](Closure_1.png)
 
 ### Understanding Scope Chain
 
 - The engine traverses the `scope chain` (`OuterEnv` properties) to find a binding for a variable or property not found in the current context's _Lexical Environment Record_.
-  ![score chain](Exec_Context_assets/Scope_chain.png)
+  ![score chain](Scope_chain.png)
 
 - _Scope chain_ example:
 
